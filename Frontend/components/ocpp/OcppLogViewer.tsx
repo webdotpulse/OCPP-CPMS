@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { logger } from "@/lib/logger";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
@@ -88,7 +89,7 @@ export function OcppLogViewer() {
     const socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
-      console.log('Connected to OCPP logs WebSocket');
+      logger.info('Connected to OCPP logs WebSocket');
     };
 
     socket.onmessage = (event) => {
@@ -103,17 +104,17 @@ export function OcppLogViewer() {
           setIsLoading(false);
         }
       } catch (err) {
-        console.error('Error parsing WS message', err);
+        logger.error('Error parsing WS message', err);
       }
     };
 
     socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      logger.error('WebSocket error:', error);
       setIsLoading(false);
     };
 
     socket.onclose = () => {
-      console.log('WebSocket connection closed');
+      logger.info('WebSocket connection closed');
     };
 
     setWs(socket);
