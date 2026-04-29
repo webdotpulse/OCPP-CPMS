@@ -4,10 +4,10 @@
   </a>
 </p>
 
-<h1 align="center">Open-Source OCPP Charge Management System</h1>
+<h1 align="center">OCPP Charge Management System</h1>
 
 <p align="center">
-  A production-ready, full-stack <strong>OCPP 1.6 Charge Point Management System (CPMS)</strong> — open-sourced by <a href="https://savekar.com">Savekar</a>, India's community EV charging platform.
+  A production-ready, full-stack <strong>OCPP 1.6 Charge Point Management System (CPMS)</strong> EV charging platform.
 </p>
 
 <p align="center">
@@ -19,19 +19,6 @@
   <img alt="OCPP" src="https://img.shields.io/badge/OCPP-1.6-orange" />
   <a href="https://csms.savekar.com"><img alt="Live Demo" src="https://img.shields.io/badge/Live%20Demo-csms.savekar.com-brightgreen" /></a>
 </p>
-
----
-
-## 🚀 Try It Without Setup
-
-> **Don't want to set things up locally?**
-> You can explore a fully working instance of this CSMS — hosted by Savekar — at:
->
-> ### 👉 [csms.savekar.com](https://csms.savekar.com/register-partner)
->
-> This cloud-hosted platform runs the exact same codebase and is a great way to evaluate the system before deploying it yourself.
->
-> *If you need help signing up for the demo, please visit this link - [Free Trial Tutorial](https://www.savekar.com/ocpp-cms/free-trial-tutorial)*
 
 ---
 
@@ -49,19 +36,6 @@
 - [Contributing](#contributing)
 - [About Savekar](#about-savekar)
 - [License](#license)
-
----
-
-## Overview
-
-This repository is a complete, open-source **Charge Point Management System (CPMS)** implementing the **OCPP 1.6 (JSON)** protocol. It was built by [Savekar](https://savekar.com) to power our real-world community EV charging network across India, and we are now sharing it with the broader open-source community.
-
-Whether you are:
-- An **EV charging operator** looking for a self-hostable backend,
-- A **developer** building OCPP tooling or integrations,
-- A **researcher or student** studying smart charging systems,
-
-...this project gives you a fully working, production-tested foundation to build on.
 
 ---
 
