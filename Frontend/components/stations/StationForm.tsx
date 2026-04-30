@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -29,7 +30,7 @@ const stationSchema = z.object({
 type StationFormValues = z.infer<typeof stationSchema>;
 
 interface StationFormProps {
-  initialData?: StationFormValues & { id: number };
+  initialData?: StationFormValues & { id: number, owner_id?: number };
 }
 
 export function StationForm({ initialData }: StationFormProps) {
@@ -60,7 +61,7 @@ export function StationForm({ initialData }: StationFormProps) {
       router.push('/stations');
       router.refresh();
     } catch (error) {
-      console.error("Failed to save station", error);
+      logger.error("Failed to save station", error);
       alert("Failed to save station. Please try again.");
     } finally {
       setIsLoading(false);

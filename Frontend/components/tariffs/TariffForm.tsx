@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,7 +44,7 @@ export function TariffForm({ initialData }: { initialData?: any }) {
       router.push('/tariffs');
       router.refresh();
     } catch (error: any) {
-      console.error("Failed to save tariff", error);
+      logger.error("Failed to save tariff", error);
       alert(error.response?.data?.error || "Failed to save tariff structure. (Note: API endpoint might be missing from backend)");
     } finally {
       setIsLoading(false);

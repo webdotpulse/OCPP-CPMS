@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
@@ -27,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
           return JSON.parse(userData);
         } catch (e) {
-          console.error('Failed to parse user data from localStorage', e);
+          logger.error('Failed to parse user data from localStorage', e);
         }
       }
     }

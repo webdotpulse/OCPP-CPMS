@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
@@ -26,7 +27,7 @@ export function LiveSessionsTable() {
         const response = await api.get('/dashboard/live-sessions');
         setSessions(response.data);
       } catch (error) {
-        console.error('Failed to fetch live sessions', error);
+        logger.error('Failed to fetch live sessions', error);
       } finally {
         setIsLoading(false);
       }

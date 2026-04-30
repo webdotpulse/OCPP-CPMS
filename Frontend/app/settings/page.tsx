@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -63,7 +64,7 @@ export default function SettingsPage() {
       await api.put('/auth/me', data);
       alert("Profile updated successfully!");
     } catch (error) {
-      console.error("Failed to update profile", error);
+      logger.error("Failed to update profile", error);
       alert("Failed to update profile. API might be missing.");
     } finally {
       setIsSavingProfile(false);
@@ -77,7 +78,7 @@ export default function SettingsPage() {
       alert("Password updated successfully!");
       passwordForm.reset();
     } catch (error) {
-      console.error("Failed to update password", error);
+      logger.error("Failed to update password", error);
       alert("Failed to update password. API might be missing.");
     } finally {
       setIsSavingPassword(false);

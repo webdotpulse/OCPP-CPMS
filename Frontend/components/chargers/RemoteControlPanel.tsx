@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useState } from "react";
 import { api } from "@/lib/api";
@@ -24,7 +25,7 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
       const response = await api.post(`/ocpp/${endpoint}`, { chargerId, ...payload });
       alert(`Command sent successfully: ${response.data.message || 'Accepted'}`);
     } catch (error: any) {
-      console.error(`Failed to send ${endpoint}`, error);
+      logger.error(`Failed to send ${endpoint}`, error);
       alert(error.response?.data?.error || `Failed to send ${endpoint} command`);
     } finally {
       setIsLoading(false);

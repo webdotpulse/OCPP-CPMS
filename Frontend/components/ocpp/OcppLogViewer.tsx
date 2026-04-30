@@ -1,8 +1,8 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { logger } from "@/lib/logger";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";

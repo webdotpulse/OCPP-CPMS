@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -42,7 +43,7 @@ export default function ChargerDetailPage() {
         const response = await api.get(`/chargers/${id}`);
         setCharger(response.data);
       } catch (error) {
-        console.error("Failed to fetch charger details", error);
+        logger.error("Failed to fetch charger details", error);
       } finally {
         setIsLoading(false);
       }

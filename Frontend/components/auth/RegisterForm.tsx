@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -44,7 +45,7 @@ export function RegisterForm() {
       });
       setSuccess(true);
     } catch (err: any) {
-      console.error('Registration error', err);
+      logger.error('Registration error', err);
       setError(err.response?.data?.error || 'Failed to create account');
     } finally {
       setIsLoading(false);

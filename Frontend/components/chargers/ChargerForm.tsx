@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -66,7 +67,7 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
         setStations(stationsRes.data);
         setTariffs(tariffsRes.data);
       } catch (error) {
-        console.error("Failed to fetch initial data", error);
+        logger.error("Failed to fetch initial data", error);
       }
     };
     fetchStations();
@@ -91,7 +92,7 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
       router.push('/chargers');
       router.refresh();
     } catch (error: any) {
-      console.error("Failed to save charger", error);
+      logger.error("Failed to save charger", error);
       alert(error.response?.data?.error || "Failed to save charger.");
     } finally {
       setIsLoading(false);

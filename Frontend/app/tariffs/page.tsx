@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -21,7 +22,7 @@ export default function TariffsPage() {
       setTariffs(response.data);
       setApiError(false);
     } catch (error) {
-      console.error("Failed to fetch tariffs", error);
+      logger.error("Failed to fetch tariffs", error);
       setApiError(true);
     } finally {
       setIsLoading(false);
@@ -38,7 +39,7 @@ export default function TariffsPage() {
       await api.delete(`/tariffs/${id}`);
       setTariffs(tariffs.filter(t => t.tariff_id !== id));
     } catch (error) {
-      console.error("Failed to delete tariff", error);
+      logger.error("Failed to delete tariff", error);
       alert("Error deleting tariff.");
     }
   };

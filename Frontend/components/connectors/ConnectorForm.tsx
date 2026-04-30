@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -48,7 +49,7 @@ export function ConnectorForm({ initialData }: { initialData?: any }) {
         const response = await api.get('/chargers');
         setChargers(response.data);
       } catch (error) {
-        console.error("Failed to fetch chargers", error);
+        logger.error("Failed to fetch chargers", error);
       }
     };
     fetchChargers();
@@ -69,7 +70,7 @@ export function ConnectorForm({ initialData }: { initialData?: any }) {
       router.back(); // Or router.push('/connectors')
       router.refresh();
     } catch (error: any) {
-      console.error("Failed to save connector", error);
+      logger.error("Failed to save connector", error);
       alert(error.response?.data?.error || "Failed to save connector.");
     } finally {
       setIsLoading(false);

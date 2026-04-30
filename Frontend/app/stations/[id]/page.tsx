@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -51,7 +52,7 @@ export default function StationDetailPage() {
           chargers: chargersRes.data
         });
       } catch (error) {
-        console.error("Failed to fetch station details", error);
+        logger.error("Failed to fetch station details", error);
       } finally {
         setIsLoading(false);
       }

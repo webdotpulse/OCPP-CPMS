@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -60,7 +61,7 @@ export function RfidForm({ initialData }: { initialData?: any }) {
       router.push('/rfid');
       router.refresh();
     } catch (error: any) {
-      console.error("Failed to save RFID tag", error);
+      logger.error("Failed to save RFID tag", error);
       alert(error.response?.data?.error || "Failed to save RFID tag.");
     } finally {
       setIsLoading(false);

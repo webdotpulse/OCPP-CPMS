@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -38,7 +39,7 @@ export function LoginForm() {
       const { token, user } = response.data;
       login(token, user);
     } catch (err: any) {
-      console.error('Login error', err);
+      logger.error('Login error', err);
       setError(err.response?.data?.error || 'Invalid email or password');
     } finally {
       setIsLoading(false);

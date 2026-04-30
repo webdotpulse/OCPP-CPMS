@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -20,7 +21,7 @@ export default function EditTariffPage() {
         const response = await api.get(`/tariffs/${id}`);
         setInitialData(response.data);
       } catch (error) {
-        console.error("Failed to fetch tariff", error);
+        logger.error("Failed to fetch tariff", error);
         alert("Failed to load tariff data.");
       } finally {
         setIsLoading(false);

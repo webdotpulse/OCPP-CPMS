@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
@@ -26,7 +27,7 @@ export function RfidSessionHistory({ rfidUserId }: { rfidUserId: number }) {
         const response = await api.get(`/transactions/rfid/${rfidUserId}`);
         setSessions(response.data);
       } catch (error) {
-        console.error("Failed to fetch session history", error);
+        logger.error("Failed to fetch session history", error);
       } finally {
         setIsLoading(false);
       }

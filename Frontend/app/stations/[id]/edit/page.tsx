@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -24,7 +25,7 @@ export default function EditStationPage() {
           longitude: Number(response.data.longitude),
         });
       } catch (error) {
-        console.error("Failed to fetch station", error);
+        logger.error("Failed to fetch station", error);
         alert("Failed to load station.");
       } finally {
         setIsLoading(false);

@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -18,7 +19,7 @@ export default function ActiveSessionsPage() {
       const response = await api.get('/dashboard/live-sessions');
       setSessions(response.data);
     } catch (error) {
-      console.error("Failed to fetch active sessions", error);
+      logger.error("Failed to fetch active sessions", error);
     } finally {
       setIsLoading(false);
     }
@@ -36,7 +37,7 @@ export default function ActiveSessionsPage() {
       await api.post(`/ocpp/remote-stop`, { transactionId, chargerId });
       alert("Remote stop command sent.");
     } catch (error: any) {
-      console.error("Failed to stop transaction", error);
+      logger.error("Failed to stop transaction", error);
       alert(error.response?.data?.error || "Failed to send command.");
     }
   };

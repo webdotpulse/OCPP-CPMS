@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -20,7 +21,7 @@ export default function EditRfidPage() {
         const response = await api.get(`/rfid/${id}`);
         setInitialData(response.data);
       } catch (error) {
-        console.error("Failed to fetch RFID tag", error);
+        logger.error("Failed to fetch RFID tag", error);
         alert("Failed to load tag.");
       } finally {
         setIsLoading(false);

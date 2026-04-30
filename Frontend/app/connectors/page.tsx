@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -18,7 +19,7 @@ export default function ConnectorsPage() {
       const response = await api.get('/connectors');
       setConnectors(response.data);
     } catch (error) {
-      console.error("Failed to fetch connectors", error);
+      logger.error("Failed to fetch connectors", error);
     } finally {
       setIsLoading(false);
     }
@@ -34,7 +35,7 @@ export default function ConnectorsPage() {
       await api.delete(`/connectors/${id}`);
       setConnectors(connectors.filter(c => c.connector_id !== id));
     } catch (error) {
-      console.error("Failed to delete connector", error);
+      logger.error("Failed to delete connector", error);
       alert("Error deleting connector.");
     }
   };

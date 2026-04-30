@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -29,7 +30,7 @@ export default function StationsPage() {
       const response = await api.get('/stations');
       setStations(response.data);
     } catch (error) {
-      console.error("Failed to fetch stations", error);
+      logger.error("Failed to fetch stations", error);
     } finally {
       setIsLoading(false);
     }
@@ -45,7 +46,7 @@ export default function StationsPage() {
       await api.delete(`/stations/${id}`);
       setStations(stations.filter(s => s.id !== id));
     } catch (error) {
-      console.error("Failed to delete station", error);
+      logger.error("Failed to delete station", error);
       alert("Error deleting station.");
     }
   };

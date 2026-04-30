@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
@@ -38,7 +39,7 @@ export function ConnectorDistribution() {
           setData([]);
         }
       } catch (error) {
-        console.error('Failed to fetch distribution metrics', error);
+        logger.error('Failed to fetch distribution metrics', error);
       } finally {
         setIsLoading(false);
       }

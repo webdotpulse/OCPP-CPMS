@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -20,7 +21,7 @@ export default function EditConnectorPage() {
         const response = await api.get(`/connectors/${id}`);
         setInitialData(response.data);
       } catch (error) {
-        console.error("Failed to fetch connector", error);
+        logger.error("Failed to fetch connector", error);
         alert("Failed to load connector.");
       } finally {
         setIsLoading(false);

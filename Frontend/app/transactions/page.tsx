@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -36,7 +37,7 @@ export default function TransactionsPage() {
         setTransactions([]);
       }
     } catch (error) {
-      console.error("Failed to fetch transactions", error);
+      logger.error("Failed to fetch transactions", error);
     } finally {
       setIsLoading(false);
     }

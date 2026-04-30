@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -20,7 +21,7 @@ export default function EditChargerPage() {
         const response = await api.get(`/chargers/${id}`);
         setInitialData(response.data);
       } catch (error) {
-        console.error("Failed to fetch charger", error);
+        logger.error("Failed to fetch charger", error);
         alert("Failed to load charger.");
       } finally {
         setIsLoading(false);

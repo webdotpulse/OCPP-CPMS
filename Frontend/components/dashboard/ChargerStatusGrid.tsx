@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
@@ -33,7 +34,7 @@ export function ChargerStatusGrid() {
         const response = await api.get('/dashboard/chargers-status');
         setChargers(response.data);
       } catch (error) {
-        console.error('Failed to fetch charger status grid', error);
+        logger.error('Failed to fetch charger status grid', error);
       } finally {
         setIsLoading(false);
       }

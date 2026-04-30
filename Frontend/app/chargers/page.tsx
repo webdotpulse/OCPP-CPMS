@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -19,7 +20,7 @@ export default function ChargersPage() {
       const response = await api.get('/chargers');
       setChargers(response.data);
     } catch (error) {
-      console.error("Failed to fetch chargers", error);
+      logger.error("Failed to fetch chargers", error);
     } finally {
       setIsLoading(false);
     }
@@ -35,7 +36,7 @@ export default function ChargersPage() {
       await api.delete(`/chargers/${id}`);
       setChargers(chargers.filter(c => c.charger_id !== id));
     } catch (error) {
-      console.error("Failed to delete charger", error);
+      logger.error("Failed to delete charger", error);
       alert("Error deleting charger.");
     }
   };

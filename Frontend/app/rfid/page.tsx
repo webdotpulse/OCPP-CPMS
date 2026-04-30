@@ -1,4 +1,5 @@
 "use client";
+import { logger } from "@/lib/logger";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -28,7 +29,7 @@ export default function RfidPage() {
       const response = await api.get('/rfid');
       setTags(response.data);
     } catch (error) {
-      console.error("Failed to fetch RFID tags", error);
+      logger.error("Failed to fetch RFID tags", error);
     } finally {
       setIsLoading(false);
     }
@@ -44,7 +45,7 @@ export default function RfidPage() {
       await api.delete(`/rfid/${id}`);
       setTags(tags.filter(t => t.rfid_user_id !== id));
     } catch (error) {
-      console.error("Failed to delete RFID tag", error);
+      logger.error("Failed to delete RFID tag", error);
       alert("Error deleting tag.");
     }
   };
@@ -54,7 +55,7 @@ export default function RfidPage() {
       await api.patch(`/rfid/${id}/toggle`);
       setTags(tags.map(t => t.rfid_user_id === id ? { ...t, active: !t.active } : t));
     } catch (error) {
-      console.error("Failed to toggle RFID status", error);
+      logger.error("Failed to toggle RFID status", error);
       alert("Error updating tag status.");
     }
   };
