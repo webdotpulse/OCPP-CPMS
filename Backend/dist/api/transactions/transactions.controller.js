@@ -1,19 +1,24 @@
 import { prisma } from "../../config/database.js";
 import { logger } from "../../utils/logger.js";
+import { parseId, parsePagination } from "../../utils/validation.js";
 /**
  * GET /api/transactions - Get all transactions (basic and RFID sessions)
  */
 export const getAllTransactions = async (req, res) => {
     try {
-        const { page = 1, limit = 50, status, chargerId } = req.query;
-        const skip = (Number(page) - 1) * Number(limit);
-        const take = Number(limit);
+        const { page: queryPage, limit: queryLimit, status, chargerId } = req.query;
+        const { page, limit } = parsePagination(queryPage, queryLimit);
+        const skip = (page - 1) * limit;
+        const take = limit;
         const where = {};
         if (status) {
             where.status = status;
         }
         if (chargerId) {
-            where.charger_id = Number(chargerId);
+            const parsedChargerId = parseId(chargerId);
+            if (parsedChargerId) {
+                where.charger_id = parsedChargerId;
+            }
         }
         const [transactions, total] = await Promise.all([
             prisma.transaction.findMany({
@@ -90,7 +95,13 @@ export const getActiveTransactions = async (req, res) => {
  */
 export const getChargerTransactions = async (req, res) => {
     try {
-        const charger_id = parseInt(req.params.chargerId);
+        const charger_id = parseId(req.params.chargerId);
+        if (!charger_id) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid charger ID",
+            });
+        }
         const [transactions, rfidSessions] = await Promise.all([
             prisma.transaction.findMany({
                 where: { charger_id },
@@ -184,7 +195,13 @@ export const getTransactionStats = async (req, res) => {
  */
 export const getTransactionById = async (req, res) => {
     try {
-        const transactionId = parseInt(req.params.id);
+        const transactionId = parseId(req.params.id);
+        if (!transactionId) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid transaction ID",
+            });
+        }
         const transaction = await prisma.transaction.findUnique({
             where: { id: transactionId },
             include: { charger: { include: { chargingStation: true } } },
@@ -210,7 +227,13 @@ export const getTransactionById = async (req, res) => {
  */
 export const getRfidSessionById = async (req, res) => {
     try {
-        const sessionId = parseInt(req.params.id);
+        const sessionId = parseId(req.params.id);
+        if (!sessionId) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid session ID",
+            });
+        }
         const rfidSession = await prisma.rfidSession.findUnique({
             where: { id: sessionId },
             include: {

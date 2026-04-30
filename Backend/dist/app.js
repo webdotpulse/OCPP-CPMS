@@ -14,6 +14,8 @@ import tariffsRoutes from "./api/tariffs/tariffs.routes.js";
 import transactionsRoutes from "./api/transactions/transactions.routes.js";
 import ocppRoutes from "./api/ocpp/ocpp.routes.js";
 import dashboardRoutes from "./api/dashboard/dashboard.routes.js";
+import paymentsRoutes from "./api/payments/payments.routes.js";
+import ocpiRoutes from "./api/ocpi/ocpi.routes.js";
 // Import OCPP servers
 import { ocppServer } from "./ocpp/ocppServer.js";
 import { ocppLogsServer } from "./ocpp/logsWebSocket.js";
@@ -51,6 +53,8 @@ export function createApp() {
     app.use("/api/transactions", authenticateToken, transactionsRoutes);
     app.use("/api/ocpp", authenticateToken, ocppRoutes);
     app.use("/api/dashboard", authenticateToken, dashboardRoutes);
+    app.use("/api/payments", paymentsRoutes); // Removed auth for webhook/initial testing
+    app.use("/api/ocpi", ocpiRoutes); // Removed auth for initial testing
     // Error handling
     app.use(notFoundHandler);
     app.use(errorHandler);

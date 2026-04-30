@@ -1,13 +1,15 @@
 import { prisma } from "../../config/database.js";
 import { logger } from "../../utils/logger.js";
+import { parseId, parsePagination } from "../../utils/validation.js";
 /**
  * GET /api/rfid - Get all RFID users
  */
 export const getAllRfidUsers = async (req, res) => {
     try {
-        const { page = 1, limit = 50, active, search } = req.query;
-        const skip = (Number(page) - 1) * Number(limit);
-        const take = Number(limit);
+        const { page: queryPage, limit: queryLimit, active, search } = req.query;
+        const { page, limit } = parsePagination(queryPage, queryLimit);
+        const skip = (page - 1) * limit;
+        const take = limit;
         const where = {};
         if (active !== undefined) {
             where.active = active === "true";
@@ -53,7 +55,13 @@ export const getAllRfidUsers = async (req, res) => {
  */
 export const getRfidUserById = async (req, res) => {
     try {
-        const rfidUserId = parseInt(req.params.id);
+        const rfidUserId = parseId(req.params.id);
+        if (!rfidUserId) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid RFID user ID",
+            });
+        }
         const rfidUser = await prisma.rfidUser.findUnique({
             where: { rfid_user_id: rfidUserId },
             include: {
@@ -130,7 +138,13 @@ export const createRfidUser = async (req, res) => {
  */
 export const updateRfidUser = async (req, res) => {
     try {
-        const rfidUserId = parseInt(req.params.id);
+        const rfidUserId = parseId(req.params.id);
+        if (!rfidUserId) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid RFID user ID",
+            });
+        }
         const data = req.body;
         const rfidUser = await prisma.rfidUser.update({
             where: { rfid_user_id: rfidUserId },
@@ -153,7 +167,13 @@ export const updateRfidUser = async (req, res) => {
  */
 export const toggleRfidUserStatus = async (req, res) => {
     try {
-        const rfidUserId = parseInt(req.params.id);
+        const rfidUserId = parseId(req.params.id);
+        if (!rfidUserId) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid RFID user ID",
+            });
+        }
         const { active } = req.query;
         if (active === undefined) {
             return res.status(400).json({
@@ -182,7 +202,13 @@ export const toggleRfidUserStatus = async (req, res) => {
  */
 export const deleteRfidUser = async (req, res) => {
     try {
-        const rfidUserId = parseInt(req.params.id);
+        const rfidUserId = parseId(req.params.id);
+        if (!rfidUserId) {
+            return res.status(400).json({
+                success: false,
+                error: "Invalid RFID user ID",
+            });
+        }
         await prisma.rfidUser.delete({
             where: { rfid_user_id: rfidUserId },
         });
