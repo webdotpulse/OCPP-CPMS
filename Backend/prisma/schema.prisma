@@ -174,3 +174,28 @@ model Tariff {
 
   chargers Charger[]
 }
+
+// Payment Transactions (for Stripe, Mollie, etc.)
+model PaymentTransaction {
+  id              Int      @id @default(autoincrement())
+  transactionId   Int      @unique
+  provider        String   // "stripe", "mollie", etc.
+  paymentIntentId String?  // ID from provider
+  amount          Float
+  currency        String   @default("EUR")
+  status          String   @default("pending") // "pending", "succeeded", "failed"
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// OCPI Endpoints for roaming
+model OcpiEndpoint {
+  id              Int      @id @default(autoincrement())
+  name            String
+  url             String
+  token           String   // Token used for auth
+  version         String   @default("2.2.1")
+  status          String   @default("active")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

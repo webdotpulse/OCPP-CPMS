@@ -57,6 +57,14 @@ SSH into your VM and update packages:
 sudo apt update && sudo apt upgrade -y
 ```
 
+**Configure UFW Firewall (Recommended):**
+It's a best practice to enable UFW and only allow necessary ports.
+```bash
+sudo ufw allow OpenSSH
+sudo ufw allow 'Nginx Full'
+sudo ufw enable
+```
+
 ### 2.2 Install Prerequisites
 
 **Install Node.js (v20+) & PM2:**
@@ -131,11 +139,15 @@ npm run build
 pm2 start npm --name "ocpp-frontend" -- start
 ```
 
-Save the PM2 process list so it restarts on reboot:
+Save the PM2 process list so it restarts on reboot. We also install the PM2 log rotation module to prevent log files from taking up all disk space over time.
 ```bash
 pm2 save
 pm2 startup
 # Run the command PM2 outputs to setup systemd
+pm2 install pm2-logrotate
+pm2 set pm2-logrotate:max_size 50M
+pm2 set pm2-logrotate:compress true
+pm2 set pm2-logrotate:retain 14
 ```
 
 ### 2.4 Configure Nginx as a Reverse Proxy
@@ -195,7 +207,7 @@ server {
     server_name ui.mobilitypulse.com;
 
     location / {
-        proxy_pass http://localhost:3000; # NOTE: Update if Next.js runs on 3002
+        proxy_pass http://localhost:3002;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -204,7 +216,7 @@ server {
     }
 }
 ```
-*Note: Make sure the Frontend proxy_pass port matches the port your PM2 Next.js instance binds to (default is usually 3000, but if backend takes 3000, frontend might use 3002. Adjust PM2 startup commands or Nginx accordingly).*
+*Note: The frontend is explicitly configured to run on port 3002 in its package.json scripts to avoid conflicts with the backend.*
 
 Enable both sites:
 ```bash

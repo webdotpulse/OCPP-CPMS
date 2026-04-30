@@ -75,7 +75,9 @@ export const ModelName = {
     RfidSession: 'RfidSession',
     Transaction: 'Transaction',
     OcppLog: 'OcppLog',
-    Tariff: 'Tariff'
+    Tariff: 'Tariff',
+    PaymentTransaction: 'PaymentTransaction',
+    OcpiEndpoint: 'OcpiEndpoint'
 };
 /**
  * Enums
@@ -203,6 +205,27 @@ export const TariffScalarFieldEnum = {
     tariff_name: 'tariff_name',
     charge: 'charge',
     electricity_rate: 'electricity_rate',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+export const PaymentTransactionScalarFieldEnum = {
+    id: 'id',
+    transactionId: 'transactionId',
+    provider: 'provider',
+    paymentIntentId: 'paymentIntentId',
+    amount: 'amount',
+    currency: 'currency',
+    status: 'status',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+};
+export const OcpiEndpointScalarFieldEnum = {
+    id: 'id',
+    name: 'name',
+    url: 'url',
+    token: 'token',
+    version: 'version',
+    status: 'status',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
 };
