@@ -9,8 +9,76 @@ import {
   changeConfiguration,
   triggerMessage,
   getConnectedChargers as getConnected,
+  setChargingProfile,
+  clearChargingProfile,
 } from "../../ocpp/remoteControl.js";
-import type { RemoteStartRequest, RemoteStopRequest } from "../../types/index.js";
+import type { RemoteStartRequest, RemoteStopRequest, SetChargingProfileRequest, ClearChargingProfileRequest } from "../../types/index.js";
+
+/**
+ * POST /api/ocpp/set-charging-profile - Set charging profile on charger
+ */
+export const setChargingProfileController = async (req: Request, res: Response) => {
+  try {
+    const { chargerId, connectorId, csChargingProfiles } = req.body as SetChargingProfileRequest;
+
+    if (chargerId === undefined || connectorId === undefined || !csChargingProfiles) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required fields: chargerId, connectorId, csChargingProfiles",
+      });
+    }
+
+    const result = await setChargingProfile({ chargerId, connectorId, csChargingProfiles });
+
+    if (result.status === "Rejected") {
+      return res.status(400).json({
+        success: false,
+        error: result.error || "Set charging profile rejected",
+      });
+    }
+
+    res.json({ success: true, ...result });
+  } catch (error) {
+    logger.error(`Error setting charging profile: ${error}`);
+    res.status(500).json({
+      success: false,
+      error: "Failed to set charging profile",
+    });
+  }
+};
+
+/**
+ * POST /api/ocpp/clear-charging-profile - Clear charging profile on charger
+ */
+export const clearChargingProfileController = async (req: Request, res: Response) => {
+  try {
+    const request = req.body as ClearChargingProfileRequest;
+
+    if (request.chargerId === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required field: chargerId",
+      });
+    }
+
+    const result = await clearChargingProfile(request);
+
+    if (result.status === "Rejected") {
+      return res.status(400).json({
+        success: false,
+        error: result.error || "Clear charging profile rejected",
+      });
+    }
+
+    res.json({ success: true, ...result });
+  } catch (error) {
+    logger.error(`Error clearing charging profile: ${error}`);
+    res.status(500).json({
+      success: false,
+      error: "Failed to clear charging profile",
+    });
+  }
+};
 
 /**
  * GET /api/ocpp/connected - Get list of connected chargers

@@ -1,6 +1,6 @@
 import { chargerRegistry } from "./chargerRegistry.js";
 import { logger } from "../utils/logger.js";
-import type { RemoteStartRequest, RemoteStopRequest } from "../types/index.js";
+import type { RemoteStartRequest, RemoteStopRequest, SetChargingProfileRequest, ClearChargingProfileRequest } from "../types/index.js";
 
 // Generate unique message ID
 let messageIdCounter = 0;
@@ -211,6 +211,81 @@ export async function unlockConnector(
   } catch (error) {
     logger.error(`Error in unlockConnector: ${error}`);
     return { status: "Rejected" };
+  }
+}
+
+/**
+ * Send SetChargingProfile request to charger
+ * OCPP 1.6 CALL format: [2, messageId, "SetChargingProfile", payload]
+ */
+export async function setChargingProfile(
+  request: SetChargingProfileRequest
+): Promise<{ status: string; error?: string }> {
+  const { chargerId, connectorId, csChargingProfiles } = request;
+
+  try {
+    if (!(await chargerRegistry.isConnectedGlobally(chargerId))) {
+      return { status: "Rejected", error: "Charger not connected" };
+    }
+
+    const messageId = generateMessageId();
+    const message = [
+      2,  // MessageTypeId: CALL
+      messageId,
+      "SetChargingProfile",
+      {
+        connectorId,
+        csChargingProfiles,
+      }
+    ];
+
+    await chargerRegistry.publishCommand(chargerId, message);
+
+    logger.info(`SetChargingProfile sent to charger ${chargerId}, connector ${connectorId}`);
+
+    return { status: "Accepted" };
+  } catch (error) {
+    logger.error(`Error in setChargingProfile: ${error}`);
+    return { status: "Rejected", error: "Failed to send SetChargingProfile" };
+  }
+}
+
+/**
+ * Send ClearChargingProfile request to charger
+ * OCPP 1.6 CALL format: [2, messageId, "ClearChargingProfile", payload]
+ */
+export async function clearChargingProfile(
+  request: ClearChargingProfileRequest
+): Promise<{ status: string; error?: string }> {
+  const { chargerId, id, connectorId, chargingProfilePurpose, stackLevel } = request;
+
+  try {
+    if (!(await chargerRegistry.isConnectedGlobally(chargerId))) {
+      return { status: "Rejected", error: "Charger not connected" };
+    }
+
+    const messageId = generateMessageId();
+    const payload: any = {};
+    if (id !== undefined) payload.id = id;
+    if (connectorId !== undefined) payload.connectorId = connectorId;
+    if (chargingProfilePurpose !== undefined) payload.chargingProfilePurpose = chargingProfilePurpose;
+    if (stackLevel !== undefined) payload.stackLevel = stackLevel;
+
+    const message = [
+      2,  // MessageTypeId: CALL
+      messageId,
+      "ClearChargingProfile",
+      payload
+    ];
+
+    await chargerRegistry.publishCommand(chargerId, message);
+
+    logger.info(`ClearChargingProfile sent to charger ${chargerId}`);
+
+    return { status: "Accepted" };
+  } catch (error) {
+    logger.error(`Error in clearChargingProfile: ${error}`);
+    return { status: "Rejected", error: "Failed to send ClearChargingProfile" };
   }
 }
 

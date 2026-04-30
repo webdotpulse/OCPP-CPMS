@@ -150,6 +150,41 @@ export interface RemoteStopRequest {
   transactionId: number;
 }
 
+// Smart Charging Requests
+export interface SetChargingProfileRequest {
+  chargerId: number;
+  connectorId: number;
+  csChargingProfiles: {
+    chargingProfileId: number;
+    transactionId?: number;
+    stackLevel: number;
+    chargingProfilePurpose: "ChargePointMaxProfile" | "TxDefaultProfile" | "TxProfile";
+    chargingProfileKind: "Absolute" | "Recurring" | "Relative";
+    recurrencyKind?: "Daily" | "Weekly";
+    validFrom?: string; // ISO 8601 Date
+    validTo?: string; // ISO 8601 Date
+    chargingSchedule: {
+      duration?: number;
+      startSchedule?: string; // ISO 8601 Date
+      chargingRateUnit: "W" | "A";
+      chargingSchedulePeriod: Array<{
+        startPeriod: number;
+        limit: number;
+        numberPhases?: number;
+      }>;
+      minChargingRate?: number;
+    };
+  };
+}
+
+export interface ClearChargingProfileRequest {
+  chargerId: number;
+  id?: number;
+  connectorId?: number;
+  chargingProfilePurpose?: "ChargePointMaxProfile" | "TxDefaultProfile" | "TxProfile";
+  stackLevel?: number;
+}
+
 // Tariff DTOs
 export interface CreateTariffDto {
   tariff_name: string;
