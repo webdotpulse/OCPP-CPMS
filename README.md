@@ -1,6 +1,6 @@
 <p align="center">
-  <a href="https://savekar.com" target="_blank">
-    <img src="https://savekar.com/savekarwhite-logo.svg" alt="Savekar – India's Community EV Charging Platform" height="64" />
+  <a href="https://www.mobilitypulse.com" target="_blank">
+    <img src="https://www.mobilitypulse.com/assets/images/logo/logo.svg" alt="MobilityPulse – Community EV Charging Platform" height="64" style="max-width: 100%; height: auto; max-height: 64px;" />
   </a>
 </p>
 
@@ -35,7 +35,7 @@
 - [Configuration](#configuration)
 - [Connecting a Charger](#connecting-a-charger)
 - [Contributing](#contributing)
-- [About Savekar](#about-savekar)
+- [About MobilityPulse](#about-mobilitypulse)
 - [License](#license)
 
 ---
@@ -315,15 +315,15 @@ Found a bug or have a feature request? [Open an issue](https://github.com/saveka
 
 ---
 
-## About Savekar
+## About MobilityPulse
 
-**Savekar** is India's first WhatsApp + UPI EV charging platform — enabling property owners, housing societies, and businesses to monetize EV charging with our affordable, app-less CMS solution. Users can initiate charging sessions directly via WhatsApp with no downloads required.
+**MobilityPulse** is India's first WhatsApp + UPI EV charging platform — enabling property owners, housing societies, and businesses to monetize EV charging with our affordable, app-less CMS solution. Users can initiate charging sessions directly via WhatsApp with no downloads required.
 
 We open-source our core OCPP CMS so the broader EV ecosystem can benefit, innovate, and grow together.
 
 | | |
 |---|---|
-| 🌐 **Website** | [savekar.com](https://savekar.com) |
+| 🌐 **Website** | [mobilitypulse.com](https://www.mobilitypulse.com) |
 | ⚡ **Cloud CSMS** | [csms.savekar.com](https://csms.savekar.com) |
 | 🔬 **OCPI Simulator** | [GitHub](https://github.com/savekar-ev/Savekar-OCPI-2.2.1-EMSP-Simulator-Project) |
 | 📧 **Contact** | [savekarev@gmail.com](mailto:savekarev@gmail.com) |
@@ -339,5 +339,5 @@ This project is licensed under the **ISC License**. See the [LICENSE](./LICENSE)
 ---
 
 <p align="center">
-  Built with ❤️ by the <a href="https://savekar.com">Savekar</a> team &nbsp;|&nbsp; Powering India's EV Future
+  Built with ❤️ by the <a href="https://www.mobilitypulse.com">MobilityPulse</a> team &nbsp;|&nbsp; Powering India's EV Future
 </p>
