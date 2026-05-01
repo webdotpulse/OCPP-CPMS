@@ -7,6 +7,7 @@ This guide provides all the commands you need to set up the Open-Source OCPP 1.6
 Before starting, ensure you have:
 - **Node.js** 18 or higher
 - **PostgreSQL** database running locally or remotely
+- **Redis** server running locally or remotely
 
 ## Quick Setup Steps
 
@@ -55,6 +56,9 @@ OFFLINE_THRESHOLD_SECONDS=60
 
 # OCPP Logs WebSocket
 OCPP_LOG_WS_PORT=3001
+
+# Redis Configuration
+REDIS_URL="redis://localhost:6379"
 
 # JWT Secret (for API authentication)
 JWT_SECRET="your-jwt-secret-key-change-in-production"

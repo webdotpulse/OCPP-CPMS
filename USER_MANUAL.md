@@ -1,6 +1,6 @@
 # User Manual - Open-Source OCPP CMS Dashboard
 
-Welcome to the User Manual for the Open-Source OCPP 1.6 Charge Point Management System (CMS). This guide will help operators, administrators, and station managers understand how to navigate and utilize the web-based administrative dashboard.
+Welcome to the User Manual for the Open-Source OCPP 1.6 & 2.1/2.0.1 Charge Point Management System (CMS). This guide will help operators, administrators, and station managers understand how to navigate and utilize the web-based administrative dashboard.
 
 ## Table of Contents
 

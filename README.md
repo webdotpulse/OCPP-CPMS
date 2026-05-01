@@ -7,7 +7,7 @@
 <h1 align="center">OCPP Charge Management System</h1>
 
 <p align="center">
-  A production-ready, full-stack <strong>OCPP 1.6 Charge Point Management System (CPMS)</strong> EV charging platform.
+  A production-ready, full-stack <strong>OCPP 1.6 & 2.1/2.0.1 Charge Point Management System (CPMS)</strong> EV charging platform.
 </p>
 
 <p align="center">
@@ -16,7 +16,8 @@
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript" />
   <img alt="Next.js" src="https://img.shields.io/badge/Next.js-15%2B-black?logo=next.js" />
   <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-15%2B-blue?logo=postgresql" />
-  <img alt="OCPP" src="https://img.shields.io/badge/OCPP-1.6-orange" />
+  <img alt="Redis" src="https://img.shields.io/badge/Redis-7%2B-red?logo=redis" />
+  <img alt="OCPP" src="https://img.shields.io/badge/OCPP-1.6%20%7C%202.1-orange" />
   <a href="https://csms.savekar.com"><img alt="Live Demo" src="https://img.shields.io/badge/Live%20Demo-csms.savekar.com-brightgreen" /></a>
 </p>
 
@@ -48,9 +49,9 @@ The system consists of four primary layers that work together to manage EV charg
 │                         OCPP CMS – High-Level Architecture              │
 └─────────────────────────────────────────────────────────────────────────┘
 
-  ┌──────────────────┐         OCPP 1.6 WebSocket         ┌──────────────────────────┐
+  ┌──────────────────┐         OCPP 1.6 & 2.1/2.0.1 WebSocket         ┌──────────────────────────┐
   │   EV Chargers /  │ ◄─────────────────────────────────► │   OCPP WebSocket Server  │
-  │   Charge Points  │    ws://host:9220/OCPP/1.6/{id}     │   (Node.js / ws library) │
+  │   Charge Points  │    ws://host:9220/OCPP/[1.6|2.1]/{id}     │   (Node.js / ws library) │
   └──────────────────┘                                     └────────────┬─────────────┘
                                                                         │
                                                                         │  Internal Events
@@ -66,30 +67,38 @@ The system consists of four primary layers that work together to manage EV charg
   │  OCPP Log        │ ◄─────────────────────────────────► │   PostgreSQL Database    │
   │  Viewer (UI)     │    ws://host:3001                   │   (via Prisma ORM)       │
   └──────────────────┘                                     └──────────────────────────┘
+                                                                        │
+                                                                        │  Pub/Sub & Caching
+                                                                        ▼
+                                                           ┌──────────────────────────┐
+                                                           │   Redis (ioredis)        │
+                                                           └──────────────────────────┘
 ```
 
 ```mermaid
 flowchart TD
     CP["⚡ EV Charge Points\n(Physical Chargers)"]
-    OCPP["OCPP WebSocket Server\nws://:9220/OCPP/1.6/{id}"]
+    OCPP["OCPP WebSocket Server\nws://:9220/OCPP/[1.6|2.1]/{id}"]
     API["Backend REST API\nExpress + TypeScript\nhttp://:3000"]
     DB[("PostgreSQL Database\n(via Prisma ORM)")]
     UI["🖥️ Admin Dashboard\nNext.js 15 + shadcn/ui\nhttp://:3002"]
     LOGS["📋 Live OCPP Log Viewer\nWebSocket Stream\nws://:3001"]
 
-    CP <-->|"OCPP 1.6 JSON\nWebSocket"| OCPP
+    CP <-->|"OCPP 1.6 & 2.1/2.0.1 JSON\nWebSocket"| OCPP
     OCPP -->|"Internal events\n& data writes"| API
     API <-->|"ORM queries\n& migrations"| DB
     UI <-->|"HTTPS / REST"| API
     UI <-->|"WebSocket stream"| LOGS
     OCPP -->|"Real-time\nlog broadcast"| LOGS
+    OCPP <-->|"Pub/Sub\n& Caching"| REDIS[("Redis Cache")]
+    API <-->|"Pub/Sub\n& Caching"| REDIS
 ```
 
 ### Key Data Flows
 
 | Flow | Protocol | Description |
 |------|----------|-------------|
-| Charger ↔ OCPP Server | OCPP 1.6 (WebSocket JSON) | Boot, Heartbeat, Authorize, Start/Stop Transaction, MeterValues |
+| Charger ↔ OCPP Server | OCPP 1.6 & 2.1/2.0.1 (WebSocket JSON) | Boot, Heartbeat, Authorize, Start/Stop Transaction, MeterValues |
 | Dashboard ↔ API | HTTPS REST | Station management, analytics, RFID, tariffs, user auth |
 | Dashboard ↔ Log Server | WebSocket | Real-time OCPP message streaming for monitoring/debugging |
 | API ↔ Database | Prisma ORM (SQL) | All persistent data — chargers, sessions, tariffs, users |
@@ -102,7 +111,7 @@ flowchart TD
 open-source-csms/
 ├── Backend/                  # Node.js + TypeScript OCPP & API server
 │   ├── src/
-│   │   ├── ocpp/             # OCPP 1.6 WebSocket handler & message processors
+│   │   ├── ocpp/             # OCPP 1.6 & 2.1/2.0.1 WebSocket handler & message processors
 │   │   ├── api/              # REST API routes (auth, stations, chargers, rfid, etc.)
 │   │   │   ├── auth/
 │   │   │   ├── stations/
@@ -133,8 +142,8 @@ open-source-csms/
 
 ## Key Features
 
-### ⚡ OCPP 1.6 Protocol
-- Full support for core OCPP 1.6 JSON messages: `BootNotification`, `Heartbeat`, `Authorize`, `StartTransaction`, `StopTransaction`, `MeterValues`, `StatusNotification`, `ChangeAvailability`, `Reset`, `UnlockConnector`, `TriggerMessage`, and more.
+### ⚡ OCPP 1.6 & 2.1/2.0.1 Protocol
+- Full support for core OCPP 1.6 & 2.1/2.0.1 JSON messages: `BootNotification`, `Heartbeat`, `Authorize`, `StartTransaction`, `StopTransaction`, `MeterValues`, `StatusNotification`, `ChangeAvailability`, `Reset`, `UnlockConnector`, `TriggerMessage`, and more.
 
 ### 🖥️ Real-Time Dashboard
 - Live charger status monitoring (Available, Charging, Faulted, Offline)
@@ -164,6 +173,12 @@ open-source-csms/
 - Define and manage tariffs per station
 - Associate pricing with charging sessions
 
+### 🔗 OCPI Integration (Placeholder)
+- Foundational schema and placeholder routes configured for future OCPI 2.2.1 roaming implementations.
+
+### 💳 Payments Integration (Placeholder)
+- Placeholder models and routes added to enable future Stripe/Mollie integration for automated transaction billing.
+
 ### 🔒 Authentication
 - JWT-based authentication for the admin dashboard
 - Role-based access control
@@ -180,6 +195,7 @@ open-source-csms/
 | Framework | Express.js |
 | OCPP Protocol | Native `ws` WebSocket library |
 | Database | PostgreSQL 15+ |
+| Caching/PubSub | Redis (ioredis) |
 | ORM | Prisma |
 | Auth | JWT (jsonwebtoken) |
 
@@ -263,16 +279,16 @@ For a step-by-step guide covering local environment configuration, as well as a 
 
 ## Connecting a Charger
 
-Once the backend is running, connect any OCPP 1.6 compliant charger or simulator to:
+Once the backend is running, connect any OCPP 1.6 & 2.1/2.0.1 compliant charger or simulator to:
 
 ```
-ws://<your-host>:9220/OCPP/1.6/<charger-id>
+ws://<your-host>:9220/OCPP/[1.6|2.1]/<charger-id>
 ```
 
 > **Note:** `<charger-id>` must match the `charger_id` of a charger registered in the system (via the dashboard or database seeding).
 
 ### Testing with a Simulator
-You can use any OCPP 1.6 simulator such as:
+You can use any OCPP 1.6 & 2.1/2.0.1 simulator such as:
 - [OCPP Simulator (Web)](https://github.com/nickvdyck/webboss-ocpp) 
 - [SteVe Test Client](https://github.com/steve-community/steve)
 

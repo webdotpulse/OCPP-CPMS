@@ -107,9 +107,34 @@ pg_dump -U cms_user -W -F t ocpp_cms > /home/$USER/ocpp_cms_backup_$(date +%F).t
 pg_restore -U cms_user -W -d ocpp_cms -1 /home/$USER/ocpp_cms_backup_YYYY-MM-DD.tar
 ```
 
+
 ---
 
-## 4. SSL Certificates (Certbot / Let's Encrypt)
+## 4. Redis Management
+
+The CMS utilizes Redis for caching, rate-limiting, and Pub/Sub message brokering across Node.js instances.
+
+### Checking Redis Status
+```bash
+sudo systemctl status redis.service
+```
+
+### Restarting Redis
+If you encounter caching anomalies or need to flush the cache after a significant database alteration:
+```bash
+sudo systemctl restart redis.service
+```
+
+### Accessing Redis CLI
+To view cached data or manage keys manually:
+```bash
+redis-cli
+```
+
+
+---
+
+## 5. SSL Certificates (Certbot / Let's Encrypt)
 
 The VM uses Certbot to manage Let's Encrypt SSL certificates.
 
@@ -131,7 +156,7 @@ sudo certbot renew
 
 ---
 
-## 5. Security & Firewall (UFW)
+## 6. Security & Firewall (UFW)
 
 The VM relies on UFW (Uncomplicated Firewall) combined with GCP's VPC Firewall rules.
 
@@ -149,7 +174,7 @@ You should see rules allowing:
 
 ---
 
-## 6. Updating the Application
+## 7. Updating the Application
 
 When new changes are pushed to the GitHub repository, here is the general workflow to deploy them to the VM:
 

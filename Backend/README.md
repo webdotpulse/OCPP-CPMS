@@ -1,10 +1,10 @@
 # Open-Source OCPP CMS
 
-A barebone OCPP 1.6 Charge Point Management System that anyone can build their business logic on top of. This is a starting point for managing electric vehicle charging stations with support for OCPP 1.6 protocol.
+A barebone OCPP 1.6 & 2.1/2.0.1 Charge Point Management System that anyone can build their business logic on top of. This is a starting point for managing electric vehicle charging stations with support for OCPP 1.6 & 2.1/2.0.1 protocol.
 
 ## Features
 
-- **OCPP 1.6 WebSocket Server** - Connect and communicate with OCPP-compliant chargers
+- **OCPP 1.6 & 2.1/2.0.1 WebSocket Server** - Connect and communicate with OCPP-compliant chargers
 - **REST API** - Complete API for managing chargers, stations, connectors, RFID tags, and transactions
 - **Real-time Dashboard** - Monitor charging sessions and system status
 - **OCPP Remote Control** - Start/stop charging, reset chargers, unlock connectors remotely
@@ -77,10 +77,11 @@ A barebone OCPP 1.6 Charge Point Management System that anyone can build their b
 
 ## Technology Stack
 
-- **Runtime:** Node.js 18+
+- **Runtime:** Node.js 20+
 - **Language:** TypeScript
 - **Framework:** Express.js
 - **Database:** PostgreSQL with Prisma ORM
+- **Caching/PubSub:** Redis (ioredis)
 - **WebSocket:** Native `ws` library
 - **Logging:** Winston
 - **Authentication:** JWT (jsonWebToken)
@@ -89,7 +90,7 @@ A barebone OCPP 1.6 Charge Point Management System that anyone can build their b
 
 ### Prerequisites
 
-- Node.js 18 or higher
+- Node.js 20 or higher
 - PostgreSQL database
 
 ### Installation
@@ -118,6 +119,7 @@ PORT=3000
 OCPP_PORT=9220
 OCPP_LOG_WS_PORT=3001
 JWT_SECRET="your-secret-key"
+REDIS_URL="redis://localhost:6379"
 LOG_LEVEL=info
 ```
 

@@ -11,6 +11,7 @@ If you want to run the project locally for development or testing, follow these 
 ### Prerequisites (Local)
 - **Node.js** 20 or higher (LTS recommended)
 - **PostgreSQL** database
+- **Redis** server
 
 ### 1.1 Backend Setup
 ```bash
@@ -89,6 +90,13 @@ sudo -u postgres psql -c "ALTER ROLE cms_user SET timezone TO 'UTC';"
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ocpp_cms TO cms_user;"
 ```
 
+**Install Redis:**
+```bash
+sudo apt install redis-server -y
+sudo systemctl start redis.service
+sudo systemctl enable redis.service
+```
+
 **Install Nginx & Certbot:**
 ```bash
 sudo apt install nginx -y
@@ -116,6 +124,7 @@ PORT=3000
 OCPP_PORT=9220
 OCPP_LOG_WS_PORT=3001
 JWT_SECRET="generate_a_very_secure_random_string_here"
+REDIS_URL="redis://localhost:6379"
 EOT
 
 # Generate and migrate DB
