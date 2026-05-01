@@ -55,7 +55,7 @@ export default function ChargerDetailPage() {
   if (!charger) return <AppShell><div className="p-8 text-red-500">Charger not found</div></AppShell>;
 
   const getStatusBadge = (status: string) => {
-    const s = status.toLowerCase();
+    const s = status?.toLowerCase() || '';
     if (s === 'online' || s === 'active') return <Badge className="text-green-500 bg-green-500/10 border-green-500/20">ONLINE</Badge>;
     if (s === 'charging') return <Badge className="text-blue-500 bg-blue-500/10 border-blue-500/20">CHARGING</Badge>;
     if (s === 'faulted') return <Badge className="text-red-500 bg-red-500/10 border-red-500/20">FAULTED</Badge>;

@@ -18,7 +18,7 @@ interface ConnectorListProps {
 }
 
 function getStatusIcon(status: string) {
-  const s = status.toLowerCase();
+  const s = status?.toLowerCase() || '';
   if (s === 'available') return <CheckCircle2 className="h-4 w-4 text-green-500" />;
   if (s === 'charging') return <Zap className="h-4 w-4 text-blue-500 animate-pulse" />;
   if (s === 'faulted') return <AlertTriangle className="h-4 w-4 text-red-500" />;
@@ -26,7 +26,7 @@ function getStatusIcon(status: string) {
 }
 
 function getStatusColor(status: string) {
-  const s = status.toLowerCase();
+  const s = status?.toLowerCase() || '';
   if (s === 'available') return 'bg-green-500/10 text-green-500 border-green-500/20';
   if (s === 'charging') return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
   if (s === 'faulted') return 'bg-red-500/10 text-red-500 border-red-500/20';
@@ -46,9 +46,9 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
     );
   }
 
-  const availableCount = connectors.filter(c => c.status.toLowerCase() === 'available').length;
-  const chargingCount = connectors.filter(c => c.status.toLowerCase() === 'charging').length;
-  const faultedCount = connectors.filter(c => c.status.toLowerCase() === 'faulted').length;
+  const availableCount = connectors.filter(c => c.status?.toLowerCase() === 'available').length;
+  const chargingCount = connectors.filter(c => c.status?.toLowerCase() === 'charging').length;
+  const faultedCount = connectors.filter(c => c.status?.toLowerCase() === 'faulted').length;
 
   return (
     <div className="space-y-4">

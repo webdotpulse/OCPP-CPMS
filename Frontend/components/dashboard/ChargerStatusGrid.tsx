@@ -68,7 +68,7 @@ export function ChargerStatusGrid() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
             {chargers.map((charger) => {
                // Determine actual display status (e.g. if online but charging, show charging)
-               const displayStatus = charger.active_sessions > 0 ? "charging" : charger.status.toLowerCase();
+               const displayStatus = charger.active_sessions > 0 ? "charging" : (charger.status?.toLowerCase() || 'offline');
                const isOffline = displayStatus === 'offline';
                
                return (

@@ -41,7 +41,7 @@ export default function ConnectorsPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    const s = status.toLowerCase();
+    const s = status?.toLowerCase() || '';
     if (s === 'available') return <Badge variant="outline" className="text-green-500 bg-green-500/10">AVAILABLE</Badge>;
     if (s === 'charging') return <Badge variant="outline" className="text-blue-500 bg-blue-500/10">CHARGING</Badge>;
     if (s === 'faulted') return <Badge variant="outline" className="text-red-500 bg-red-500/10">FAULTED</Badge>;
