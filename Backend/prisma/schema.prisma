@@ -2,8 +2,7 @@
 // Clean, production-ready schema for OCPP 1.6 Charge Point Management System
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
