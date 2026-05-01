@@ -79,12 +79,16 @@ export function OcppLogViewer() {
 
   const connectWebSocket = useCallback(() => {
     setIsLoading(true);
-    let wsHost = 'localhost';
-    if (typeof window !== 'undefined') {
-      wsHost = window.location.hostname;
+    let wsUrl = process.env.NEXT_PUBLIC_OCPP_LOGS_WS_URL;
+
+    if (!wsUrl && typeof window !== 'undefined') {
+      const isHttps = window.location.protocol === 'https:';
+      const wsProtocol = isHttps ? 'wss://' : 'ws://';
+      wsUrl = `${wsProtocol}${window.location.hostname}:3001`;
+    } else if (!wsUrl) {
+      wsUrl = 'ws://localhost:3001';
     }
     
-    const wsUrl = `ws://${wsHost}:3001`;
     const socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
