@@ -46,7 +46,7 @@ This section provides a step-by-step manual for deploying the application to a G
 
 ### 2.1 Server Provisioning & Initial Setup
 
-1. Create a VM Instance on Google Cloud Platform using an **Ubuntu 22.04 LTS** (or 20.04) image.
+1. Create a VM Instance on Google Cloud Platform using an **Ubuntu 24.04 LTS or Debian 12** image.
 2. Assign a **Static External IP Address** to your VM in the GCP Console.
 3. Configure your DNS provider (Combell hosting) to point:
    - `ui.mobilitypulse.com` -> `A Record` -> `[Your VM Static IP]`
@@ -56,6 +56,7 @@ This section provides a step-by-step manual for deploying the application to a G
 SSH into your VM and update packages:
 ```bash
 sudo apt update && sudo apt upgrade -y
+sudo apt install git -y
 ```
 
 **Configure UFW Firewall (Recommended):**
@@ -72,6 +73,7 @@ sudo ufw enable
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
+sudo npm install -g npm@latest
 sudo npm install -g pm2
 ```
 
@@ -82,6 +84,7 @@ sudo apt install postgresql postgresql-contrib -y
 sudo systemctl start postgresql.service
 
 # Setup Database and User
+cd /tmp
 sudo -u postgres psql -c "CREATE DATABASE ocpp_cms;"
 sudo -u postgres psql -c "CREATE USER cms_user WITH PASSWORD 'your_secure_password';"
 sudo -u postgres psql -c "ALTER ROLE cms_user SET client_encoding TO 'utf8';"
@@ -106,6 +109,7 @@ sudo apt install certbot python3-certbot-nginx -y
 ### 2.3 Clone & Setup the Application
 
 ```bash
+sudo mkdir -p /var/www
 cd /var/www/
 sudo git clone <YOUR_REPOSITORY_URL> ocpp-cms
 sudo chown -R $USER:$USER /var/www/ocpp-cms
@@ -256,14 +260,11 @@ Follow the prompts. Certbot will automatically modify your Nginx configurations 
 Since this is a fresh installation, you'll need to create an initial admin user and at least one charging station.
 
 ### Create Admin User
-To securely create the first admin user, you can connect to the database or use Prisma Studio locally mapped through SSH, or add an initialization script.
-If running locally on the VM:
+To securely create the first admin user, you can run the initialization script on the VM:
 ```bash
 cd /var/www/ocpp-cms/Backend
-npx prisma studio
+npm run create-admin -- "admin_email" "admin_password"
 ```
-(You will need to tunnel port 5555 via SSH to view Prisma Studio on your local browser).
-Add a record to the `User` table with `role: "admin"`.
 
 ### Connecting a Charger in Production
 Once deployed and SSL is configured, point your OCPP 1.6 charger (or simulator) to your secure WebSocket endpoint:
