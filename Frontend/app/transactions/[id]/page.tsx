@@ -6,11 +6,11 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { api } from "@/lib/api";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ReceiptText, Calendar, Zap, Activity, StopCircle } from "lucide-react";
-import { format, formatDistanceToNow, differenceInMinutes, differenceInSeconds } from "date-fns";
+import { ChevronLeft, ReceiptText, Calendar, Zap, Activity } from "lucide-react";
+import { format, differenceInMinutes, differenceInSeconds } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 
 export default function TransactionDetailPage() {

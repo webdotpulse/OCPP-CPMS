@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
@@ -30,7 +31,7 @@ export function Sidebar() {
     <aside className="w-64 border-r bg-card flex flex-col h-screen fixed left-0 top-0">
       <div className="h-16 flex items-center px-6 border-b">
         <h1 className="font-bold text-lg tracking-tight flex items-center gap-2">
-          <img src="/assets/images/favicon/favicon.svg" alt="MobilityPulse Logo" className="h-6 w-6" />
+          <Image src="/assets/images/favicon/favicon.svg" alt="MobilityPulse Logo" width={24} height={24} className="h-6 w-6" />
           <span className="bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent font-bold">MobilityPulse</span>
         </h1>
       </div>

@@ -1,8 +1,7 @@
 "use client";
 import { logger } from "@/lib/logger";
 
-import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
@@ -19,7 +18,7 @@ export function OcppLogViewer() {
 
   const [ws, setWs] = useState<WebSocket | null>(null);
 
-  const enrichLog = (rawLog: any) => {
+  const enrichLog = useCallback((rawLog: any) => {
     let parsedMsg: any = null;
     let messageType = rawLog.direction === 'in' ? 'RX' : 'TX';
     let action = '-';
@@ -31,7 +30,7 @@ export function OcppLogViewer() {
       } else {
         parsedMsg = rawLog.message;
       }
-    } catch (e) {
+    } catch {
       // Not JSON
     }
 
@@ -76,9 +75,9 @@ export function OcppLogViewer() {
       action,
       payload,
     };
-  };
+  }, []);
 
-  const connectWebSocket = () => {
+  const connectWebSocket = useCallback(() => {
     setIsLoading(true);
     let wsHost = 'localhost';
     if (typeof window !== 'undefined') {
@@ -119,7 +118,7 @@ export function OcppLogViewer() {
 
     setWs(socket);
     return socket;
-  };
+  }, [enrichLog]);
 
   useEffect(() => {
     const socket = connectWebSocket();
@@ -128,7 +127,7 @@ export function OcppLogViewer() {
         socket.close();
       }
     };
-  }, []);
+  }, [connectWebSocket]);
 
   const handleRefresh = () => {
     if (ws) ws.close();
