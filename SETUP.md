@@ -96,8 +96,8 @@ sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ocpp_cms TO cms_user;
 **Install Redis:**
 ```bash
 sudo apt install redis-server -y
-sudo systemctl start redis.service
-sudo systemctl enable redis.service
+sudo systemctl start redis-server
+sudo systemctl enable redis-server
 ```
 
 **Install Nginx & Certbot:**
