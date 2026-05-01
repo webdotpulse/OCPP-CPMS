@@ -303,6 +303,11 @@ pm2 start dist/server.js --name "ocpp-backend"
 cd /var/www/ocpp-cms/Frontend
 npm install
 
+# Create environment file for Frontend
+cat <<EOT >> .env
+NEXT_PUBLIC_API_URL="https://ocpp.mobilitypulse.com/api"
+EOT
+
 # Build Next.js application
 npm run build
 
