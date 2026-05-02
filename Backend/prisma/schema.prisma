@@ -80,7 +80,8 @@ model Charger {
   ocppLogs            OcppLog[]
   rfidSessions        RfidSession[]
   tariffs             Tariff[]
-  chargeGroupChargers ChargeGroupCharger[]
+  chargeGroup         ChargeGroup?         @relation(fields: [chargeGroupId], references: [id], onDelete: SetNull)
+  chargeGroupId       Int?
   configurations      ChargerConfiguration[]
 }
 
@@ -216,7 +217,7 @@ model ChargeGroup {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  chargers ChargeGroupCharger[]
+  chargers Charger[]
   users    ChargeGroupUser[]
 }
 
@@ -229,15 +230,6 @@ model ChargerConfiguration {
   charger   Charger @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
 
   @@unique([chargerId, key])
-}
-
-model ChargeGroupCharger {
-  chargeGroupId Int
-  chargerId     Int
-  chargeGroup   ChargeGroup @relation(fields: [chargeGroupId], references: [id], onDelete: Cascade)
-  charger       Charger     @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
-
-  @@id([chargeGroupId, chargerId])
 }
 
 model ChargeGroupUser {

@@ -18,7 +18,7 @@ export const getAllChargeGroups = async (req: Request, res: Response) => {
         skip,
         take,
         include: {
-          chargers: { include: { charger: true } },
+          chargers: true,
           users: { include: { user: true, tariff: true } }
         },
         orderBy: { createdAt: "desc" },
@@ -48,7 +48,7 @@ export const getChargeGroupById = async (req: Request, res: Response) => {
     const group = await prisma.chargeGroup.findUnique({
       where: { id },
       include: {
-        chargers: { include: { charger: true } },
+        chargers: true,
         users: { include: { user: true, tariff: true } }
       },
     });
@@ -82,9 +82,6 @@ export const createChargeGroup = async (req: Request, res: Response) => {
       data: {
         name,
         description,
-        chargers: {
-          create: chargerIds?.map((chargerId: number) => ({ chargerId })) || []
-        },
         users: {
           create: users?.map((u: any) => ({ userId: u.userId, tariffId: u.tariffId })) || []
         }
@@ -95,7 +92,20 @@ export const createChargeGroup = async (req: Request, res: Response) => {
       }
     });
 
-    res.status(201).json({ success: true, data: group });
+    if (chargerIds && chargerIds.length > 0) {
+      await prisma.charger.updateMany({
+        where: { charger_id: { in: chargerIds } },
+        data: { chargeGroupId: group.id }
+      });
+    }
+
+    // Refetch to include updated chargers
+    const updatedGroup = await prisma.chargeGroup.findUnique({
+      where: { id: group.id },
+      include: { chargers: true, users: true }
+    });
+
+    res.status(201).json({ success: true, data: updatedGroup });
   } catch (error) {
     logger.error(`Error creating charge group: ${error}`);
     res.status(500).json({ success: false, error: "Failed to create charge group" });
@@ -123,8 +133,21 @@ export const updateChargeGroup = async (req: Request, res: Response) => {
     // We do a transaction to clear existing relations and recreate them
     const group = await prisma.$transaction(async (tx: any) => {
       if (chargerIds) {
-        await tx.chargeGroupCharger.deleteMany({ where: { chargeGroupId: id } });
+        // Unlink all chargers from this group first
+        await tx.charger.updateMany({
+          where: { chargeGroupId: id },
+          data: { chargeGroupId: null }
+        });
+
+        // Link the selected chargers to this group
+        if (chargerIds.length > 0) {
+          await tx.charger.updateMany({
+            where: { charger_id: { in: chargerIds } },
+            data: { chargeGroupId: id }
+          });
+        }
       }
+
       if (users) {
         await tx.chargeGroupUser.deleteMany({ where: { chargeGroupId: id } });
       }
@@ -134,7 +157,6 @@ export const updateChargeGroup = async (req: Request, res: Response) => {
         data: {
           name,
           description,
-          chargers: chargerIds ? { create: chargerIds.map((chargerId: number) => ({ chargerId })) } : undefined,
           users: users ? { create: users.map((u: any) => ({ userId: u.userId, tariffId: u.tariffId })) } : undefined
         },
         include: { chargers: true, users: true }

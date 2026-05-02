@@ -147,8 +147,35 @@ export async function handleAuthorize(
       where: { rfid_tag: idTag },
     });
 
+    let isAuthorized = true;
+
     if (!rfidUser || !rfidUser.active) {
-      logger.warn(`Authorize rejected: RFID tag ${idTag} not found or inactive`);
+      isAuthorized = false;
+    } else {
+      // Check if charger belongs to a group and if user is in that group
+      const charger = await prisma.charger.findUnique({
+        where: { charger_id: chargerId },
+        select: { chargeGroupId: true }
+      });
+
+      if (charger && charger.chargeGroupId) {
+        const userInGroup = await prisma.chargeGroupUser.findUnique({
+          where: {
+            chargeGroupId_userId: {
+              chargeGroupId: charger.chargeGroupId,
+              userId: rfidUser.owner_id
+            }
+          }
+        });
+        if (!userInGroup) {
+          logger.warn(`Authorize rejected: User of RFID tag ${idTag} is not in the required charge group ${charger.chargeGroupId}`);
+          isAuthorized = false;
+        }
+      }
+    }
+
+    if (!isAuthorized) {
+      logger.warn(`Authorize rejected: RFID tag ${idTag} not authorized`);
       let response: any = {};
       if (protocol === "ocpp2.1" || protocol === "ocpp2.0.1") {
         response.idTokenInfo = { status: "Invalid" };
@@ -159,7 +186,7 @@ export async function handleAuthorize(
       return response;
     }
 
-    logger.info(`Authorize accepted: RFID tag ${idTag} (${rfidUser.name})`);
+    logger.info(`Authorize accepted: RFID tag ${idTag} (${rfidUser?.name})`);
     let response: any = {};
     if (protocol === "ocpp2.1" || protocol === "ocpp2.0.1") {
       response.idTokenInfo = { status: "Accepted" };
@@ -201,7 +228,34 @@ export async function handleStartTransaction(
         where: { rfid_tag: idTag },
       });
 
+      let isAuthorized = true;
+
       if (!rfidUser || !rfidUser.active) {
+        isAuthorized = false;
+      } else {
+        // Check if charger belongs to a group and if user is in that group
+        const chargerInfo = await prisma.charger.findUnique({
+          where: { charger_id: chargerId },
+          select: { chargeGroupId: true }
+        });
+
+        if (chargerInfo && chargerInfo.chargeGroupId) {
+          const userInGroup = await prisma.chargeGroupUser.findUnique({
+            where: {
+              chargeGroupId_userId: {
+                chargeGroupId: chargerInfo.chargeGroupId,
+                userId: rfidUser.owner_id
+              }
+            }
+          });
+          if (!userInGroup) {
+            logger.warn(`StartTransaction rejected: User of RFID tag ${idTag} is not in the required charge group ${chargerInfo.chargeGroupId}`);
+            isAuthorized = false;
+          }
+        }
+      }
+
+      if (!isAuthorized || !rfidUser) {
         let response: any = { transactionId: 0 };
         if (protocol === "ocpp2.1" || protocol === "ocpp2.0.1") {
           response.idTokenInfo = { status: "Invalid" };
