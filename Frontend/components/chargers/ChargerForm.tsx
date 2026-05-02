@@ -21,9 +21,7 @@ const chargerSchema = z.object({
   manufacturer: z.string().optional(),
   serial_number: z.string().optional(),
   power_capacity: z.number().positive(),
-  power_consumption: z.number().nonnegative(),
   firmware_version: z.string().optional(),
-  warranty_period: z.string(),
   service_contacts: z.string(),
   charging_station_id: z.number().positive("Must assign a station"),
   latitude: z.number().min(-90).max(90).optional().nullable(),
@@ -50,7 +48,6 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
       longitude: initialData?.longitude || undefined,
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,
     } : {
-      power_consumption: 0,
       latitude: undefined,
       longitude: undefined,
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,
@@ -125,7 +122,10 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
               <Label htmlFor="charging_station_id">Assign to Station</Label>
               <Select 
                 value={stationId ? stationId.toString() : ''} 
-                onValueChange={(val) => setValue('charging_station_id', parseInt(val))}
+                onValueChange={(val) => {
+                  const num = parseInt(val);
+                  setValue('charging_station_id', isNaN(num) ? undefined as any : num);
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a station" />
@@ -173,19 +173,6 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
               <Label htmlFor="power_capacity">Power Capacity (kW)</Label>
               <Input id="power_capacity" type="number" step="any" {...register('power_capacity', { valueAsNumber: true })} />
               {errors.power_capacity && <p className="text-sm text-destructive">{errors.power_capacity.message}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="power_consumption">Standby Power Consumption (kWh/day)</Label>
-              <Input id="power_consumption" type="number" step="any" {...register('power_consumption', { valueAsNumber: true })} />
-              {errors.power_consumption && <p className="text-sm text-destructive">{errors.power_consumption.message}</p>}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
-             <div className="space-y-2">
-              <Label htmlFor="warranty_period">Warranty Period</Label>
-              <Input id="warranty_period" {...register('warranty_period')} placeholder="e.g. 2 Years" />
-              {errors.warranty_period && <p className="text-sm text-destructive">{errors.warranty_period.message}</p>}
             </div>
           </div>
 

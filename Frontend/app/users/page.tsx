@@ -6,7 +6,7 @@ import { api } from "@/lib/api";
 import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Building, User as UserIcon, Briefcase } from "lucide-react";
+import { Plus, Trash2, Edit, Building, User as UserIcon, Briefcase } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -136,6 +136,11 @@ export default function UsersPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
+                    <Link href={`/users/${u.id}/edit`}>
+                      <Button variant="ghost" size="icon">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </Link>
                     <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(u.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>

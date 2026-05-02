@@ -63,9 +63,7 @@ export interface CreateChargerDto {
   serial_number: string;
   manufacturing_date: Date;
   power_capacity: number;
-  power_consumption: number;
   firmware_version: string;
-  warranty_period: string;
   service_contacts: string;
   latitude?: number;
   longitude?: number;
@@ -81,10 +79,8 @@ export interface UpdateChargerDto {
   serial_number?: string;
   manufacturing_date?: Date;
   power_capacity?: number;
-  power_consumption?: number;
   status?: ChargerStatus;
   firmware_version?: string;
-  warranty_period?: string;
   service_contacts?: string;
   latitude?: number;
   longitude?: number;

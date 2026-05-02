@@ -53,6 +53,107 @@ export const getAllUsers = async (req: AuthRequest, res: Response) => {
 };
 
 /**
+ * GET /api/users/:id - Get specific user
+ */
+export const getUserById = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = parseId(req.params.id);
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid user ID",
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        userType: true,
+        companyName: true,
+        address: true,
+        phone: true,
+        taxNumber: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "User not found",
+      });
+    }
+
+    res.json({ success: true, data: user });
+  } catch (error) {
+    logger.error(`Error getting user: ${error}`);
+    res.status(500).json({
+      success: false,
+      error: "Failed to get user",
+    });
+  }
+};
+
+/**
+ * PUT /api/users/:id - Update user details
+ */
+export const updateUser = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = parseId(req.params.id);
+    const { email, role, userType, companyName, address, phone, taxNumber } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid user ID",
+      });
+    }
+
+    if (role && (role !== "admin" && role !== "user")) {
+        return res.status(400).json({
+          success: false,
+          error: "Valid role is required (admin or user)",
+        });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        email,
+        role,
+        userType,
+        companyName,
+        address,
+        phone,
+        taxNumber
+      },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        userType: true,
+        companyName: true,
+        address: true,
+        phone: true,
+        taxNumber: true,
+      }
+    });
+
+    res.json({ success: true, data: updatedUser });
+  } catch (error) {
+    logger.error(`Error updating user: ${error}`);
+    res.status(500).json({
+      success: false,
+      error: "Failed to update user",
+    });
+  }
+};
+
+/**
  * PUT /api/users/:id/role - Update user role
  */
 export const updateUserRole = async (req: AuthRequest, res: Response) => {
