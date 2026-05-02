@@ -1,6 +1,31 @@
 import { chargerRegistry } from "./chargerRegistry.js";
 import { logger } from "../utils/logger.js";
 import type { RemoteStartRequest, RemoteStopRequest, SetChargingProfileRequest, ClearChargingProfileRequest } from "../types/index.js";
+import { redisSubscriber } from "../config/redis.js";
+
+// Pending requests map for Promise resolution
+export const pendingRequests = new Map<string, { resolve: (val: any) => void; reject: (err: any) => void; timeout: NodeJS.Timeout }>();
+
+// Subscribe to CALLRESULTs
+redisSubscriber.subscribe("ocpp_callresults", (err) => {
+  if (err) logger.error(`Failed to subscribe to ocpp_callresults: ${err}`);
+});
+
+redisSubscriber.on("message", (channel, message) => {
+  if (channel === "ocpp_callresults") {
+    try {
+      const { messageId, payload } = JSON.parse(message);
+      const pending = pendingRequests.get(messageId);
+      if (pending) {
+        clearTimeout(pending.timeout);
+        pending.resolve(payload);
+        pendingRequests.delete(messageId);
+      }
+    } catch (e) {
+      logger.error(`Error processing ocpp_callresult: ${e}`);
+    }
+  }
+});
 
 // Generate unique message ID
 let messageIdCounter = 0;
@@ -111,11 +136,21 @@ export async function getConfiguration(
       payload
     ];
 
+    const resultPromise = new Promise<any>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        pendingRequests.delete(messageId);
+        resolve({ status: "Rejected", error: "Timeout waiting for GetConfiguration response" });
+      }, 10000); // 10s timeout
+
+      pendingRequests.set(messageId, { resolve, reject, timeout });
+    });
+
     await chargerRegistry.publishCommand(chargerId, message);
 
     logger.info(`GetConfiguration sent to charger ${chargerId}, payload: ${JSON.stringify(payload)}`);
 
-    return { status: "Accepted" };
+    const result = await resultPromise;
+    return { status: "Accepted", ...result };
   } catch (error) {
     logger.error(`Error in getConfiguration: ${error}`);
     return { status: "Rejected" };

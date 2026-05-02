@@ -19,6 +19,7 @@ const routes = [
   { name: 'Dashboard', path: '/dashboard', icon: BarChart3 },
   { name: 'Chargers', path: '/chargers', icon: Zap },
   { name: 'Locations', path: '/stations', icon: MapPin },
+  { name: 'Charge Groups', path: '/charge-groups', icon: Users },
   { name: 'Transactions', path: '/transactions', icon: Banknote },
   { name: 'RFID Tags', path: '/rfid', icon: CreditCard },
   { name: 'Tariffs', path: '/tariffs', icon: WalletCards },

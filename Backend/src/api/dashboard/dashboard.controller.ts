@@ -7,8 +7,17 @@ import { logger } from "../../utils/logger.js";
  */
 export const getOverview = async (req: Request, res: Response) => {
   try {
+    // @ts-expect-error userRole is attached by authenticateToken middleware
+    const userRole = req.userRole;
+    // @ts-expect-error userId is attached by authenticateToken middleware
+    const userId = req.userId;
+
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const isUser = userRole !== "admin";
+    const chargerWhere = isUser ? { owner_id: userId } : {};
+    const stationWhere = isUser ? { owner_id: userId } : {};
 
     const [
       totalStations,
@@ -22,36 +31,37 @@ export const getOverview = async (req: Request, res: Response) => {
       totalEnergy,
       totalRfidSessions,
     ] = await Promise.all([
-      prisma.chargingStation.count(),
-      prisma.charger.count(),
-      prisma.charger.count({ where: { status: "active" } }),
-      prisma.charger.count({ where: { status: "offline" } }),
+      prisma.chargingStation.count({ where: stationWhere }),
+      prisma.charger.count({ where: chargerWhere }),
+      prisma.charger.count({ where: { ...chargerWhere, status: "active" } }),
+      prisma.charger.count({ where: { ...chargerWhere, status: "offline" } }),
       prisma.transaction.count({
-        where: { status: "charging" },
+        where: isUser ? { status: "charging", charger: { owner_id: userId } } : { status: "charging" },
       }),
       prisma.rfidSession.count({
-        where: { status: "charging" },
+        where: isUser ? { status: "charging", charger: { owner_id: userId } } : { status: "charging" },
       }),
       prisma.transaction.aggregate({
-        where: {
-          createdAt: { gte: today },
-        },
+        where: isUser ? { createdAt: { gte: today }, charger: { owner_id: userId } } : { createdAt: { gte: today } },
         _sum: { energyConsumed: true },
       }),
       prisma.rfidSession.aggregate({
-        where: {
-          createdAt: { gte: today },
-        },
+        where: isUser ? { createdAt: { gte: today }, charger: { owner_id: userId } } : { createdAt: { gte: today } },
         _sum: { energyConsumed: true },
       }),
       prisma.transaction.aggregate({
+        where: isUser ? { charger: { owner_id: userId } } : undefined,
         _sum: { energyConsumed: true },
       }),
-      prisma.rfidSession.count(),
+      prisma.rfidSession.count({
+        where: isUser ? { charger: { owner_id: userId } } : undefined,
+      }),
     ]);
 
     // Calculate connector status distribution
-    const connectors = await prisma.connector.findMany();
+    const connectors = await prisma.connector.findMany({
+      where: isUser ? { charger: { owner_id: userId } } : undefined,
+    });
     const connectorStatusDistribution: Record<string, number> = {};
     connectors.forEach((c: any) => {
       connectorStatusDistribution[c.status] = (connectorStatusDistribution[c.status] || 0) + 1;
@@ -84,9 +94,16 @@ export const getOverview = async (req: Request, res: Response) => {
  */
 export const getLiveSessions = async (req: Request, res: Response) => {
   try {
+    // @ts-expect-error userRole is attached by authenticateToken middleware
+    const userRole = req.userRole;
+    // @ts-expect-error userId is attached by authenticateToken middleware
+    const userId = req.userId;
+
+    const isUser = userRole !== "admin";
+
     const [activeTransactions, activeRfidSessions] = await Promise.all([
       prisma.transaction.findMany({
-        where: { status: { in: ["initiated", "charging"] } },
+        where: isUser ? { status: { in: ["initiated", "charging"] }, charger: { owner_id: userId } } : { status: { in: ["initiated", "charging"] } },
         include: {
           charger: {
             include: {
@@ -97,7 +114,7 @@ export const getLiveSessions = async (req: Request, res: Response) => {
         orderBy: { startTime: "desc" },
       }),
       prisma.rfidSession.findMany({
-        where: { status: "charging" },
+        where: isUser ? { status: "charging", charger: { owner_id: userId } } : { status: "charging" },
         include: {
           charger: {
             include: {
@@ -157,7 +174,15 @@ export const getLiveSessions = async (req: Request, res: Response) => {
  */
 export const getDistribution = async (req: Request, res: Response) => {
   try {
+    // @ts-expect-error userRole is attached by authenticateToken middleware
+    const userRole = req.userRole;
+    // @ts-expect-error userId is attached by authenticateToken middleware
+    const userId = req.userId;
+
+    const isUser = userRole !== "admin";
+
     const connectors = await prisma.connector.findMany({
+      where: isUser ? { charger: { owner_id: userId } } : undefined,
       include: { charger: true },
     });
 
@@ -195,7 +220,15 @@ export const getDistribution = async (req: Request, res: Response) => {
  */
 export const getChargersStatus = async (req: Request, res: Response) => {
   try {
+    // @ts-expect-error userRole is attached by authenticateToken middleware
+    const userRole = req.userRole;
+    // @ts-expect-error userId is attached by authenticateToken middleware
+    const userId = req.userId;
+
+    const isUser = userRole !== "admin";
+
     const chargers = await prisma.charger.findMany({
+      where: isUser ? { owner_id: userId } : undefined,
       include: {
         chargingStation: { select: { station_name: true, city: true } },
         connectors: true,

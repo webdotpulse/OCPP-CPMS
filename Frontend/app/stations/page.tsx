@@ -28,7 +28,7 @@ export default function StationsPage() {
   const fetchStations = async () => {
     try {
       const response = await api.get('/stations');
-      setStations(response.data);
+      setStations(response.data?.data || response.data);
     } catch (error) {
       logger.error("Failed to fetch stations", error);
     } finally {

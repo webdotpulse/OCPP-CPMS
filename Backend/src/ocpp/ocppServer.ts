@@ -4,6 +4,8 @@ import { prisma } from "../config/database.js";
 import { logger } from "../utils/logger.js";
 import { chargerRegistry } from "./chargerRegistry.js";
 import { handleOcppMessage } from "./messageHandlers.js";
+import { redisPublisher } from "../config/redis.js";
+import { pendingRequests } from "./remoteControl.js";
 
 class OcppServer {
   private wss: WebSocketServer | null = null;
@@ -133,7 +135,17 @@ class OcppServer {
       logger.info(
         `🔌 [OCPP] Received CALLRESULT from charger ${chargerId}, MessageID: ${messageId}: ${JSON.stringify(responsePayload)}`
       );
-      // TODO: match messageId to pending requests if needed
+
+      // Check local pending requests first
+      const pending = pendingRequests.get(messageId);
+      if (pending) {
+        clearTimeout(pending.timeout);
+        pending.resolve(responsePayload);
+        pendingRequests.delete(messageId);
+      } else {
+        // Publish to Redis for cross-cluster resolution
+        redisPublisher.publish("ocpp_callresults", JSON.stringify({ messageId, payload: responsePayload }));
+      }
       return;
     }
 
