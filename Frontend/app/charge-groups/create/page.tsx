@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { api } from "@/lib/api";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -74,7 +74,7 @@ export default function CreateChargeGroupPage() {
       });
       toast.success("Charge group created");
       router.push('/charge-groups');
-    } catch (error) {
+    } catch {
       toast.error("Failed to create charge group");
     } finally {
       setIsLoading(false);

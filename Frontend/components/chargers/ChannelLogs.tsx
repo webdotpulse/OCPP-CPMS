@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 
 interface ChannelLog {
   id: string;
@@ -102,12 +100,12 @@ export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
 
              setLogs(prev => [newLog, ...prev].slice(0, 50)); // Keep last 50
           }
-        } catch (e) {
+        } catch {
           // parse error
         }
       };
-    } catch (e) {
-      console.error("Failed to connect to OCPP logs WS", e);
+    } catch (err) {
+      console.error("Failed to connect to OCPP logs WS", err);
     }
 
     return () => {

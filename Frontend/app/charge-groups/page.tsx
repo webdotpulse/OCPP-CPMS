@@ -37,7 +37,7 @@ export default function ChargeGroupsPage() {
       await api.delete(`/charge-groups/${id}`);
       toast.success("Charge group deleted");
       fetchGroups();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete charge group");
     }
   };
