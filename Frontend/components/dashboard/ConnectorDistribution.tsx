@@ -59,8 +59,9 @@ export function ConnectorDistribution() {
         ) : data.length === 0 ? (
           <div className="text-muted-foreground">No data available</div>
         ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
+          <div className="w-full h-full min-h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
               <Pie
                 data={data}
                 cx="50%"
@@ -82,9 +83,10 @@ export function ConnectorDistribution() {
                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 itemStyle={{ color: 'var(--foreground)' }}
               />
-              <Legend verticalAlign="bottom" height={36}/>
-            </PieChart>
-          </ResponsiveContainer>
+                <Legend verticalAlign="bottom" height={36}/>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </CardContent>
     </Card>

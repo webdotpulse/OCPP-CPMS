@@ -373,6 +373,49 @@ export async function triggerMessage(
 }
 
 /**
+ * Trigger firmware update
+ */
+export async function updateFirmware(
+  chargerId: number,
+  location: string,
+  retries?: number,
+  retryInterval?: number
+): Promise<{ status: string; error?: string }> {
+  try {
+    if (!(await chargerRegistry.isConnectedGlobally(chargerId))) {
+      return { status: "Rejected", error: "Charger not connected" };
+    }
+
+    const messageId = generateMessageId();
+    const payload: any = {
+      location,
+      retrieveDate: new Date().toISOString()
+    };
+
+    if (retries !== undefined) payload.retries = retries;
+    if (retryInterval !== undefined) payload.retryInterval = retryInterval;
+
+    const message = [
+      2,  // MessageTypeId: CALL
+      messageId,
+      "UpdateFirmware",
+      payload
+    ];
+
+    await chargerRegistry.publishCommand(chargerId, message);
+
+    logger.info(
+      `UpdateFirmware sent to charger ${chargerId}, location: ${location}`
+    );
+
+    return { status: "Accepted" };
+  } catch (error) {
+    logger.error(`Error in updateFirmware: ${error}`);
+    return { status: "Rejected" };
+  }
+}
+
+/**
  * Get list of connected chargers
  */
 export function getConnectedChargers(): number[] {

@@ -24,6 +24,8 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
   const [showRemoteStart, setShowRemoteStart] = useState(false);
   const [showRemoteStop, setShowRemoteStop] = useState(false);
   const [showTestAuth, setShowTestAuth] = useState(false);
+  const [showFirmwareUpdate, setShowFirmwareUpdate] = useState(false);
+  const [firmwareLocation, setFirmwareLocation] = useState("");
   const [testTagId, setTestTagId] = useState("");
 
   const testAuthTag = async () => {
@@ -135,9 +137,17 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
           >
             <Unlock className="mr-2 h-4 w-4" /> Test RFID Card
           </Button>
+
+          <Button
+            variant={showFirmwareUpdate ? "default" : "outline"}
+            onClick={() => setShowFirmwareUpdate(!showFirmwareUpdate)}
+            className="whitespace-nowrap"
+          >
+            <Zap className="mr-2 h-4 w-4" /> Update Firmware
+          </Button>
         </div>
 
-        {(showRemoteStart || showRemoteStop || showTestAuth) && (
+        {(showRemoteStart || showRemoteStop || showTestAuth || showFirmwareUpdate) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
             {/* Remote Start */}
             {showRemoteStart && (
@@ -197,6 +207,25 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
                   disabled={isLoading || !testTagId}
                 >
                   <Unlock className="mr-2 h-4 w-4" /> Test Card
+                </Button>
+              </div>
+            )}
+
+            {/* Firmware Update */}
+            {showFirmwareUpdate && (
+              <div className="space-y-4 border p-4 rounded-md">
+                <h4 className="font-medium text-sm">Update Firmware</h4>
+                <div className="space-y-1">
+                  <Label className="text-xs">Firmware Location URL</Label>
+                  <Input value={firmwareLocation} onChange={e => setFirmwareLocation(e.target.value)} placeholder="ftp://server/firmware.bin" />
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full border-primary text-primary hover:bg-primary/10"
+                  onClick={() => sendCommand('update-firmware', { location: firmwareLocation })}
+                  disabled={isLoading || !firmwareLocation}
+                >
+                  <Zap className="mr-2 h-4 w-4" /> Trigger Update
                 </Button>
               </div>
             )}

@@ -4,6 +4,7 @@ import { prisma } from "../config/database.js";
 import { logger } from "../utils/logger.js";
 import { chargerRegistry } from "./chargerRegistry.js";
 import { handleOcppMessage } from "./messageHandlers.js";
+import { triggerMessage } from "./remoteControl.js";
 import { redisPublisher } from "../config/redis.js";
 import { pendingRequests } from "./remoteControl.js";
 
@@ -76,6 +77,18 @@ class OcppServer {
         where: { charger_id: chargerId },
         data: { status: "active", last_heartbeat: new Date() },
       });
+
+      // Trigger BootNotification if hardware details are missing
+      if (charger.firmware_version === "Unknown" || !charger.manufacturer || !charger.model) {
+        logger.info(`Charger ${chargerId} is missing hardware details. Triggering BootNotification in 5s...`);
+        setTimeout(async () => {
+          try {
+            await triggerMessage(chargerId, "BootNotification");
+          } catch (e) {
+            logger.error(`Failed to trigger BootNotification for charger ${chargerId}: ${e}`);
+          }
+        }, 5000);
+      }
 
       // Register charger connection
       chargerRegistry.register(chargerId, charger.name, ws);

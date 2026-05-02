@@ -108,9 +108,13 @@ export default function CreateChargeGroupPage() {
               <CardHeader><CardTitle>Assign Chargers</CardTitle></CardHeader>
               <CardContent className="max-h-64 overflow-y-auto space-y-2">
                 {allChargers.map(charger => (
-                  <div key={charger.charger_id} className="flex items-center space-x-2 p-2 border rounded hover:bg-muted/50 cursor-pointer" onClick={() => toggleCharger(charger.charger_id)}>
-                    <Checkbox checked={selectedChargers.includes(charger.charger_id)} />
-                    <Label className="cursor-pointer">{charger.name} <span className="text-muted-foreground text-xs">({charger.model})</span></Label>
+                  <div key={charger.charger_id} className="flex items-center space-x-2 p-2 border rounded hover:bg-muted/50">
+                    <Checkbox
+                      checked={selectedChargers.includes(charger.charger_id)}
+                      onCheckedChange={() => toggleCharger(charger.charger_id)}
+                      id={`charger-${charger.charger_id}`}
+                    />
+                    <Label htmlFor={`charger-${charger.charger_id}`} className="cursor-pointer flex-1">{charger.name} <span className="text-muted-foreground text-xs">({charger.model})</span></Label>
                   </div>
                 ))}
                 {allChargers.length === 0 && <p className="text-muted-foreground text-sm">No chargers found.</p>}
@@ -128,10 +132,14 @@ export default function CreateChargeGroupPage() {
 
                   return (
                     <div key={u.id} className={`p-4 border rounded space-y-3 ${isSelected ? 'bg-primary/5 border-primary/20' : ''}`}>
-                      <div className="flex items-center space-x-2 cursor-pointer" onClick={() => toggleUser(u.id)}>
-                        <Checkbox checked={isSelected} />
-                        <div>
-                          <Label className="cursor-pointer font-medium">{u.email}</Label>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => toggleUser(u.id)}
+                          id={`user-${u.id}`}
+                        />
+                        <div className="flex-1">
+                          <Label htmlFor={`user-${u.id}`} className="cursor-pointer font-medium block">{u.email}</Label>
                           <p className="text-xs text-muted-foreground">{u.userType} - {u.companyName || 'No company'}</p>
                         </div>
                       </div>
