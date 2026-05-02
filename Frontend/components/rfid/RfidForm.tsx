@@ -19,6 +19,7 @@ import { useEffect } from "react";
 
 const rfidSchema = z.object({
   rfid_tag: z.string().min(4, "RFID Tag ID is required"),
+  external_id: z.string().optional(),
   name: z.string().min(2, "Holder name is required"),
   email: z.string().email().optional().or(z.literal('')),
   phone: z.string().optional(),
@@ -90,27 +91,34 @@ export function RfidForm({ initialData }: { initialData?: any }) {
               <Input id="rfid_tag" {...register('rfid_tag')} placeholder="DEADBEAF" disabled={!!initialData} />
               {errors.rfid_tag && <p className="text-sm text-destructive">{errors.rfid_tag.message}</p>}
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="external_id">External ID (Optional)</Label>
+              <Input id="external_id" {...register('external_id')} placeholder="Ext-001" />
+              {errors.external_id && <p className="text-sm text-destructive">{errors.external_id.message}</p>}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
              <div className="space-y-2">
               <Label htmlFor="name">Holder Full Name</Label>
               <Input id="name" {...register('name')} />
               {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email Address (Optional)</Label>
               <Input id="email" type="email" {...register('email')} />
               {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
              <div className="space-y-2">
               <Label htmlFor="phone">Phone Number (Optional)</Label>
               <Input id="phone" {...register('phone')} />
               {errors.phone && <p className="text-sm text-destructive">{errors.phone.message}</p>}
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
             <div className="space-y-2">
               <Label htmlFor="company_name">Company Name (Optional)</Label>
               <Input id="company_name" {...register('company_name')} />

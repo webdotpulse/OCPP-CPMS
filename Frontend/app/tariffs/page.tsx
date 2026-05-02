@@ -96,8 +96,8 @@ export default function TariffsPage() {
                     <WalletCards className="h-4 w-4 text-muted-foreground" />
                     {tariff.tariff_name}
                   </TableCell>
-                  <TableCell className="text-right font-mono">${Number(tariff.charge).toFixed(2)}</TableCell>
-                  <TableCell className="text-right font-mono">${Number(tariff.electricity_rate).toFixed(3)} / kWh</TableCell>
+                  <TableCell className="text-right font-mono">€{Number(tariff.charge).toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-mono">€{Number(tariff.electricity_rate).toFixed(3)} / kWh</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Link href={`/tariffs/${tariff.tariff_id}/edit`}>

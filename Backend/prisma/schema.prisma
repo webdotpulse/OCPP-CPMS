@@ -12,6 +12,7 @@ datasource db {
 // Admin user accounts
 model User {
   id          Int      @id @default(autoincrement())
+  name        String?
   email       String   @unique
   password    String
   role        String   @default("admin")
@@ -103,6 +104,7 @@ model Connector {
 model RfidUser {
   rfid_user_id Int      @id @default(autoincrement())
   rfid_tag     String   @unique
+  external_id  String?
   name         String
   email        String?
   phone        String?

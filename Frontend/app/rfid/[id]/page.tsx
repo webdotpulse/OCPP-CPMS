@@ -47,7 +47,12 @@ export default function RfidDetailPage() {
             <div className="bg-primary/10 p-2 rounded-lg">
               <CreditCard className="h-6 w-6 text-primary" />
             </div>
-            <h1 className="text-3xl font-bold tracking-tight font-mono">{tag.rfid_tag}</h1>
+            <div className="flex flex-col">
+              <h1 className="text-3xl font-bold tracking-tight font-mono">{tag.rfid_tag}</h1>
+              {tag.external_id && (
+                <span className="text-sm text-muted-foreground">Ext ID: {tag.external_id}</span>
+              )}
+            </div>
             <Badge variant="outline" className={tag.active ? 'text-green-500 bg-green-500/10' : 'bg-muted'}>
               {tag.active ? 'AUTHORIZED' : 'BLOCKED'}
             </Badge>

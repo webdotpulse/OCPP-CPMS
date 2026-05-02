@@ -69,13 +69,13 @@ export function TariffForm({ initialData }: { initialData?: any }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
             <div className="space-y-2">
-              <Label htmlFor="charge">Fixed Connection Charge ($)</Label>
+              <Label htmlFor="charge">Fixed Connection Charge (€)</Label>
               <Input id="charge" type="number" step="any" {...register('charge', { valueAsNumber: true })} />
               <p className="text-xs text-muted-foreground">Applied once per session.</p>
               {errors.charge && <p className="text-sm text-destructive">{errors.charge.message}</p>}
             </div>
              <div className="space-y-2">
-              <Label htmlFor="electricity_rate">Electricity Rate ($ per kWh)</Label>
+              <Label htmlFor="electricity_rate">Electricity Rate (€ per kWh)</Label>
               <Input id="electricity_rate" type="number" step="any" {...register('electricity_rate', { valueAsNumber: true })} />
               <p className="text-xs text-muted-foreground">Applied per kWh consumed.</p>
               {errors.electricity_rate && <p className="text-sm text-destructive">{errors.electricity_rate.message}</p>}

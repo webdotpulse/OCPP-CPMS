@@ -158,7 +158,7 @@ export default function CreateChargeGroupPage() {
                               <SelectItem value="none">Default / No Tariff</SelectItem>
                               {allTariffs.map(t => (
                                 <SelectItem key={t.tariff_id} value={t.tariff_id.toString()}>
-                                  {t.tariff_name} (${t.charge})
+                                  {t.tariff_name} (€{t.charge})
                                 </SelectItem>
                               ))}
                             </SelectContent>

@@ -22,6 +22,7 @@ export const getAllUsers = async (req: AuthRequest, res: Response) => {
         take,
         select: {
           id: true,
+          name: true,
           email: true,
           role: true,
           userType: true,
@@ -70,6 +71,7 @@ export const getUserById = async (req: AuthRequest, res: Response) => {
       where: { id: userId },
       select: {
         id: true,
+        name: true,
         email: true,
         role: true,
         userType: true,
@@ -104,7 +106,7 @@ export const getUserById = async (req: AuthRequest, res: Response) => {
 export const updateUser = async (req: AuthRequest, res: Response) => {
   try {
     const userId = parseId(req.params.id);
-    const { email, role, userType, companyName, address, phone, taxNumber } = req.body;
+    const { name, email, role, userType, companyName, address, phone, taxNumber } = req.body;
 
     if (!userId) {
       return res.status(400).json({
@@ -123,6 +125,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
+        name,
         email,
         role,
         userType,
@@ -133,6 +136,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       },
       select: {
         id: true,
+        name: true,
         email: true,
         role: true,
         userType: true,
@@ -180,6 +184,7 @@ export const updateUserRole = async (req: AuthRequest, res: Response) => {
       data: { role },
       select: {
         id: true,
+        name: true,
         email: true,
         role: true,
         userType: true,
@@ -199,7 +204,7 @@ export const updateUserRole = async (req: AuthRequest, res: Response) => {
 
 export const createUser = async (req: AuthRequest, res: Response) => {
   try {
-    const { email, password, role, userType, companyName } = req.body;
+    const { name, email, password, role, userType, companyName } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ success: false, error: "Email and password required" });
@@ -214,13 +219,14 @@ export const createUser = async (req: AuthRequest, res: Response) => {
 
     const user = await prisma.user.create({
       data: {
+        name: name || null,
         email,
         password: hashedPassword,
         role: role || "user",
         userType: userType || "private",
         companyName: companyName || null
       },
-      select: { id: true, email: true, role: true, userType: true, companyName: true }
+      select: { id: true, name: true, email: true, role: true, userType: true, companyName: true }
     });
 
     res.status(201).json({ success: true, data: user });

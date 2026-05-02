@@ -67,6 +67,39 @@ export const getAllTransactions = async (req: Request, res: Response) => {
 };
 
 /**
+ * GET /api/transactions/user/:userId - Get all RFID sessions for a specific user
+ */
+export const getRfidSessionsByUser = async (req: Request, res: Response) => {
+  try {
+    const rfidUserId = parseId(req.params.userId);
+
+    if (!rfidUserId) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid RFID user ID",
+      });
+    }
+
+    const rfidSessions = await prisma.rfidSession.findMany({
+      where: { rfidUserId },
+      include: {
+        charger: { include: { chargingStation: true } },
+        rfidUser: true,
+      },
+      orderBy: { startTime: "desc" },
+    });
+
+    res.json({ success: true, data: rfidSessions });
+  } catch (error) {
+    logger.error(`Error getting RFID sessions for user: ${error}`);
+    res.status(500).json({
+      success: false,
+      error: "Failed to get RFID sessions",
+    });
+  }
+};
+
+/**
  * GET /api/transactions/active - Get all active charging sessions
  */
 export const getActiveTransactions = async (req: Request, res: Response) => {

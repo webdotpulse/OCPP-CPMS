@@ -15,6 +15,7 @@ import { Loader2 } from "lucide-react";
 export default function CreateUserPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
@@ -28,6 +29,7 @@ export default function CreateUserPage() {
     setIsLoading(true);
     try {
       await api.post('/users', {
+        name,
         email,
         password,
         role,
@@ -53,11 +55,17 @@ export default function CreateUserPage() {
         <CardHeader><CardTitle>User Details</CardTitle></CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Name</Label>
+                <Input type="text" value={name} onChange={(e: any) => setName(e.target.value)} />
+              </div>
               <div className="space-y-2">
                 <Label>Email</Label>
                 <Input type="email" value={email} onChange={(e: any) => setEmail(e.target.value)} required />
               </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Password</Label>
                 <Input type="password" value={password} onChange={(e: any) => setPassword(e.target.value)} required />

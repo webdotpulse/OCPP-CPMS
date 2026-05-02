@@ -22,6 +22,7 @@ export default function EditUserPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     role: "user",
     userType: "private",
@@ -35,9 +36,12 @@ export default function EditUserPage() {
     const fetchUser = async () => {
       try {
         const response = await api.get(`/users/${id}`);
-        if (response.data?.data) {
-          const u = response.data.data;
+        // The API interceptor already unwraps `{ success, data }` into `response.data`.
+        // We still fall back to `response.data?.data` just in case.
+        const u = response.data?.data || response.data;
+        if (u) {
           setFormData({
+            name: u.name || "",
             email: u.email || "",
             role: u.role || "user",
             userType: u.userType || "private",
@@ -110,16 +114,28 @@ export default function EditUserPage() {
               <CardTitle>User Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 pt-6">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

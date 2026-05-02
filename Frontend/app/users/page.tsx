@@ -95,7 +95,7 @@ export default function UsersPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Email</TableHead>
+                <TableHead>Name / Email</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Company</TableHead>
                 <TableHead>Created</TableHead>
@@ -106,7 +106,10 @@ export default function UsersPage() {
             <TableBody>
               {Array.isArray(users) && users.map((u) => (
                 <TableRow key={u.id}>
-                  <TableCell className="font-medium">{u.email}</TableCell>
+                  <TableCell className="font-medium">
+                    {u.name && <div className="font-semibold">{u.name}</div>}
+                    <div className={u.name ? "text-xs text-muted-foreground" : ""}>{u.email}</div>
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       {getUserTypeIcon(u.userType)}

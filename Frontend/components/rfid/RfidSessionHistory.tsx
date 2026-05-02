@@ -24,8 +24,8 @@ export function RfidSessionHistory({ rfidUserId }: { rfidUserId: number }) {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await api.get(`/transactions/rfid/${rfidUserId}`);
-        setSessions(response.data);
+        const response = await api.get(`/transactions/user/${rfidUserId}`);
+        setSessions(response.data?.data || response.data);
       } catch (error) {
         logger.error("Failed to fetch session history", error);
       } finally {
@@ -75,7 +75,7 @@ export function RfidSessionHistory({ rfidUserId }: { rfidUserId: number }) {
               {(session.energyConsumed / 1000).toFixed(2)} kWh
             </TableCell>
             <TableCell className="text-right font-medium">
-              ${session.amountDue.toFixed(2)}
+              €{session.amountDue.toFixed(2)}
             </TableCell>
           </TableRow>
         ))}

@@ -6,6 +6,7 @@ import {
   getTransactionStats,
   getTransactionById,
   getRfidSessionById,
+  getRfidSessionsByUser,
 } from "./transactions.controller.js";
 
 const router = Router();
@@ -16,5 +17,6 @@ router.get("/charger/:chargerId", getChargerTransactions);
 router.get("/stats", getTransactionStats);
 router.get("/:id", getTransactionById);
 router.get("/rfid/:id", getRfidSessionById);
+router.get("/user/:userId", getRfidSessionsByUser);
 
 export default router;
