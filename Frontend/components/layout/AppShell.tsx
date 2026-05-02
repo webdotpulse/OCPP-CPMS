@@ -15,7 +15,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
+    const storedState = localStorage.getItem('sidebarCollapsed');
+    if (storedState !== null) {
+      setIsCollapsed(storedState === 'true');
+    }
   }, []);
+
+  const handleSetIsCollapsed = (val: boolean) => {
+    setIsCollapsed(val);
+    localStorage.setItem('sidebarCollapsed', val.toString());
+  };
 
   useEffect(() => {
     // Auth unwired for local use
@@ -45,7 +54,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
-      <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
+      <Sidebar isCollapsed={isCollapsed} setIsCollapsed={handleSetIsCollapsed} />
       <div className={`flex-1 flex flex-col transition-all duration-300 ${isCollapsed ? 'ml-16' : 'ml-64'}`}>
         <Topbar />
         <main className="flex-1 p-6 overflow-y-auto">
