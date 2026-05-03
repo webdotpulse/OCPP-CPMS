@@ -41,6 +41,7 @@ export default function SettingsPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [isSavingPassword, setIsSavingPassword] = useState(false);
+  const [createdAt, setCreatedAt] = useState<string | null>(null);
 
   const profileForm = useForm<ProfileValues>({
     resolver: zodResolver(profileSchema),
@@ -70,6 +71,17 @@ export default function SettingsPage() {
         phone: user.phone || "",
         taxNumber: user.taxNumber || "",
       });
+
+      api.get(`/users/${user.id}`)
+        .then(res => {
+          const fetchedUser = res.data?.data || res.data;
+          if (fetchedUser?.createdAt) {
+            setCreatedAt(fetchedUser.createdAt);
+          }
+        })
+        .catch(err => {
+          logger.error("Failed to fetch full user profile for settings", err);
+        });
     }
   }, [user, profileForm]);
 
@@ -190,6 +202,16 @@ export default function SettingsPage() {
                 {profileForm.formState.errors.address && (
                   <p className="text-sm text-destructive">{profileForm.formState.errors.address.message}</p>
                 )}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>System Role</Label>
+                  <Input value={user?.role === 'admin' ? 'Administrator' : 'Standard User'} readOnly className="bg-muted text-muted-foreground" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Member Since</Label>
+                  <Input value={createdAt ? new Date(createdAt).toLocaleDateString() : 'Loading...'} readOnly className="bg-muted text-muted-foreground" />
+                </div>
               </div>
             </CardContent>
             <CardFooter className="border-t pt-4">

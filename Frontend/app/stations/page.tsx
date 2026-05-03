@@ -17,10 +17,15 @@ interface Station {
   city: string;
   state: string;
   postal_code?: string;
+  country?: string;
   status: string;
   _count?: {
     chargers: number;
-  }
+  };
+  owner?: {
+    id: number;
+    email: string;
+  };
 }
 
 export default function StationsPage() {
@@ -71,8 +76,10 @@ export default function StationsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Station Name</TableHead>
+              <TableHead>Name</TableHead>
               <TableHead>Location</TableHead>
+              <TableHead>Country</TableHead>
+              <TableHead>Assigned to</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -80,11 +87,11 @@ export default function StationsPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center">Loading stations...</TableCell>
+                <TableCell colSpan={6} className="h-24 text-center">Loading stations...</TableCell>
               </TableRow>
             ) : stations.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">No stations found.</TableCell>
+                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">No stations found.</TableCell>
               </TableRow>
             ) : (
               stations.map((station) => (
@@ -98,6 +105,12 @@ export default function StationsPage() {
                   <TableCell>
                     {station.street_name ? `${station.street_name}, ` : ''}
                     {station.city}, {station.state} {station.postal_code || ''}
+                  </TableCell>
+                  <TableCell>
+                    {station.country || '—'}
+                  </TableCell>
+                  <TableCell>
+                    {station.owner?.email || '—'}
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className={station.status === 'active' ? 'text-green-500 bg-green-500/10' : ''}>

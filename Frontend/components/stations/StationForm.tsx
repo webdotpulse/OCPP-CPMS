@@ -53,6 +53,38 @@ export function StationForm({ initialData }: StationFormProps) {
     },
   });
 
+  const europeanCountries = [
+    { code: "AT", name: "Austria" },
+    { code: "BE", name: "Belgium" },
+    { code: "BG", name: "Bulgaria" },
+    { code: "HR", name: "Croatia" },
+    { code: "CY", name: "Cyprus" },
+    { code: "CZ", name: "Czech Republic" },
+    { code: "DK", name: "Denmark" },
+    { code: "EE", name: "Estonia" },
+    { code: "FI", name: "Finland" },
+    { code: "FR", name: "France" },
+    { code: "DE", name: "Germany" },
+    { code: "GR", name: "Greece" },
+    { code: "HU", name: "Hungary" },
+    { code: "IE", name: "Ireland" },
+    { code: "IT", name: "Italy" },
+    { code: "LV", name: "Latvia" },
+    { code: "LT", name: "Lithuania" },
+    { code: "LU", name: "Luxembourg" },
+    { code: "MT", name: "Malta" },
+    { code: "NL", name: "Netherlands" },
+    { code: "PL", name: "Poland" },
+    { code: "PT", name: "Portugal" },
+    { code: "RO", name: "Romania" },
+    { code: "SK", name: "Slovakia" },
+    { code: "SI", name: "Slovenia" },
+    { code: "ES", name: "Spain" },
+    { code: "SE", name: "Sweden" },
+    { code: "CH", name: "Switzerland" },
+    { code: "GB", name: "United Kingdom" }
+  ];
+
   const [isGeocoding, setIsGeocoding] = useState(false);
 
   useEffect(() => {
@@ -159,7 +191,21 @@ export function StationForm({ initialData }: StationFormProps) {
           
           <div className="space-y-2">
             <Label htmlFor="country">Country</Label>
-            <Input id="country" {...register('country')} />
+            <Select
+              value={watch('country')}
+              onValueChange={(val) => setValue('country', val, { shouldValidate: true })}
+            >
+              <SelectTrigger id="country">
+                <SelectValue placeholder="Select a country" />
+              </SelectTrigger>
+              <SelectContent>
+                {europeanCountries.map((country) => (
+                  <SelectItem key={country.code} value={country.code}>
+                    {country.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {errors.country && <p className="text-sm text-destructive">{errors.country.message}</p>}
           </div>
 

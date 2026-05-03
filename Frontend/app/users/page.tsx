@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Edit, Building, User as UserIcon, Briefcase } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,16 +32,6 @@ export default function UsersPage() {
   useEffect(() => {
     fetchUsers();
   }, []);
-
-  const updateRole = async (userId: number, newRole: string) => {
-    try {
-      await api.put(`/users/${userId}/role`, { role: newRole });
-      setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
-      toast.success("Role updated");
-    } catch (error: any) {
-      toast.error(error.response?.data?.error || "Failed to update user role.");
-    }
-  };
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this user?")) return;
@@ -123,19 +112,6 @@ export default function UsersPage() {
                       <Badge variant={u.role === 'admin' ? "default" : "secondary"}>
                         {u.role}
                       </Badge>
-                      <Select
-                        value={u.role}
-                        onValueChange={(val) => updateRole(u.id, val)}
-                        disabled={u.id === user.id} // prevent changing own role easily
-                      >
-                        <SelectTrigger className="w-[120px] h-8">
-                          <SelectValue placeholder="Select role" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="user">User</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
