@@ -3,6 +3,7 @@ import { chargerRegistry } from "./chargerRegistry.js";
 import { logger } from "../utils/logger.js";
 import type { OcppDirection } from "../types/index.js";
 import { redisPublisher } from "../config/redis.js";
+import { loadManagementService } from "../services/LoadManagementService.js";
 
 /**
  * Log OCPP message to database and broadcast live via Redis pub/sub
@@ -284,7 +285,7 @@ export async function handleStartTransaction(
     }
 
     // Create basic Transaction record
-    await prisma.transaction.create({
+    const newTransaction = await prisma.transaction.create({
       data: {
         transactionId,
         connectorName: `Connector_${connectorId}`,
@@ -294,6 +295,7 @@ export async function handleStartTransaction(
         status: "initiated",
         idTag: idTag,
       },
+      include: { charger: true }
     });
 
     // Register transaction in memory
@@ -303,6 +305,16 @@ export async function handleStartTransaction(
       `Connector_${connectorId}`,
       idTag
     );
+
+    // Trigger Load Balancing since a new transaction has started
+    if (newTransaction.charger.charging_station_id) {
+      loadManagementService.balanceSiteLoad(newTransaction.charger.charging_station_id)
+        .catch(err => logger.error(`Error balancing site load: ${err}`));
+    }
+    if (newTransaction.charger.chargeGroupId) {
+      loadManagementService.balanceChargeGroupLoad(newTransaction.charger.chargeGroupId)
+        .catch(err => logger.error(`Error balancing charge group load: ${err}`));
+    }
 
     logger.info(`Transaction ${transactionId} started on charger ${chargerId}, connector ${connectorId}`);
     let response: any = { transactionId };
@@ -349,7 +361,7 @@ export async function handleStopTransaction(
     });
 
     if (transaction) {
-      await prisma.transaction.update({
+      const updatedTransaction = await prisma.transaction.update({
         where: { id: transaction.id },
         data: {
           finalMeterValue: meterStop,
@@ -357,7 +369,18 @@ export async function handleStopTransaction(
           status: "completed",
           energyConsumed: meterStop - (transaction.initialMeterValue || 0),
         },
+        include: { charger: true }
       });
+
+      // Trigger Load Balancing since a transaction has stopped, freeing up capacity
+      if (updatedTransaction.charger.charging_station_id) {
+        loadManagementService.balanceSiteLoad(updatedTransaction.charger.charging_station_id)
+          .catch(err => logger.error(`Error balancing site load: ${err}`));
+      }
+      if (updatedTransaction.charger.chargeGroupId) {
+        loadManagementService.balanceChargeGroupLoad(updatedTransaction.charger.chargeGroupId)
+          .catch(err => logger.error(`Error balancing charge group load: ${err}`));
+      }
     }
 
     // Update RfidSession if exists

@@ -45,6 +45,7 @@ model ChargingStation {
   on_site_contact_details String?
   emergency_contact       String?
   status                  String   @default("active")
+  maxPower                Float?   // Maximum allowed capacity in kW/Amps
   owner_id                Int
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
@@ -83,6 +84,7 @@ model Charger {
   chargeGroup         ChargeGroup?         @relation(fields: [chargeGroupId], references: [id], onDelete: SetNull)
   chargeGroupId       Int?
   configurations      ChargerConfiguration[]
+  chargingProfiles    ChargingProfile[]
 }
 
 // Charge connector (multiple per charger)
@@ -214,6 +216,7 @@ model ChargeGroup {
   id          Int      @id @default(autoincrement())
   name        String
   description String?
+  maxPower    Float?   // Maximum allowed capacity in kW/Amps
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -241,4 +244,26 @@ model ChargeGroupUser {
   tariff        Tariff?     @relation(fields: [tariffId], references: [tariff_id])
 
   @@id([chargeGroupId, userId])
+}
+
+// OCPP Smart Charging Profiles applied to chargers
+model ChargingProfile {
+  id                     Int      @id @default(autoincrement())
+  chargerId              Int
+  connectorId            Int
+  chargingProfileId      Int
+  transactionId          String?
+  stackLevel             Int
+  chargingProfilePurpose String   // e.g. "ChargePointMaxProfile", "TxDefaultProfile", "TxProfile"
+  chargingProfileKind    String   // e.g. "Absolute", "Recurring", "Relative"
+  recurrencyKind         String?
+  validFrom              DateTime?
+  validTo                DateTime?
+  chargingSchedule       Json     // Store the complex charging schedule object
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  charger                Charger  @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
+
+  @@unique([chargerId, chargingProfileId])
 }
