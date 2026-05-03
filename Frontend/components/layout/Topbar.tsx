@@ -2,7 +2,8 @@ import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun, LogOut, User } from 'lucide-react';
+import { Moon, Sun, LogOut, User, HelpCircle } from 'lucide-react';
+import Link from 'next/link';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +31,12 @@ export function Topbar() {
       </div>
 
       <div className="flex items-center gap-4">
+        <Link href="/guide" passHref>
+          <Button variant="ghost" size="icon" title="Guide">
+            <HelpCircle className="h-5 w-5" />
+            <span className="sr-only">Guide</span>
+          </Button>
+        </Link>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">

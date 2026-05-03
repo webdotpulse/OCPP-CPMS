@@ -100,6 +100,7 @@ export const getAllChargers = async (req: Request, res: Response) => {
         where,
         include: {
           chargingStation: true,
+          chargeGroup: true,
           connectors: true,
           owner: { select: { id: true, email: true } },
         },
