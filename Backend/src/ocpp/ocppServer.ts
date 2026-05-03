@@ -59,6 +59,15 @@ class OcppServer {
 
       if (!charger) {
         logger.error(`Charger ${chargerIdStr} not found in database`);
+        // Log unrecognized connection
+        await prisma.unrecognizedConnection.create({
+          data: {
+            chargePointId: chargerIdStr,
+            ipAddress: request.socket.remoteAddress || "Unknown",
+            reason: "Charger not found in database",
+          },
+        }).catch(err => logger.error(`Failed to log unrecognized connection: ${err}`));
+
         ws.close();
         return;
       }
@@ -66,6 +75,15 @@ class OcppServer {
       const chargerId = charger.charger_id;
       if (charger.status === "disabled") {
         logger.error(`Charger ${chargerId} is disabled`);
+        // Log unrecognized connection
+        await prisma.unrecognizedConnection.create({
+          data: {
+            chargePointId: chargerIdStr,
+            ipAddress: request.socket.remoteAddress || "Unknown",
+            reason: "Charger is disabled",
+          },
+        }).catch(err => logger.error(`Failed to log unrecognized connection: ${err}`));
+
         ws.close();
         return;
       }

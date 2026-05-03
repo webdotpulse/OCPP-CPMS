@@ -104,11 +104,18 @@ export default function ChargersPage() {
           <h1 className="text-2xl font-bold tracking-tight">Chargers</h1>
           <p className="text-muted-foreground">Manage OCPP charging points across all stations.</p>
         </div>
-        <Link href="/chargers/new">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" /> Add Charger
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/chargers/unrecognized">
+            <Button variant="secondary">
+              View Unrecognized
+            </Button>
+          </Link>
+          <Link href="/chargers/new">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" /> Add Charger
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="mb-4">

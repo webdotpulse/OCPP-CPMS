@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   getAllChargers,
+  getUnrecognizedConnections,
   getChargerById,
   getChargerStatus,
   createCharger,
@@ -14,6 +15,7 @@ import {
 const router = Router();
 
 router.get("/", getAllChargers);
+router.get("/unrecognized", getUnrecognizedConnections);
 router.get("/:id", getChargerById);
 router.get("/:id/status", getChargerStatus);
 router.get("/:id/logs", getChargerLogs);

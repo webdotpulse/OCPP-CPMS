@@ -1,8 +1,11 @@
+"use client";
+
 import { AppShell } from "@/components/layout/AppShell";
 import { ChargerForm } from "@/components/chargers/ChargerForm";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
 
 export default function NewChargerPage() {
   return (
@@ -18,7 +21,9 @@ export default function NewChargerPage() {
           <p className="text-muted-foreground">Register an OCPP-compliant charging point to the network.</p>
         </div>
       </div>
-      <ChargerForm />
+      <Suspense fallback={<div>Loading form...</div>}>
+        <ChargerForm />
+      </Suspense>
     </AppShell>
   );
 }
