@@ -66,7 +66,7 @@ export const getChargeGroupById = async (req: Request, res: Response) => {
  */
 export const createChargeGroup = async (req: Request, res: Response) => {
   try {
-    const { name, description, chargerIds, users } = req.body;
+    const { name, description, chargerIds, users, maxPower } = req.body;
 
     if (!name) return res.status(400).json({ success: false, error: "Name is required" });
 
@@ -82,6 +82,7 @@ export const createChargeGroup = async (req: Request, res: Response) => {
       data: {
         name,
         description,
+        maxPower,
         users: {
           create: users?.map((u: any) => ({ userId: u.userId, tariffId: u.tariffId })) || []
         }
@@ -120,7 +121,7 @@ export const updateChargeGroup = async (req: Request, res: Response) => {
     const id = parseId(req.params.id);
     if (!id) return res.status(400).json({ success: false, error: "Invalid ID" });
 
-    const { name, description, chargerIds, users } = req.body;
+    const { name, description, chargerIds, users, maxPower } = req.body;
 
     if (chargerIds && !Array.isArray(chargerIds)) {
       return res.status(400).json({ success: false, error: "chargerIds must be an array" });
@@ -157,6 +158,7 @@ export const updateChargeGroup = async (req: Request, res: Response) => {
         data: {
           name,
           description,
+          maxPower,
           users: users ? { create: users.map((u: any) => ({ userId: u.userId, tariffId: u.tariffId })) } : undefined
         },
         include: { chargers: true, users: true }

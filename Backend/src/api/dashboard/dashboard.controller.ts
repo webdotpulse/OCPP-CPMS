@@ -216,6 +216,75 @@ export const getDistribution = async (req: Request, res: Response) => {
 };
 
 /**
+ * GET /api/dashboard/load - Get load metrics for smart charging
+ */
+export const getLoadMetrics = async (req: Request, res: Response) => {
+  try {
+    // @ts-expect-error userRole is attached by authenticateToken middleware
+    const userRole = req.userRole;
+    // @ts-expect-error userId is attached by authenticateToken middleware
+    const userId = req.userId;
+
+    const isUser = userRole !== "admin";
+
+    // 1. Fetch sites with maxPower
+    const stations = await prisma.chargingStation.findMany({
+      where: isUser ? { owner_id: userId, maxPower: { not: null } } : { maxPower: { not: null } },
+      include: { chargers: true },
+    });
+
+    // 2. Fetch groups with maxPower (only admins can see charge groups currently or users assigned to them,
+    // for simplicity we'll just show to admin or check relations if needed. Assuming group maxPower is globally visible for admin)
+    const groups = await prisma.chargeGroup.findMany({
+      where: { maxPower: { not: null } },
+      include: { chargers: true },
+    });
+
+    const activeTransactions = await prisma.transaction.findMany({
+      where: { status: { in: ["initiated", "charging"] } },
+      include: { charger: true }
+    });
+
+    const siteLoads = stations.map((station: any) => {
+      const activeTxs = activeTransactions.filter((tx: any) => tx.charger.charging_station_id === station.id);
+      const currentLoad = activeTxs.reduce((sum: number, tx: any) => sum + (tx.charger.power_capacity || 0), 0);
+      return {
+        id: station.id,
+        name: station.station_name,
+        type: "station",
+        maxPower: station.maxPower,
+        currentLoad: currentLoad,
+        activeChargers: activeTxs.length
+      };
+    });
+
+    const groupLoads = groups.map((group: any) => {
+      const activeTxs = activeTransactions.filter((tx: any) => tx.charger.chargeGroupId === group.id);
+      const currentLoad = activeTxs.reduce((sum: number, tx: any) => sum + (tx.charger.power_capacity || 0), 0);
+      return {
+        id: group.id,
+        name: group.name,
+        type: "group",
+        maxPower: group.maxPower,
+        currentLoad: currentLoad,
+        activeChargers: activeTxs.length
+      };
+    });
+
+    res.json({
+      success: true,
+      data: [...siteLoads, ...groupLoads],
+    });
+  } catch (error) {
+    logger.error(`Error getting load metrics: ${error}`);
+    res.status(500).json({
+      success: false,
+      error: "Failed to get load metrics",
+    });
+  }
+};
+
+/**
  * GET /api/dashboard/chargers-status - Get all chargers with their status
  */
 export const getChargersStatus = async (req: Request, res: Response) => {

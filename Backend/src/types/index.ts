@@ -102,6 +102,7 @@ export interface CreateStationDto {
   on_site_contact_details?: string;
   emergency_contact?: string;
   status?: string;
+  maxPower?: number;
   owner_id: number;
 }
 

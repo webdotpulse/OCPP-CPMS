@@ -19,6 +19,7 @@ export default function CreateChargeGroupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [maxPower, setMaxPower] = useState<number | "">("");
 
   const [allTariffs, setAllTariffs] = useState<any[]>([]);
 
@@ -109,6 +110,7 @@ export default function CreateChargeGroupPage() {
       await api.post('/charge-groups', {
         name,
         description,
+        maxPower: maxPower === "" ? null : Number(maxPower),
         chargerIds: selectedChargers,
         users: groupUsers
       });
@@ -140,6 +142,17 @@ export default function CreateChargeGroupPage() {
                 <div className="space-y-2">
                   <Label>Description</Label>
                   <Textarea value={description} onChange={(e: any) => setDescription(e.target.value)} placeholder="Optional details..." />
+                </div>
+                <div className="space-y-2 pt-2 border-t">
+                  <Label>Maximum Group Power Capacity (kW)</Label>
+                  <Input
+                    type="number"
+                    step="any"
+                    value={maxPower}
+                    onChange={(e: any) => setMaxPower(e.target.value)}
+                    placeholder="e.g. 150"
+                  />
+                  <p className="text-xs text-muted-foreground">Used for Smart Charging Load Management to dynamically throttle chargers if group load approaches this limit.</p>
                 </div>
               </CardContent>
             </Card>
