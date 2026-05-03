@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +41,8 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
   const [usersList, setUsersList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const nameParam = searchParams.get('name');
 
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<ChargerFormValues>({
     resolver: zodResolver(chargerSchema),
@@ -51,6 +53,7 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,
       chargeGroupId: initialData?.chargeGroupId || undefined,
     } : {
+      name: nameParam || '',
       latitude: undefined,
       longitude: undefined,
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,

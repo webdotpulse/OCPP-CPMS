@@ -246,6 +246,15 @@ model ChargeGroupUser {
   @@id([chargeGroupId, userId])
 }
 
+// Unrecognized or rejected OCPP connections
+model UnrecognizedConnection {
+  id            Int      @id @default(autoincrement())
+  chargePointId String
+  ipAddress     String?
+  reason        String
+  timestamp     DateTime @default(now())
+}
+
 // OCPP Smart Charging Profiles applied to chargers
 model ChargingProfile {
   id                     Int      @id @default(autoincrement())

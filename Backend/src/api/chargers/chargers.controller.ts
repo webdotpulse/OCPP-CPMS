@@ -10,6 +10,29 @@ import type { CreateChargerDto, UpdateChargerDto } from "../../types/index.js";
 /**
  * GET /api/chargers - Get all chargers
  */
+
+/**
+ * GET /api/chargers/unrecognized - Get all unrecognized connections
+ */
+export const getUnrecognizedConnections = async (req: Request, res: Response) => {
+  try {
+    const { limit = 50 } = req.query;
+
+    const unrecognized = await prisma.unrecognizedConnection.findMany({
+      orderBy: { timestamp: "desc" },
+      take: Number(limit),
+    });
+
+    res.json({ success: true, data: unrecognized });
+  } catch (error) {
+    logger.error(`Error getting unrecognized connections: ${error}`);
+    res.status(500).json({
+      success: false,
+      error: "Failed to get unrecognized connections",
+    });
+  }
+};
+
 /**
  * GET /api/chargers/:id/logs - Get charger logs
  */
