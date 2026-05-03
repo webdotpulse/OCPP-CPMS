@@ -22,6 +22,7 @@ export default function EditChargeGroupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [maxPower, setMaxPower] = useState<number | "">("");
 
   const [allTariffs, setAllTariffs] = useState<any[]>([]);
 
@@ -51,6 +52,7 @@ export default function EditChargeGroupPage() {
         const groupData = groupRes.data.data || groupRes.data;
         setName(groupData.name);
         setDescription(groupData.description || "");
+        setMaxPower(groupData.maxPower !== null ? groupData.maxPower : "");
 
         const initialChargers = groupData.chargers || [];
         setSelectedChargers(initialChargers.map((c: any) => c.charger_id));
@@ -135,6 +137,7 @@ export default function EditChargeGroupPage() {
       await api.put(`/charge-groups/${params.id}`, {
         name,
         description,
+        maxPower: maxPower === "" ? null : Number(maxPower),
         chargerIds: selectedChargers,
         users: groupUsers
       });
@@ -166,6 +169,17 @@ export default function EditChargeGroupPage() {
                 <div className="space-y-2">
                   <Label>Description</Label>
                   <Textarea value={description} onChange={(e: any) => setDescription(e.target.value)} placeholder="Optional details..." />
+                </div>
+                <div className="space-y-2 pt-2 border-t">
+                  <Label>Maximum Group Power Capacity (kW)</Label>
+                  <Input
+                    type="number"
+                    step="any"
+                    value={maxPower}
+                    onChange={(e: any) => setMaxPower(e.target.value)}
+                    placeholder="e.g. 150"
+                  />
+                  <p className="text-xs text-muted-foreground">Used for Smart Charging Load Management to dynamically throttle chargers if group load approaches this limit.</p>
                 </div>
               </CardContent>
             </Card>

@@ -29,6 +29,7 @@ const stationSchema = z.object({
   on_site_person_name: z.string().optional(),
   on_site_contact_details: z.string().optional(),
   emergency_contact: z.string().optional(),
+  maxPower: z.number().min(0).optional().nullable(),
   owner_id: z.number().optional(),
 });
 
@@ -201,6 +202,20 @@ export function StationForm({ initialData }: StationFormProps) {
             <Label htmlFor="emergency_contact">Emergency Contact Info</Label>
             <Input id="emergency_contact" {...register('emergency_contact')} />
             {errors.emergency_contact && <p className="text-sm text-destructive">{errors.emergency_contact.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="maxPower">Maximum Site Power Capacity (kW)</Label>
+            <Input
+              id="maxPower"
+              type="number"
+              step="any"
+              {...register('maxPower', {
+                setValueAs: v => v === "" ? null : parseFloat(v)
+              })}
+            />
+            {errors.maxPower && <p className="text-sm text-destructive">{errors.maxPower.message}</p>}
+            <p className="text-xs text-muted-foreground">Used for Smart Charging Load Management to dynamically throttle chargers if site load approaches this limit.</p>
           </div>
 
           {user?.role === 'admin' && (

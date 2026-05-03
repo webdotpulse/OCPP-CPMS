@@ -1,0 +1,894 @@
+
+> backend@1.0.0 dev
+> tsx watch src/server.ts
+
+2026-05-03 14:33:11 [[32MINFO[39M]: OCPP logs WebSocket attached to main HTTP server at /api/ocpp-logs
+2026-05-03 14:33:11 [[32MINFO[39M]: Starting Open-Source OCPP CMS...
+2026-05-03 14:33:11 [[32MINFO[39M]: OCPP server listening on port 9220
+2026-05-03 14:33:11 [[32MINFO[39M]: Express API server listening on port 3000
+2026-05-03 14:33:11 [[32MINFO[39M]: OCPP WebSocket server on port 9220
+2026-05-03 14:33:11 [[32MINFO[39M]: All servers started successfully
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:11 [[33MWARN[39M]: Redis connection retry attempt 1
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:11 [[33MWARN[39M]: Redis connection retry attempt 2
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:11 [[33MWARN[39M]: Redis connection retry attempt 3
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:11 [[33MWARN[39M]: Redis connection retry attempt 4
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:11 [[33MWARN[39M]: Redis connection retry attempt 5
+2026-05-03 14:33:11 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:12 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:12 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:12 [[33MWARN[39M]: Redis connection retry attempt 6
+2026-05-03 14:33:12 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:12 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:12 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:12 [[33MWARN[39M]: Redis connection retry attempt 7
+2026-05-03 14:33:12 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:12 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:12 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:12 [[33MWARN[39M]: Redis connection retry attempt 8
+2026-05-03 14:33:12 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:13 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:13 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:13 [[33MWARN[39M]: Redis connection retry attempt 9
+2026-05-03 14:33:13 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:13 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:13 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:13 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:13 [[33MWARN[39M]: Redis connection retry attempt 10
+2026-05-03 14:33:14 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:14 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:14 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:14 [[33MWARN[39M]: Redis connection retry attempt 11
+2026-05-03 14:33:14 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:14 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:14 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:14 [[33MWARN[39M]: Redis connection retry attempt 12
+2026-05-03 14:33:15 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:15 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:15 [[33MWARN[39M]: Redis connection retry attempt 13
+2026-05-03 14:33:15 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:15 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:15 [[33MWARN[39M]: Redis connection retry attempt 14
+2026-05-03 14:33:15 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:15 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:16 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:16 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:16 [[33MWARN[39M]: Redis connection retry attempt 15
+2026-05-03 14:33:16 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:17 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:17 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:17 [[33MWARN[39M]: Redis connection retry attempt 16
+2026-05-03 14:33:17 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:18 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:18 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:18 [[33MWARN[39M]: Redis connection retry attempt 17
+2026-05-03 14:33:18 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:18 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:18 [[33MWARN[39M]: Redis connection retry attempt 18
+2026-05-03 14:33:18 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:18 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:19 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:19 [[33MWARN[39M]: Redis connection retry attempt 19
+2026-05-03 14:33:19 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:19 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:20 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:20 [[33MWARN[39M]: Redis connection retry attempt 20
+2026-05-03 14:33:20 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:20 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:21 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:21 [[33MWARN[39M]: Redis connection retry attempt 21
+2026-05-03 14:33:21 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:21 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:22 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:22 [[33MWARN[39M]: Redis connection retry attempt 22
+2026-05-03 14:33:22 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:22 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:24 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:24 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:24 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:24 [[33MWARN[39M]: Redis connection retry attempt 23
+2026-05-03 14:33:25 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:25 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:25 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:25 [[33MWARN[39M]: Redis connection retry attempt 24
+2026-05-03 14:33:26 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:26 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:26 [[33MWARN[39M]: Redis connection retry attempt 25
+2026-05-03 14:33:26 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:27 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:27 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:27 [[33MWARN[39M]: Redis connection retry attempt 26
+2026-05-03 14:33:27 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:28 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:28 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:28 [[33MWARN[39M]: Redis connection retry attempt 27
+2026-05-03 14:33:28 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:30 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:30 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:30 [[33MWARN[39M]: Redis connection retry attempt 28
+2026-05-03 14:33:30 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:31 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:31 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:31 [[33MWARN[39M]: Redis connection retry attempt 29
+2026-05-03 14:33:31 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:33 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:33 [[33MWARN[39M]: Redis connection retry attempt 30
+2026-05-03 14:33:33 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:33 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:34 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:34 [[33MWARN[39M]: Redis connection retry attempt 31
+2026-05-03 14:33:34 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:34 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:36 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:36 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:36 [[33MWARN[39M]: Redis connection retry attempt 32
+2026-05-03 14:33:36 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:37 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:37 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:37 [[33MWARN[39M]: Redis connection retry attempt 33
+2026-05-03 14:33:37 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:39 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:39 [[33MWARN[39M]: Redis connection retry attempt 34
+2026-05-03 14:33:39 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:39 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:41 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:41 [[33MWARN[39M]: Redis connection retry attempt 35
+2026-05-03 14:33:41 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:41 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:42 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:42 [[33MWARN[39M]: Redis connection retry attempt 36
+2026-05-03 14:33:42 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:42 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:44 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:44 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:44 [[33MWARN[39M]: Redis connection retry attempt 37
+2026-05-03 14:33:44 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:46 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:46 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:46 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:46 [[33MWARN[39M]: Redis connection retry attempt 38
+2026-05-03 14:33:48 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:48 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:48 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:48 [[33MWARN[39M]: Redis connection retry attempt 39
+2026-05-03 14:33:50 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:50 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:50 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:50 [[33MWARN[39M]: Redis connection retry attempt 40
+2026-05-03 14:33:52 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:52 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:52 [[33MWARN[39M]: Redis connection retry attempt 41
+2026-05-03 14:33:52 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:54 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:54 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:54 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:54 [[33MWARN[39M]: Redis connection retry attempt 42
+2026-05-03 14:33:56 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:56 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:56 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:56 [[33MWARN[39M]: Redis connection retry attempt 43
+2026-05-03 14:33:58 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:33:58 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:33:58 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:33:58 [[33MWARN[39M]: Redis connection retry attempt 44
+2026-05-03 14:34:00 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:00 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:00 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:00 [[33MWARN[39M]: Redis connection retry attempt 45
+2026-05-03 14:34:02 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:02 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:02 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:02 [[33MWARN[39M]: Redis connection retry attempt 46
+2026-05-03 14:34:04 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:04 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:04 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:04 [[33MWARN[39M]: Redis connection retry attempt 47
+2026-05-03 14:34:06 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:06 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:06 [[33MWARN[39M]: Redis connection retry attempt 48
+2026-05-03 14:34:06 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:08 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:08 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:08 [[33MWARN[39M]: Redis connection retry attempt 49
+2026-05-03 14:34:08 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:10 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:10 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:10 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:10 [[33MWARN[39M]: Redis connection retry attempt 50
+2026-05-03 14:34:12 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:12 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:12 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:12 [[33MWARN[39M]: Redis connection retry attempt 51
+2026-05-03 14:34:14 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:14 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:14 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:14 [[33MWARN[39M]: Redis connection retry attempt 52
+2026-05-03 14:34:16 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:16 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:16 [[33MWARN[39M]: Redis connection retry attempt 53
+2026-05-03 14:34:16 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:18 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:18 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:18 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:18 [[33MWARN[39M]: Redis connection retry attempt 54
+2026-05-03 14:34:20 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:20 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:20 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:20 [[33MWARN[39M]: Redis connection retry attempt 55
+2026-05-03 14:34:22 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:22 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:22 [[33MWARN[39M]: Redis connection retry attempt 56
+2026-05-03 14:34:22 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:24 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:24 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:24 [[33MWARN[39M]: Redis connection retry attempt 57
+2026-05-03 14:34:24 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:26 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:26 [[33MWARN[39M]: Redis connection retry attempt 58
+2026-05-03 14:34:26 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:26 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:28 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:28 [[33MWARN[39M]: Redis connection retry attempt 59
+2026-05-03 14:34:28 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:28 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:30 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:30 [[33MWARN[39M]: Redis connection retry attempt 60
+2026-05-03 14:34:30 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:30 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:32 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:32 [[33MWARN[39M]: Redis connection retry attempt 61
+2026-05-03 14:34:32 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:32 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:34 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:34 [[33MWARN[39M]: Redis connection retry attempt 62
+2026-05-03 14:34:34 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:34 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:36 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:36 [[33MWARN[39M]: Redis connection retry attempt 63
+2026-05-03 14:34:36 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:36 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:38 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:38 [[33MWARN[39M]: Redis connection retry attempt 64
+2026-05-03 14:34:38 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:38 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:40 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:40 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:40 [[33MWARN[39M]: Redis connection retry attempt 65
+2026-05-03 14:34:40 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:42 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:42 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:42 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:42 [[33MWARN[39M]: Redis connection retry attempt 66
+2026-05-03 14:34:44 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:44 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:44 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:44 [[33MWARN[39M]: Redis connection retry attempt 67
+2026-05-03 14:34:46 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:46 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:46 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:46 [[33MWARN[39M]: Redis connection retry attempt 68
+2026-05-03 14:34:48 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:48 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:48 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:48 [[33MWARN[39M]: Redis connection retry attempt 69
+2026-05-03 14:34:50 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:50 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:50 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:50 [[33MWARN[39M]: Redis connection retry attempt 70
+2026-05-03 14:34:52 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:52 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:52 [[33MWARN[39M]: Redis connection retry attempt 71
+2026-05-03 14:34:52 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:54 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:54 [[33MWARN[39M]: Redis connection retry attempt 72
+2026-05-03 14:34:54 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:54 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:56 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:56 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:56 [[33MWARN[39M]: Redis connection retry attempt 73
+2026-05-03 14:34:56 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:34:58 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:34:58 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:34:58 [[33MWARN[39M]: Redis connection retry attempt 74
+2026-05-03 14:34:58 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:00 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:00 [[33MWARN[39M]: Redis connection retry attempt 75
+2026-05-03 14:35:00 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:00 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:02 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:02 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:02 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:02 [[33MWARN[39M]: Redis connection retry attempt 76
+2026-05-03 14:35:04 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:04 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:04 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:04 [[33MWARN[39M]: Redis connection retry attempt 77
+2026-05-03 14:35:06 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:06 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:06 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:06 [[33MWARN[39M]: Redis connection retry attempt 78
+2026-05-03 14:35:08 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:08 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:08 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:08 [[33MWARN[39M]: Redis connection retry attempt 79
+2026-05-03 14:35:10 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:10 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:10 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:10 [[33MWARN[39M]: Redis connection retry attempt 80
+2026-05-03 14:35:12 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:12 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:12 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:12 [[33MWARN[39M]: Redis connection retry attempt 81
+2026-05-03 14:35:14 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:14 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:14 [[33MWARN[39M]: Redis connection retry attempt 82
+2026-05-03 14:35:14 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:16 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:16 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:16 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:16 [[33MWARN[39M]: Redis connection retry attempt 83
+2026-05-03 14:35:18 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:18 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:18 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:18 [[33MWARN[39M]: Redis connection retry attempt 84
+2026-05-03 14:35:20 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:20 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:20 [[33MWARN[39M]: Redis connection retry attempt 85
+2026-05-03 14:35:20 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:22 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:22 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:22 [[33MWARN[39M]: Redis connection retry attempt 86
+2026-05-03 14:35:22 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:24 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:24 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:24 [[33MWARN[39M]: Redis connection retry attempt 87
+2026-05-03 14:35:24 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:26 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:26 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:26 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:26 [[33MWARN[39M]: Redis connection retry attempt 88
+2026-05-03 14:35:28 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:28 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:28 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:28 [[33MWARN[39M]: Redis connection retry attempt 89
+2026-05-03 14:35:30 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:30 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:30 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:30 [[33MWARN[39M]: Redis connection retry attempt 90
+2026-05-03 14:35:32 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:32 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:32 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:32 [[33MWARN[39M]: Redis connection retry attempt 91
+2026-05-03 14:35:34 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:34 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:34 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:34 [[33MWARN[39M]: Redis connection retry attempt 92
+2026-05-03 14:35:36 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:36 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:36 [[33MWARN[39M]: Redis connection retry attempt 93
+2026-05-03 14:35:36 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:38 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:38 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:38 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:38 [[33MWARN[39M]: Redis connection retry attempt 94
+2026-05-03 14:35:40 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:40 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:40 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:40 [[33MWARN[39M]: Redis connection retry attempt 95
+2026-05-03 14:35:42 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:42 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:42 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:42 [[33MWARN[39M]: Redis connection retry attempt 96
+2026-05-03 14:35:44 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:44 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:44 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:44 [[33MWARN[39M]: Redis connection retry attempt 97
+2026-05-03 14:35:46 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:46 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:46 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:46 [[33MWARN[39M]: Redis connection retry attempt 98
+2026-05-03 14:35:48 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:48 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:48 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:48 [[33MWARN[39M]: Redis connection retry attempt 99
+2026-05-03 14:35:50 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:50 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:50 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:50 [[33MWARN[39M]: Redis connection retry attempt 100
+2026-05-03 14:35:52 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:52 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:52 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:52 [[33MWARN[39M]: Redis connection retry attempt 101
+2026-05-03 14:35:54 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:54 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:54 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:54 [[33MWARN[39M]: Redis connection retry attempt 102
+2026-05-03 14:35:56 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:56 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:35:56 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:56 [[33MWARN[39M]: Redis connection retry attempt 103
+2026-05-03 14:35:58 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:35:58 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:35:58 [[33MWARN[39M]: Redis connection retry attempt 104
+2026-05-03 14:35:58 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:00 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:00 [[33MWARN[39M]: Redis connection retry attempt 105
+2026-05-03 14:36:00 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:00 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:02 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:02 [[33MWARN[39M]: Redis connection retry attempt 106
+2026-05-03 14:36:02 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:02 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:04 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:04 [[33MWARN[39M]: Redis connection retry attempt 107
+2026-05-03 14:36:04 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:04 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:06 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:06 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:06 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:06 [[33MWARN[39M]: Redis connection retry attempt 108
+2026-05-03 14:36:08 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:08 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:08 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:08 [[33MWARN[39M]: Redis connection retry attempt 109
+2026-05-03 14:36:10 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:10 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:10 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:10 [[33MWARN[39M]: Redis connection retry attempt 110
+2026-05-03 14:36:12 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:12 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:12 [[33MWARN[39M]: Redis connection retry attempt 111
+2026-05-03 14:36:12 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:14 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:14 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:14 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:14 [[33MWARN[39M]: Redis connection retry attempt 112
+2026-05-03 14:36:16 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:16 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:16 [[33MWARN[39M]: Redis connection retry attempt 113
+2026-05-03 14:36:16 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:18 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:18 [[33MWARN[39M]: Redis connection retry attempt 114
+2026-05-03 14:36:18 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:18 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:20 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:20 [[33MWARN[39M]: Redis connection retry attempt 115
+2026-05-03 14:36:20 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:20 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:22 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:22 [[33MWARN[39M]: Redis connection retry attempt 116
+2026-05-03 14:36:22 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:22 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:24 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:24 [[33MWARN[39M]: Redis connection retry attempt 117
+2026-05-03 14:36:24 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:24 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:26 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:26 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:26 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:26 [[33MWARN[39M]: Redis connection retry attempt 118
+2026-05-03 14:36:28 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:28 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:28 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:28 [[33MWARN[39M]: Redis connection retry attempt 119
+2026-05-03 14:36:30 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:30 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:30 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:30 [[33MWARN[39M]: Redis connection retry attempt 120
+2026-05-03 14:36:32 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:32 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:32 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:32 [[33MWARN[39M]: Redis connection retry attempt 121
+2026-05-03 14:36:34 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:34 [[33MWARN[39M]: Redis connection retry attempt 122
+2026-05-03 14:36:34 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:34 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:36 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:36 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:36 [[33MWARN[39M]: Redis connection retry attempt 123
+2026-05-03 14:36:36 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:38 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:38 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:38 [[33MWARN[39M]: Redis connection retry attempt 124
+2026-05-03 14:36:38 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:40 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:40 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:40 [[33MWARN[39M]: Redis connection retry attempt 125
+2026-05-03 14:36:40 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:42 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:42 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:42 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:42 [[33MWARN[39M]: Redis connection retry attempt 126
+2026-05-03 14:36:44 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:44 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:44 [[33MWARN[39M]: Redis connection retry attempt 127
+2026-05-03 14:36:44 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:46 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:46 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:46 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:46 [[33MWARN[39M]: Redis connection retry attempt 128
+2026-05-03 14:36:48 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:48 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:48 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:48 [[33MWARN[39M]: Redis connection retry attempt 129
+2026-05-03 14:36:50 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:50 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:50 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:50 [[33MWARN[39M]: Redis connection retry attempt 130
+2026-05-03 14:36:52 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:52 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:52 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:52 [[33MWARN[39M]: Redis connection retry attempt 131
+2026-05-03 14:36:54 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:54 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:54 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:54 [[33MWARN[39M]: Redis connection retry attempt 132
+2026-05-03 14:36:56 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:56 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:56 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:56 [[33MWARN[39M]: Redis connection retry attempt 133
+2026-05-03 14:36:58 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:36:58 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:36:58 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:36:58 [[33MWARN[39M]: Redis connection retry attempt 134
+2026-05-03 14:37:00 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:00 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:00 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:00 [[33MWARN[39M]: Redis connection retry attempt 135
+2026-05-03 14:37:02 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:02 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:02 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:02 [[33MWARN[39M]: Redis connection retry attempt 136
+2026-05-03 14:37:04 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:04 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:04 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:04 [[33MWARN[39M]: Redis connection retry attempt 137
+2026-05-03 14:37:06 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:06 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:06 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:06 [[33MWARN[39M]: Redis connection retry attempt 138
+2026-05-03 14:37:08 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:08 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:08 [[33MWARN[39M]: Redis connection retry attempt 139
+2026-05-03 14:37:08 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:10 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:10 [[33MWARN[39M]: Redis connection retry attempt 140
+2026-05-03 14:37:10 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:10 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:12 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:12 [[33MWARN[39M]: Redis connection retry attempt 141
+2026-05-03 14:37:12 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:12 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:14 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:14 [[33MWARN[39M]: Redis connection retry attempt 142
+2026-05-03 14:37:14 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:14 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:16 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:16 [[33MWARN[39M]: Redis connection retry attempt 143
+2026-05-03 14:37:16 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:16 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:18 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:18 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:18 [[33MWARN[39M]: Redis connection retry attempt 144
+2026-05-03 14:37:18 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:20 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:20 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:20 [[33MWARN[39M]: Redis connection retry attempt 145
+2026-05-03 14:37:20 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:22 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:22 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:22 [[33MWARN[39M]: Redis connection retry attempt 146
+2026-05-03 14:37:22 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:24 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:24 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:24 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:24 [[33MWARN[39M]: Redis connection retry attempt 147
+2026-05-03 14:37:26 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:26 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:26 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:26 [[33MWARN[39M]: Redis connection retry attempt 148
+2026-05-03 14:37:28 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:28 [[33MWARN[39M]: Redis connection retry attempt 149
+2026-05-03 14:37:28 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:28 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:30 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:30 [[33MWARN[39M]: Redis connection retry attempt 150
+2026-05-03 14:37:30 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:30 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:32 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:32 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:32 [[33MWARN[39M]: Redis connection retry attempt 151
+2026-05-03 14:37:32 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:34 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:34 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:34 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:34 [[33MWARN[39M]: Redis connection retry attempt 152
+2026-05-03 14:37:36 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:36 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:36 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:36 [[33MWARN[39M]: Redis connection retry attempt 153
+2026-05-03 14:37:38 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:38 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:38 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:38 [[33MWARN[39M]: Redis connection retry attempt 154
+2026-05-03 14:37:40 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:40 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:40 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:40 [[33MWARN[39M]: Redis connection retry attempt 155
+2026-05-03 14:37:42 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:42 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:42 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:42 [[33MWARN[39M]: Redis connection retry attempt 156
+2026-05-03 14:37:44 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:44 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:44 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:44 [[33MWARN[39M]: Redis connection retry attempt 157
+2026-05-03 14:37:46 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:46 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:46 [[33MWARN[39M]: Redis connection retry attempt 158
+2026-05-03 14:37:46 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:48 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:48 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:48 [[33MWARN[39M]: Redis connection retry attempt 159
+2026-05-03 14:37:48 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:50 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:50 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:50 [[33MWARN[39M]: Redis connection retry attempt 160
+2026-05-03 14:37:50 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:52 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:52 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:52 [[33MWARN[39M]: Redis connection retry attempt 161
+2026-05-03 14:37:52 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:54 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:54 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:54 [[33MWARN[39M]: Redis connection retry attempt 162
+2026-05-03 14:37:54 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:56 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:56 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:56 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:56 [[33MWARN[39M]: Redis connection retry attempt 163
+2026-05-03 14:37:58 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:37:58 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:37:58 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:37:58 [[33MWARN[39M]: Redis connection retry attempt 164
+2026-05-03 14:38:00 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:00 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:00 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:00 [[33MWARN[39M]: Redis connection retry attempt 165
+2026-05-03 14:38:02 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:02 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:02 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:02 [[33MWARN[39M]: Redis connection retry attempt 166
+2026-05-03 14:38:04 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:04 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:04 [[33MWARN[39M]: Redis connection retry attempt 167
+2026-05-03 14:38:04 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:06 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:06 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:06 [[33MWARN[39M]: Redis connection retry attempt 168
+2026-05-03 14:38:06 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:08 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:08 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:08 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:08 [[33MWARN[39M]: Redis connection retry attempt 169
+2026-05-03 14:38:10 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:10 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:10 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:10 [[33MWARN[39M]: Redis connection retry attempt 170
+2026-05-03 14:38:12 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:12 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:12 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:12 [[33MWARN[39M]: Redis connection retry attempt 171
+2026-05-03 14:38:14 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:14 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:14 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:14 [[33MWARN[39M]: Redis connection retry attempt 172
+2026-05-03 14:38:16 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:16 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:16 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:16 [[33MWARN[39M]: Redis connection retry attempt 173
+2026-05-03 14:38:18 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:18 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:18 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:18 [[33MWARN[39M]: Redis connection retry attempt 174
+2026-05-03 14:38:20 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:20 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:20 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:20 [[33MWARN[39M]: Redis connection retry attempt 175
+2026-05-03 14:38:22 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:22 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:22 [[33MWARN[39M]: Redis connection retry attempt 176
+2026-05-03 14:38:22 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:24 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:25 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:25 [[33MWARN[39M]: Redis connection retry attempt 177
+2026-05-03 14:38:25 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:27 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:27 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:27 [[33MWARN[39M]: Redis connection retry attempt 178
+2026-05-03 14:38:27 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:29 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:29 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:29 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:29 [[33MWARN[39M]: Redis connection retry attempt 179
+2026-05-03 14:38:31 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:31 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:31 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:31 [[33MWARN[39M]: Redis connection retry attempt 180
+2026-05-03 14:38:33 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:33 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:33 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:33 [[33MWARN[39M]: Redis connection retry attempt 181
+2026-05-03 14:38:35 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:35 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:35 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:35 [[33MWARN[39M]: Redis connection retry attempt 182
+2026-05-03 14:38:37 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:37 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:37 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:37 [[33MWARN[39M]: Redis connection retry attempt 183
+2026-05-03 14:38:39 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:39 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:39 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:39 [[33MWARN[39M]: Redis connection retry attempt 184
+2026-05-03 14:38:41 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:41 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:41 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:41 [[33MWARN[39M]: Redis connection retry attempt 185
+2026-05-03 14:38:43 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:43 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:43 [[33MWARN[39M]: Redis connection retry attempt 186
+2026-05-03 14:38:43 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:45 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:45 [[33MWARN[39M]: Redis connection retry attempt 187
+2026-05-03 14:38:45 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:45 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:47 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:47 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:47 [[33MWARN[39M]: Redis connection retry attempt 188
+2026-05-03 14:38:47 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:49 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:49 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:49 [[33MWARN[39M]: Redis connection retry attempt 189
+2026-05-03 14:38:49 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:51 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:51 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:51 [[33MWARN[39M]: Redis connection retry attempt 190
+2026-05-03 14:38:51 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:53 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:53 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:53 [[33MWARN[39M]: Redis connection retry attempt 191
+2026-05-03 14:38:53 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:55 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:55 [[33MWARN[39M]: Redis connection retry attempt 192
+2026-05-03 14:38:55 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:55 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:57 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:57 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:57 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:57 [[33MWARN[39M]: Redis connection retry attempt 193
+2026-05-03 14:38:59 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:38:59 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:38:59 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:38:59 [[33MWARN[39M]: Redis connection retry attempt 194
+2026-05-03 14:39:01 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:01 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:01 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:01 [[33MWARN[39M]: Redis connection retry attempt 195
+2026-05-03 14:39:03 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:03 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:03 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:03 [[33MWARN[39M]: Redis connection retry attempt 196
+2026-05-03 14:39:05 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:05 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:05 [[33MWARN[39M]: Redis connection retry attempt 197
+2026-05-03 14:39:05 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:07 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:07 [[33MWARN[39M]: Redis connection retry attempt 198
+2026-05-03 14:39:07 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:07 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:09 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:09 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:09 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:09 [[33MWARN[39M]: Redis connection retry attempt 199
+2026-05-03 14:39:11 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:11 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:11 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:11 [[33MWARN[39M]: Redis connection retry attempt 200
+2026-05-03 14:39:13 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:13 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:13 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:13 [[33MWARN[39M]: Redis connection retry attempt 201
+2026-05-03 14:39:15 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:15 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:15 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:15 [[33MWARN[39M]: Redis connection retry attempt 202
+2026-05-03 14:39:17 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:17 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:17 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:17 [[33MWARN[39M]: Redis connection retry attempt 203
+2026-05-03 14:39:19 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:19 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:19 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:19 [[33MWARN[39M]: Redis connection retry attempt 204
+2026-05-03 14:39:21 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:21 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:21 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:21 [[33MWARN[39M]: Redis connection retry attempt 205
+2026-05-03 14:39:23 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:23 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:23 [[33MWARN[39M]: Redis connection retry attempt 206
+2026-05-03 14:39:23 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:25 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:25 [[33MWARN[39M]: Redis connection retry attempt 207
+2026-05-03 14:39:25 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:25 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:27 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:27 [[33MWARN[39M]: Redis connection retry attempt 208
+2026-05-03 14:39:27 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:27 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:29 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:29 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:29 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:29 [[33MWARN[39M]: Redis connection retry attempt 209
+2026-05-03 14:39:31 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:31 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:31 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:31 [[33MWARN[39M]: Redis connection retry attempt 210
+2026-05-03 14:39:33 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:33 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:33 [[33MWARN[39M]: Redis connection retry attempt 211
+2026-05-03 14:39:33 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:35 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:35 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:35 [[33MWARN[39M]: Redis connection retry attempt 212
+2026-05-03 14:39:35 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:37 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:37 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:37 [[33MWARN[39M]: Redis connection retry attempt 213
+2026-05-03 14:39:37 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:39 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:39 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:39 [[33MWARN[39M]: Redis connection retry attempt 214
+2026-05-03 14:39:39 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:41 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:41 [[33MWARN[39M]: Redis connection retry attempt 215
+2026-05-03 14:39:41 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:41 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:43 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:43 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:43 [[33MWARN[39M]: Redis connection retry attempt 216
+2026-05-03 14:39:43 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:45 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:45 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:45 [[33MWARN[39M]: Redis connection retry attempt 217
+2026-05-03 14:39:45 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:47 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:47 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:47 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:47 [[33MWARN[39M]: Redis connection retry attempt 218
+2026-05-03 14:39:49 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:49 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:49 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:49 [[33MWARN[39M]: Redis connection retry attempt 219
+2026-05-03 14:39:51 [[31MERROR[39M]: Redis publisher error: AggregateError
+2026-05-03 14:39:51 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:51 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:51 [[33MWARN[39M]: Redis connection retry attempt 220
+2026-05-03 14:39:53 [[31MERROR[39M]: Redis client error: AggregateError
+2026-05-03 14:39:53 [[33MWARN[39M]: Redis connection retry attempt 221
+2026-05-03 14:39:53 [[31MERROR[39M]: Redis subscriber error: AggregateError
+2026-05-03 14:39:53 [[31MERROR[39M]: Redis publisher error: AggregateError
