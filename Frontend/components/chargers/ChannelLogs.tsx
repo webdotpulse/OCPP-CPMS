@@ -1,21 +1,19 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { format } from "date-fns";
 import { api } from "@/lib/api";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { logger } from "@/lib/logger";
 
 interface ChannelLog {
   id: string;
-  timestamp: string;
-  notification: string;
-  power: string;
-  energy: string;
-  transactionTime: string;
-  card: string;
-  client: string;
-  type?: string;
-  details?: any;
+  timestamp: Date;
+  chargePointId: string;
+  messageType: string;
+  action: string;
+  payload: any;
+  direction?: string;
 }
 
 interface ChannelLogsProps {
@@ -26,6 +24,7 @@ interface ChannelLogsProps {
 export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
   const [logs, setLogs] = useState<ChannelLog[]>([]);
   const [expandedRowIds, setExpandedRowIds] = useState<Set<string>>(new Set());
+  const [isLoading, setIsLoading] = useState(true);
 
   const toggleRow = (id: string) => {
     setExpandedRowIds(prev => {
@@ -39,76 +38,91 @@ export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
     });
   };
 
-  useEffect(() => {
-    const parseLogPayload = (data: any): ChannelLog | null => {
-      try {
-        let parsedMsg: any = null;
-        if (typeof data.message === 'string') {
-          parsedMsg = JSON.parse(data.message);
-        } else {
-          parsedMsg = data.message;
-        }
+  const enrichLog = useCallback((rawLog: any): ChannelLog | null => {
+    let parsedMsg: any = null;
+    let messageType = rawLog.direction === 'in' ? 'RX' : 'TX';
+    let action = '-';
+    let payload = rawLog.message;
 
-        let action = '-';
-        let payload: any = parsedMsg;
-
-        if (Array.isArray(parsedMsg)) {
-          const typeId = parsedMsg[0];
-          if (typeId === 2) {
-            action = parsedMsg[2];
-            payload = parsedMsg[3];
-          } else if (typeId === 3) {
-            action = 'Response';
-            payload = parsedMsg[2];
-          } else if (typeId === 4) {
-            action = 'Error';
-            payload = parsedMsg.slice(2);
-          }
-        } else if (parsedMsg && typeof parsedMsg === 'object') {
-          if (data.direction === 'in') {
-            action = 'Request';
-            if (parsedMsg.chargePointVendor) action = 'BootNotification';
-            else if (parsedMsg.meterStart !== undefined || (parsedMsg.idTag && parsedMsg.connectorId)) action = 'StartTransaction';
-            else if (parsedMsg.meterStop !== undefined) action = 'StopTransaction';
-            else if (parsedMsg.meterValue) action = 'MeterValues';
-            else if (parsedMsg.status && parsedMsg.errorCode) action = 'StatusNotification';
-            else if (parsedMsg.idTag) action = 'Authorize';
-          } else {
-            action = 'Response';
-          }
-          payload = parsedMsg;
-        }
-
-        if (payload?.connectorId !== undefined && payload.connectorId !== connectorId) {
-          return null;
-        }
-
-        return {
-          id: data.id?.toString() || Math.random().toString(36).substring(7),
-          timestamp: data.timestamp,
-          notification: typeof action === 'string' ? action : "Response",
-          power: payload?.meterValue?.[0]?.sampledValue?.find((v:any) => v.measurand === 'Power.Active.Import')?.value || "",
-          energy: payload?.meterValue?.[0]?.sampledValue?.find((v:any) => v.measurand === 'Energy.Active.Import.Register')?.value || payload?.meterStop || payload?.meterStart || "",
-          transactionTime: "",
-          card: payload?.idTag || "",
-          client: "",
-          type: action,
-          details: payload
-        };
-      } catch {
-        return null;
+    try {
+      if (typeof rawLog.message === 'string') {
+        parsedMsg = JSON.parse(rawLog.message);
+      } else {
+        parsedMsg = rawLog.message;
       }
-    };
+    } catch {
+      // Not JSON
+    }
 
+    if (Array.isArray(parsedMsg)) {
+      const typeId = parsedMsg[0];
+      if (typeId === 2) {
+        messageType = 'CALL';
+        action = parsedMsg[2];
+        payload = parsedMsg[3];
+      } else if (typeId === 3) {
+        messageType = 'CALLRESULT';
+        payload = parsedMsg[2];
+      } else if (typeId === 4) {
+        messageType = 'CALLERROR';
+        action = parsedMsg[2];
+        payload = {
+          errorCode: parsedMsg[2],
+          errorDescription: parsedMsg[3],
+          errorDetails: parsedMsg[4]
+        };
+      }
+    } else if (parsedMsg && typeof parsedMsg === 'object') {
+      if (rawLog.direction === 'in') {
+        if (parsedMsg.chargePointVendor) action = 'BootNotification';
+        else if (parsedMsg.meterStart !== undefined || (parsedMsg.idTag && parsedMsg.connectorId)) action = 'StartTransaction';
+        else if (parsedMsg.meterStop !== undefined) action = 'StopTransaction';
+        else if (parsedMsg.meterValue) action = 'MeterValues';
+        else if (parsedMsg.status && parsedMsg.errorCode) action = 'StatusNotification';
+        else if (parsedMsg.idTag) action = 'Authorize';
+      }
+      payload = parsedMsg;
+    }
+
+    // Filter by connectorId
+    if (payload?.connectorId !== undefined && payload.connectorId !== connectorId) {
+      if (action === 'BootNotification' || action === 'Heartbeat') {
+         // BootNotification and Heartbeat are not connector specific usually, but if there's connectorId we filter.
+         // Wait, Heartbeat doesn't have connectorId.
+      } else {
+         return null;
+      }
+    }
+
+    // Check evseId for OCPP 2.0.1
+    if (payload?.evseId !== undefined && payload.evseId !== connectorId && payload?.evse?.id !== connectorId) {
+         return null;
+    }
+
+    return {
+      id: rawLog.id?.toString() || Math.random().toString(36).substring(7),
+      timestamp: new Date(rawLog.timestamp),
+      chargePointId: rawLog.charger?.name || rawLog.chargerId?.toString() || chargerId.toString(),
+      messageType,
+      action,
+      payload,
+      direction: rawLog.direction
+    };
+  }, [chargerId, connectorId]);
+
+  useEffect(() => {
     const fetchHistoricalLogs = async () => {
+      setIsLoading(true);
       try {
         const response = await api.get(`/chargers/${chargerId}/logs`);
         const historicalLogs = (response.data || [])
-          .map(parseLogPayload)
+          .map(enrichLog)
           .filter(Boolean) as ChannelLog[];
         setLogs(historicalLogs.slice(0, 50));
       } catch (error) {
-        console.error("Failed to fetch historical logs", error);
+        logger.error("Failed to fetch historical logs", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -127,7 +141,7 @@ export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
           const data = JSON.parse(event.data);
 
           if (data.type === 'log' && data.log.chargerId === chargerId) {
-             const newLog = parseLogPayload(data.log);
+             const newLog = enrichLog(data.log);
              if (newLog) {
                setLogs(prev => [newLog, ...prev].slice(0, 50));
              }
@@ -137,72 +151,81 @@ export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
         }
       };
     } catch (err) {
-      console.error("Failed to connect to OCPP logs WS", err);
+      logger.error("Failed to connect to OCPP logs WS", err);
     }
 
     return () => {
       if (ws) ws.close();
     };
-  }, [chargerId, connectorId]);
+  }, [chargerId, enrichLog]);
 
   return (
-    <div className="mt-4 border rounded-md">
-      <div className="bg-muted px-4 py-2 flex gap-4 text-sm border-b overflow-x-auto whitespace-nowrap">
+    <div className="mt-4 border rounded-md border-zinc-800 overflow-hidden bg-zinc-950">
+      <div className="bg-zinc-900 px-4 py-2 flex gap-4 text-sm border-b border-zinc-800 overflow-x-auto whitespace-nowrap text-zinc-300">
         <span>Channel {connectorId}&apos;s log:</span>
-        <button className="text-primary hover:underline">⇒Show detailed log items</button>
-        <button className="text-primary hover:underline">⇒Show logged values</button>
-        <button className="text-primary hover:underline">⇒Show more</button>
       </div>
       <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[180px]">Date</TableHead>
-            <TableHead>Notification</TableHead>
-            <TableHead>Power (kW)</TableHead>
-            <TableHead>Energy (kWh)</TableHead>
-            <TableHead>Transaction time</TableHead>
-            <TableHead>Card</TableHead>
-            <TableHead>Client</TableHead>
+        <TableHeader className="sticky top-0 bg-zinc-900 z-10">
+          <TableRow className="border-zinc-800 hover:bg-zinc-900">
+            <TableHead className="text-zinc-400">Timestamp</TableHead>
+            <TableHead className="text-zinc-400">Charger ID</TableHead>
+            <TableHead className="text-zinc-400">Type</TableHead>
+            <TableHead className="text-zinc-400">Action</TableHead>
+            <TableHead className="text-zinc-400 w-1/2">Payload Snippet</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {logs.map((log) => (
-            <React.Fragment key={log.id}>
-              <TableRow
-                className="h-10 cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={() => toggleRow(log.id)}
-              >
-                <TableCell className="py-1">{format(new Date(log.timestamp), 'dd-MMM-yyyy HH:mm:ss')}</TableCell>
-                <TableCell className="py-1">
-                  {log.notification}
-                </TableCell>
-                <TableCell className="py-1">{log.power}</TableCell>
-                <TableCell className="py-1">{log.energy}</TableCell>
-                <TableCell className="py-1">{log.transactionTime}</TableCell>
-                <TableCell className="py-1">
-                  {log.card && <span className="text-blue-500 hover:underline">{log.card}</span>}
-                </TableCell>
-                <TableCell className="py-1 text-blue-500 hover:underline">
-                  {log.client}
-                </TableCell>
-              </TableRow>
-              {expandedRowIds.has(log.id) && (
-                <TableRow>
-                  <TableCell colSpan={7} className="p-0 border-b">
-                    <div className="bg-muted/30 p-4 font-mono text-xs whitespace-pre-wrap break-words break-all text-zinc-600 dark:text-zinc-400">
-                      {JSON.stringify(log.details, null, 2)}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )}
-            </React.Fragment>
-          ))}
-          {logs.length === 0 && (
+          {isLoading && logs.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center text-muted-foreground h-24">
+              <TableCell colSpan={5} className="h-24 text-center text-zinc-500">Loading channel logs...</TableCell>
+            </TableRow>
+          ) : logs.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} className="h-24 text-center text-zinc-500">
                 No logs available for this channel
               </TableCell>
             </TableRow>
+          ) : (
+            logs.map((log) => (
+              <React.Fragment key={log.id}>
+                <TableRow
+                  className="border-zinc-800/50 hover:bg-zinc-800/50 font-mono text-xs cursor-pointer"
+                  onClick={() => toggleRow(log.id)}
+                >
+                  <TableCell className="text-zinc-400 whitespace-nowrap">
+                    {format(log.timestamp, 'HH:mm:ss.SSS')}
+                  </TableCell>
+                  <TableCell className="text-blue-400">
+                    {log.chargePointId}
+                  </TableCell>
+                  <TableCell>
+                    <span className={
+                      log.messageType === 'CALL' ? 'text-purple-400' :
+                      log.messageType === 'CALLRESULT' ? 'text-green-400' :
+                      log.messageType === 'CALLERROR' ? 'text-red-400' :
+                      log.direction === 'in' ? 'text-blue-400' : 'text-orange-400'
+                    }>
+                      {log.messageType}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-yellow-200">
+                    {log.action || '-'}
+                  </TableCell>
+                  <TableCell className="text-zinc-500 truncate max-w-md">
+                    {JSON.stringify(log.payload)}
+                  </TableCell>
+                </TableRow>
+                {expandedRowIds.has(log.id) && (
+                  <TableRow className="border-zinc-800/50 hover:bg-zinc-800/50">
+                    <TableCell colSpan={5} className="p-0 border-b border-zinc-800/50">
+                      <div className="bg-zinc-950/50 p-4 font-mono text-xs whitespace-pre-wrap break-words break-all text-zinc-400">
+                        {JSON.stringify(log.payload, null, 2)}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </React.Fragment>
+            ))
           )}
         </TableBody>
       </Table>

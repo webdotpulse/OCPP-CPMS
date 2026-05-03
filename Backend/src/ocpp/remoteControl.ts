@@ -170,18 +170,19 @@ export async function changeConfiguration(
       return { status: "Rejected", error: "Charger not connected" };
     }
 
-    // Send ChangeConfiguration using correct OCPP 1.6 CALL format
-    const messageId = generateMessageId();
-    const message = [
-      2,  // MessageTypeId: CALL
-      messageId,
-      "ChangeConfiguration",
-      { configurationKey }
-    ];
+    // Send ChangeConfiguration using correct OCPP 1.6 CALL format for each key
+    for (const item of configurationKey) {
+      const messageId = generateMessageId();
+      const message = [
+        2,  // MessageTypeId: CALL
+        messageId,
+        "ChangeConfiguration",
+        { key: item.key, value: item.value }
+      ];
 
-    await chargerRegistry.publishCommand(chargerId, message);
-
-    logger.info(`ChangeConfiguration sent to charger ${chargerId}`);
+      await chargerRegistry.publishCommand(chargerId, message);
+      logger.info(`ChangeConfiguration sent to charger ${chargerId} for key ${item.key}`);
+    }
 
     return { status: "Accepted" };
   } catch (error) {

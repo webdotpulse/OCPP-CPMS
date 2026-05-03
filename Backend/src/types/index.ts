@@ -57,6 +57,7 @@ export interface ActiveTransaction {
 
 // API Request Types
 export interface CreateChargerDto {
+  chargeGroupId?: number | null;
   model: string;
   name: string;
   manufacturer: string;
@@ -73,6 +74,7 @@ export interface CreateChargerDto {
 }
 
 export interface UpdateChargerDto {
+  chargeGroupId?: number | null;
   model?: string;
   name?: string;
   manufacturer?: string;

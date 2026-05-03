@@ -28,7 +28,7 @@ const chargerSchema = z.object({
   longitude: z.number().min(-180).max(180).optional().nullable(),
   tariffId: z.number().optional(),
   owner_id: z.number().optional(),
-  charge_group_id: z.number().optional().nullable(),
+  chargeGroupId: z.number().optional().nullable(),
 });
 
 type ChargerFormValues = z.infer<typeof chargerSchema>;
@@ -49,12 +49,12 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
       latitude: initialData?.latitude || undefined,
       longitude: initialData?.longitude || undefined,
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,
-      charge_group_id: initialData?.charge_group_id || undefined,
+      chargeGroupId: initialData?.chargeGroupId || undefined,
     } : {
       latitude: undefined,
       longitude: undefined,
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,
-      charge_group_id: undefined,
+      chargeGroupId: undefined,
     },
   });
 
@@ -184,10 +184,10 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
             <div className="space-y-2">
-              <Label htmlFor="charge_group_id">Assign Charge group</Label>
+              <Label htmlFor="chargeGroupId">Assign Charge group</Label>
               <Select
-                value={watch('charge_group_id')?.toString() || 'none'}
-                onValueChange={(val) => setValue('charge_group_id', val === 'none' ? null : parseInt(val))}
+                value={watch('chargeGroupId')?.toString() || 'none'}
+                onValueChange={(val) => setValue('chargeGroupId', val === 'none' ? null : parseInt(val))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a charge group" />

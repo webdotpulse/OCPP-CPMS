@@ -105,6 +105,14 @@ class OcppServer {
       });
 
       ws.on("close", () => {
+        // Prevent race condition: if the active connection in the registry isn't this closing websocket,
+        // it means the charger quickly reconnected with a new socket. Do not mark as offline.
+        const currentConnection = chargerRegistry.getConnection(chargerId);
+        if (currentConnection && currentConnection.ws !== ws) {
+          logger.info(`Charger ${charger.name} (ID: ${chargerId}) disconnected (stale connection ignored)`);
+          return;
+        }
+
         logger.info(`Charger ${charger.name} (ID: ${chargerId}) disconnected`);
         chargerRegistry.unregister(chargerId);
 
