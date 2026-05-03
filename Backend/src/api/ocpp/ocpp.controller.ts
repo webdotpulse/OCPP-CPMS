@@ -8,7 +8,9 @@ import {
   unlockConnector,
   getConfiguration,
   changeConfiguration,
+  changeAvailability,
   triggerMessage,
+  dataTransfer,
   getConnectedChargers as getConnected,
   setChargingProfile,
   clearChargingProfile,
@@ -275,6 +277,40 @@ export const setChargerConfiguration = async (req: Request, res: Response) => {
 };
 
 /**
+ * POST /api/ocpp/change-availability - Change availability of charger/connector
+ */
+export const changeAvailabilityController = async (req: Request, res: Response) => {
+  try {
+    const { chargerId, connectorId, type } = req.body;
+
+    if (!chargerId || connectorId === undefined || !type) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required fields: chargerId, connectorId, type",
+      });
+    }
+
+    if (type !== "Inoperative" && type !== "Operative") {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid type. Must be 'Inoperative' or 'Operative'",
+      });
+    }
+
+    const result = await changeAvailability(chargerId, connectorId, type);
+
+    logger.info(`ChangeAvailability sent to charger ${chargerId}, connector: ${connectorId}, type: ${type}`);
+    res.json({ success: true, ...result });
+  } catch (error) {
+    logger.error(`Error changing availability: ${error}`);
+    res.status(500).json({
+      success: false,
+      error: "Failed to change availability",
+    });
+  }
+};
+
+/**
  * POST /api/ocpp/reset - Reset charger
  */
 export const resetChargerController = async (req: Request, res: Response) => {
@@ -402,6 +438,32 @@ export const updateFirmwareController = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: "Failed to trigger firmware update",
+    });
+  }
+};
+
+export const dataTransferController = async (req: Request, res: Response) => {
+  try {
+    const { chargerId, vendorId, messageId, data } = req.body;
+
+    if (!chargerId || !vendorId) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required fields: chargerId, vendorId",
+      });
+    }
+
+    const result = await dataTransfer(chargerId, vendorId, messageId, data);
+
+    logger.info(
+      `DataTransfer sent to charger ${chargerId}, vendorId: ${vendorId}`
+    );
+    res.json({ success: true, ...result });
+  } catch (error) {
+    logger.error(`Error sending data transfer: ${error}`);
+    res.status(500).json({
+      success: false,
+      error: "Failed to send data transfer",
     });
   }
 };
