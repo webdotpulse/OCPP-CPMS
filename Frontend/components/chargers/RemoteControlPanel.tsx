@@ -27,6 +27,10 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
   const [showFirmwareUpdate, setShowFirmwareUpdate] = useState(false);
   const [firmwareLocation, setFirmwareLocation] = useState("");
   const [testTagId, setTestTagId] = useState("");
+  const [showDataTransfer, setShowDataTransfer] = useState(false);
+  const [vendorId, setVendorId] = useState("");
+  const [dataTransferMessageId, setDataTransferMessageId] = useState("");
+  const [dataTransferData, setDataTransferData] = useState("");
 
   const testAuthTag = async () => {
     setIsLoading(true);
@@ -84,6 +88,21 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
               className="text-destructive hover:text-destructive hover:bg-destructive/10"
             >
               <RefreshCw className="mr-2 h-4 w-4" /> Hard Reset
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => sendCommand('change-availability', { connectorId: parseInt(connectorId), type: 'Inoperative' })}
+              disabled={isLoading}
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+            >
+              <Square className="mr-2 h-4 w-4" /> Block
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => sendCommand('change-availability', { connectorId: parseInt(connectorId), type: 'Operative' })}
+              disabled={isLoading}
+            >
+              <Play className="mr-2 h-4 w-4" /> Unblock
             </Button>
             <Button
               variant="outline"
@@ -148,10 +167,18 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
             >
               <Zap className="mr-2 h-4 w-4" /> Update Firmware
             </Button>
+
+            <Button
+              variant={showDataTransfer ? "default" : "outline"}
+              onClick={() => setShowDataTransfer(!showDataTransfer)}
+              className="whitespace-nowrap"
+            >
+              <Send className="mr-2 h-4 w-4" /> Data transfer
+            </Button>
           </div>
         </div>
 
-        {(showRemoteStart || showRemoteStop || showTestAuth || showFirmwareUpdate) && (
+        {(showRemoteStart || showRemoteStop || showTestAuth || showFirmwareUpdate || showDataTransfer) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
             {/* Remote Start */}
             {showRemoteStart && (
@@ -230,6 +257,33 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
                   disabled={isLoading || !firmwareLocation}
                 >
                   <Zap className="mr-2 h-4 w-4" /> Trigger Update
+                </Button>
+              </div>
+            )}
+
+            {/* Data Transfer */}
+            {showDataTransfer && (
+              <div className="space-y-4 border p-4 rounded-md">
+                <h4 className="font-medium text-sm">Data Transfer</h4>
+                <div className="space-y-1">
+                  <Label className="text-xs">Vendor ID</Label>
+                  <Input value={vendorId} onChange={e => setVendorId(e.target.value)} placeholder="e.g. Ruslan" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Message ID (Optional)</Label>
+                  <Input value={dataTransferMessageId} onChange={e => setDataTransferMessageId(e.target.value)} placeholder="e.g. SetChargeRate" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Data (Optional)</Label>
+                  <Input value={dataTransferData} onChange={e => setDataTransferData(e.target.value)} placeholder="e.g. { rate: 32 }" />
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full border-primary text-primary hover:bg-primary/10"
+                  onClick={() => sendCommand('data-transfer', { vendorId, messageId: dataTransferMessageId || undefined, data: dataTransferData || undefined })}
+                  disabled={isLoading || !vendorId}
+                >
+                  <Send className="mr-2 h-4 w-4" /> Send Data Transfer
                 </Button>
               </div>
             )}

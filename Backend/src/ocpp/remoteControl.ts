@@ -158,6 +158,40 @@ export async function getConfiguration(
 }
 
 /**
+ * Send ChangeAvailability request to charger
+ * OCPP 1.6 CALL format: [2, messageId, "ChangeAvailability", payload]
+ */
+export async function changeAvailability(
+  chargerId: number,
+  connectorId: number,
+  type: "Inoperative" | "Operative"
+): Promise<{ status: string; error?: string }> {
+  try {
+    if (!(await chargerRegistry.isConnectedGlobally(chargerId))) {
+      return { status: "Rejected", error: "Charger not connected" };
+    }
+
+    // Send ChangeAvailability using correct OCPP 1.6 CALL format
+    const messageId = generateMessageId();
+    const message = [
+      2,  // MessageTypeId: CALL
+      messageId,
+      "ChangeAvailability",
+      { connectorId, type }
+    ];
+
+    await chargerRegistry.publishCommand(chargerId, message);
+
+    logger.info(`ChangeAvailability sent to charger ${chargerId}, connector: ${connectorId}, type: ${type}`);
+
+    return { status: "Accepted" };
+  } catch (error) {
+    logger.error(`Error in changeAvailability: ${error}`);
+    return { status: "Rejected" };
+  }
+}
+
+/**
  * Send ChangeConfiguration request to charger
  * OCPP 1.6 CALL format: [2, messageId, "ChangeConfiguration", payload]
  */
@@ -329,6 +363,52 @@ export async function clearChargingProfile(
   } catch (error) {
     logger.error(`Error in clearChargingProfile: ${error}`);
     return { status: "Rejected", error: "Failed to send ClearChargingProfile" };
+  }
+}
+
+/**
+ * Send DataTransfer request to charger
+ * OCPP 1.6 CALL format: [2, messageId, "DataTransfer", payload]
+ */
+export async function dataTransfer(
+  chargerId: number,
+  vendorId: string,
+  messageIdStr?: string,
+  data?: string
+): Promise<{ status: string; error?: string }> {
+  try {
+    if (!(await chargerRegistry.isConnectedGlobally(chargerId))) {
+      return { status: "Rejected", error: "Charger not connected" };
+    }
+
+    const messageId = generateMessageId();
+    const payload: any = { vendorId };
+
+    if (messageIdStr !== undefined) {
+      payload.messageId = messageIdStr;
+    }
+
+    if (data !== undefined) {
+      payload.data = data;
+    }
+
+    const message = [
+      2,  // MessageTypeId: CALL
+      messageId,
+      "DataTransfer",
+      payload
+    ];
+
+    await chargerRegistry.publishCommand(chargerId, message);
+
+    logger.info(
+      `DataTransfer sent to charger ${chargerId}, vendorId: ${vendorId}`
+    );
+
+    return { status: "Accepted" };
+  } catch (error) {
+    logger.error(`Error in dataTransfer: ${error}`);
+    return { status: "Rejected" };
   }
 }
 
