@@ -70,7 +70,7 @@ export default function ChargersPage() {
               <TableHead>Identity</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Charge group</TableHead>
-              <TableHead>Model</TableHead>
+              <TableHead>Manufacturer / Model</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Last Heartbeat</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -96,7 +96,7 @@ export default function ChargersPage() {
                   </TableCell>
                   <TableCell>{charger.chargingStation?.station_name || 'Unassigned'}</TableCell>
                   <TableCell>{charger.chargeGroup?.name || 'None'}</TableCell>
-                  <TableCell>{charger.manufacturer} {charger.model}</TableCell>
+                  <TableCell>{charger.manufacturer} / {charger.model}</TableCell>
                   <TableCell>{getStatusBadge(charger.status)}</TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {charger.last_heartbeat 

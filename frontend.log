@@ -1,0 +1,43 @@
+
+> Frontend@0.0.1 dev
+> next dev -p 3002 --turbopack -p 3002
+
+   ▲ Next.js 15.5.15 (Turbopack)
+   - Local:        http://localhost:3002
+   - Network:      http://192.168.0.2:3002
+
+ ✓ Starting...
+ ✓ Compiled middleware in 387ms
+ ✓ Ready in 1923ms
+ ○ Compiling / ...
+ ✓ Compiled / in 6.5s
+ GET / 307 in 7530ms
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 6.4s
+ GET /dashboard 200 in 7079ms
+ ○ Compiling /login ...
+ GET /login 200 in 3431ms
+ ✓ Compiled /login in 3.9s
+ GET /chargers 200 in 2267ms
+Failed to proxy http://localhost:3000/api/chargers [AggregateError: ] { code: 'ECONNREFUSED' }
+[AggregateError: ] { code: 'ECONNREFUSED' }
+ ○ Compiling /_error ...
+ GET /stations 200 in 1771ms
+Failed to proxy http://localhost:3000/api/stations [AggregateError: ] { code: 'ECONNREFUSED' }
+[AggregateError: ] { code: 'ECONNREFUSED' }
+ ✓ Compiled /_error in 4.5s
+ GET /chargers 200 in 248ms
+Failed to proxy http://localhost:3000/api/chargers [AggregateError: ] { code: 'ECONNREFUSED' }
+[AggregateError: ] { code: 'ECONNREFUSED' }
+ GET / 307 in 415ms
+ GET /dashboard 200 in 504ms
+ GET /login 200 in 238ms
+ GET /chargers 200 in 203ms
+Failed to proxy http://localhost:3000/api/chargers [AggregateError: ] { code: 'ECONNREFUSED' }
+[AggregateError: ] { code: 'ECONNREFUSED' }
+ GET /stations 200 in 204ms
+Failed to proxy http://localhost:3000/api/stations [AggregateError: ] { code: 'ECONNREFUSED' }
+[AggregateError: ] { code: 'ECONNREFUSED' }
+ GET /chargers 200 in 204ms
+Failed to proxy http://localhost:3000/api/chargers [AggregateError: ] { code: 'ECONNREFUSED' }
+[AggregateError: ] { code: 'ECONNREFUSED' }

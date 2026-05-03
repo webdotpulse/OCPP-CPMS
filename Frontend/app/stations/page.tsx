@@ -13,8 +13,10 @@ import { Badge } from "@/components/ui/badge";
 interface Station {
   id: number;
   station_name: string;
+  street_name?: string;
   city: string;
   state: string;
+  postal_code?: string;
   status: string;
   _count?: {
     chargers: number;
@@ -93,7 +95,10 @@ export default function StationsPage() {
                       {station.station_name}
                     </Link>
                   </TableCell>
-                  <TableCell>{station.city}, {station.state}</TableCell>
+                  <TableCell>
+                    {station.street_name ? `${station.street_name}, ` : ''}
+                    {station.city}, {station.state} {station.postal_code || ''}
+                  </TableCell>
                   <TableCell>
                     <Badge variant="outline" className={station.status === 'active' ? 'text-green-500 bg-green-500/10' : ''}>
                       {station.status}

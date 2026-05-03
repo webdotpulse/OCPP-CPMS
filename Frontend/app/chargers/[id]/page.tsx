@@ -15,6 +15,7 @@ import { RemoteControlPanel } from "@/components/chargers/RemoteControlPanel";
 import { ConnectorList } from "@/components/chargers/ConnectorList";
 import { ChargerConfigurationPanel } from "@/components/chargers/ChargerConfigurationPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LoadManagementOverview } from "@/components/dashboard/LoadManagementOverview";
 
 interface ChargerDetail {
   charger_id: number;
@@ -26,6 +27,8 @@ interface ChargerDetail {
   firmware_version: string;
   power_capacity: number;
   last_heartbeat: string;
+  charging_station_id?: number;
+  chargeGroupId?: number;
   chargingStation?: {
     station_name: string;
     city: string;
@@ -183,6 +186,10 @@ export default function ChargerDetailPage() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+
+          <div className="mb-6">
+            <LoadManagementOverview chargerId={charger.charger_id} />
           </div>
 
           {/* Tertiary Section: Connectors */}

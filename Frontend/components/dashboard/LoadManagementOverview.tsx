@@ -16,29 +16,47 @@ interface LoadMetric {
   activeChargers: number;
 }
 
-export function LoadManagementOverview() {
+interface LoadManagementOverviewProps {
+  chargerId: string | number;
+}
+
+export function LoadManagementOverview({ chargerId }: LoadManagementOverviewProps) {
   const [metrics, setMetrics] = useState<LoadMetric[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMetrics = async () => {
+    const fetchChargerLoad = async () => {
       try {
-        const response = await api.get('/dashboard/load');
-        if (response.data) {
-          setMetrics(response.data);
+        // Fetch specific charger details to get power capacity and status
+        const response = await api.get(`/chargers/${chargerId}`);
+        const charger = response.data;
+
+        if (charger && charger.power_capacity) {
+          // If charger is 'charging', load is its full capacity (simplified logic)
+          // In a real system, we'd query active transactions or meter values
+          const currentLoad = charger.status === 'charging' ? charger.power_capacity : 0;
+
+          setMetrics([{
+            id: charger.charger_id,
+            name: charger.name,
+            type: 'charger',
+            maxPower: charger.power_capacity,
+            currentLoad: currentLoad,
+            activeChargers: charger.status === 'charging' ? 1 : 0
+          }]);
         }
       } catch (error) {
-        logger.error('Failed to fetch load metrics', error);
+        logger.error('Failed to fetch load metrics for charger', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchMetrics();
+    fetchChargerLoad();
     // Refresh every 30 seconds
-    const interval = setInterval(fetchMetrics, 30000);
+    const interval = setInterval(fetchChargerLoad, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [chargerId]);
 
   if (isLoading && metrics.length === 0) {
     return (
