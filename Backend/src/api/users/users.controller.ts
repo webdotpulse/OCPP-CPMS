@@ -10,16 +10,25 @@ import bcrypt from "bcrypt";
  */
 export const getAllUsers = async (req: AuthRequest, res: Response) => {
   try {
-    const { page: queryPage, limit: queryLimit } = req.query;
+    const { page: queryPage, limit: queryLimit, search } = req.query;
     const { page, limit } = parsePagination(queryPage as string, queryLimit as string);
 
     const skip = (page - 1) * limit;
     const take = limit;
 
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { email: { contains: search as string, mode: "insensitive" } },
+        { name: { contains: search as string, mode: "insensitive" } }
+      ];
+    }
+
     const [users, total] = await Promise.all([
       prisma.user.findMany({
         skip,
         take,
+        where,
         select: {
           id: true,
           name: true,
@@ -31,7 +40,7 @@ export const getAllUsers = async (req: AuthRequest, res: Response) => {
         },
         orderBy: { createdAt: "desc" },
       }),
-      prisma.user.count(),
+      prisma.user.count({ where }),
     ]);
 
     res.json({

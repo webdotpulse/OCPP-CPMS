@@ -73,7 +73,7 @@ export const getChargerConfigurations = async (req: Request, res: Response) => {
 
 export const getAllChargers = async (req: Request, res: Response) => {
   try {
-    const { page: queryPage, limit: queryLimit } = req.query;
+    const { page: queryPage, limit: queryLimit, search } = req.query;
     const { page, limit } = parsePagination(queryPage, queryLimit);
 
     // @ts-expect-error userRole is attached by authenticateToken middleware
@@ -84,7 +84,14 @@ export const getAllChargers = async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
     const take = limit;
 
-    const where = userRole === "admin" ? {} : { owner_id: userId };
+    const where: any = userRole === "admin" ? {} : { owner_id: userId };
+
+    if (search) {
+      where.OR = [
+        { name: { contains: search as string, mode: "insensitive" } },
+        { serial_number: { contains: search as string, mode: "insensitive" } }
+      ];
+    }
 
     const [chargers, total] = await Promise.all([
       prisma.charger.findMany({

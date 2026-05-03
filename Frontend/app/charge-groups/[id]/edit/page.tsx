@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 
 import { useParams } from "next/navigation";
 
@@ -23,36 +23,45 @@ export default function EditChargeGroupPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
-  const [allChargers, setAllChargers] = useState<any[]>([]);
-  const [allUsers, setAllUsers] = useState<any[]>([]);
   const [allTariffs, setAllTariffs] = useState<any[]>([]);
 
   const [selectedChargers, setSelectedChargers] = useState<number[]>([]);
   const [groupUsers, setGroupUsers] = useState<{userId: number, tariffId: number | null}[]>([]);
 
+  // Search states
+  const [chargerSearch, setChargerSearch] = useState("");
+  const [userSearch, setUserSearch] = useState("");
+  const [searchedChargers, setSearchedChargers] = useState<any[]>([]);
+  const [searchedUsers, setSearchedUsers] = useState<any[]>([]);
+
+  // Keep details for selected entities to render them
+  const [selectedChargersDetails, setSelectedChargersDetails] = useState<any[]>([]);
+  const [selectedUsersDetails, setSelectedUsersDetails] = useState<any[]>([]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [chargersRes, usersRes, tariffsRes, groupRes] = await Promise.all([
-          api.get('/chargers'),
-          api.get('/users'),
+        const [tariffsRes, groupRes] = await Promise.all([
           api.get('/tariffs'),
           api.get(`/charge-groups/${params.id}`)
         ]);
 
-        setAllChargers(chargersRes.data.data || chargersRes.data);
-        setAllUsers(usersRes.data?.data || usersRes.data);
         setAllTariffs(tariffsRes.data?.data || tariffsRes.data);
 
         const groupData = groupRes.data.data || groupRes.data;
         setName(groupData.name);
         setDescription(groupData.description || "");
 
-        setSelectedChargers(groupData.chargers?.map((c: any) => c.charger_id) || []);
-        setGroupUsers(groupData.users?.map((u: any) => ({
+        const initialChargers = groupData.chargers || [];
+        setSelectedChargers(initialChargers.map((c: any) => c.charger_id));
+        setSelectedChargersDetails(initialChargers);
+
+        const initialUsers = groupData.users || [];
+        setGroupUsers(initialUsers.map((u: any) => ({
           userId: u.userId,
           tariffId: u.tariffId
-        })) || []);
+        })));
+        setSelectedUsersDetails(initialUsers.map((u: any) => u.user));
       } catch (err) {
         console.error(err);
         toast.error("Failed to load charge group data");
@@ -61,18 +70,56 @@ export default function EditChargeGroupPage() {
     if (params.id) fetchData();
   }, [params.id]);
 
-  const toggleCharger = (id: number) => {
-    setSelectedChargers(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  useEffect(() => {
+    if (!chargerSearch) {
+      setSearchedChargers([]);
+      return;
+    }
+    const delayDebounceFn = setTimeout(() => {
+      api.get(`/chargers?search=${chargerSearch}`).then(res => {
+        setSearchedChargers(res.data.data || res.data);
+      });
+    }, 300);
+    return () => clearTimeout(delayDebounceFn);
+  }, [chargerSearch]);
+
+  useEffect(() => {
+    if (!userSearch) {
+      setSearchedUsers([]);
+      return;
+    }
+    const delayDebounceFn = setTimeout(() => {
+      api.get(`/users?search=${userSearch}`).then(res => {
+        setSearchedUsers(res.data.data || res.data);
+      });
+    }, 300);
+    return () => clearTimeout(delayDebounceFn);
+  }, [userSearch]);
+
+  const addCharger = (charger: any) => {
+    if (!selectedChargers.includes(charger.charger_id)) {
+      setSelectedChargers(prev => [...prev, charger.charger_id]);
+      setSelectedChargersDetails(prev => [...prev, charger]);
+    }
+    setChargerSearch("");
   };
 
-  const toggleUser = (userId: number) => {
-    setGroupUsers(prev => {
-      if (prev.some(u => u.userId === userId)) {
-        return prev.filter(u => u.userId !== userId);
-      } else {
-        return [...prev, { userId, tariffId: null }];
-      }
-    });
+  const removeCharger = (id: number) => {
+    setSelectedChargers(prev => prev.filter(x => x !== id));
+    setSelectedChargersDetails(prev => prev.filter(x => x.charger_id !== id));
+  };
+
+  const addUser = (user: any) => {
+    if (!groupUsers.some(u => u.userId === user.id)) {
+      setGroupUsers(prev => [...prev, { userId: user.id, tariffId: null }]);
+      setSelectedUsersDetails(prev => [...prev, user]);
+    }
+    setUserSearch("");
+  };
+
+  const removeUser = (userId: number) => {
+    setGroupUsers(prev => prev.filter(u => u.userId !== userId));
+    setSelectedUsersDetails(prev => prev.filter(u => u.id !== userId));
   };
 
   const updateUserTariff = (userId: number, tariffId: number | null) => {
@@ -125,18 +172,39 @@ export default function EditChargeGroupPage() {
 
             <Card>
               <CardHeader><CardTitle>Assign Chargers</CardTitle></CardHeader>
-              <CardContent className="max-h-64 overflow-y-auto space-y-2">
-                {allChargers.map(charger => (
-                  <div key={charger.charger_id} className="flex items-center space-x-2 p-2 border rounded hover:bg-muted/50">
-                    <Checkbox
-                      checked={selectedChargers.includes(charger.charger_id)}
-                      onCheckedChange={() => toggleCharger(charger.charger_id)}
-                      id={`charger-${charger.charger_id}`}
-                    />
-                    <Label htmlFor={`charger-${charger.charger_id}`} className="cursor-pointer flex-1">{charger.name} <span className="text-muted-foreground text-xs">({charger.model})</span></Label>
-                  </div>
-                ))}
-                {allChargers.length === 0 && <p className="text-muted-foreground text-sm">No chargers found.</p>}
+              <CardContent className="space-y-4">
+                <div className="relative">
+                  <Input
+                    value={chargerSearch}
+                    onChange={(e: any) => setChargerSearch(e.target.value)}
+                    placeholder="Search chargers by name or serial..."
+                  />
+                  {searchedChargers.length > 0 && chargerSearch && (
+                    <div className="absolute z-10 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      {searchedChargers.map(charger => (
+                        <div
+                          key={charger.charger_id}
+                          className="p-2 hover:bg-muted cursor-pointer flex justify-between"
+                          onClick={() => addCharger(charger)}
+                        >
+                          <span>{charger.name} <span className="text-xs text-muted-foreground">({charger.serial_number})</span></span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="max-h-64 overflow-y-auto space-y-2 mt-4">
+                  {selectedChargersDetails.map(charger => (
+                    <div key={charger.charger_id} className="flex items-center justify-between p-2 border rounded bg-primary/5">
+                      <Label className="flex-1">{charger.name} <span className="text-muted-foreground text-xs">({charger.model})</span></Label>
+                      <Button variant="ghost" size="icon" type="button" onClick={() => removeCharger(charger.charger_id)} className="h-8 w-8 text-destructive">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  {selectedChargersDetails.length === 0 && <p className="text-muted-foreground text-sm">No chargers assigned yet.</p>}
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -144,27 +212,46 @@ export default function EditChargeGroupPage() {
           <div>
             <Card className="h-full">
               <CardHeader><CardTitle>Assign Users & Tariffs</CardTitle></CardHeader>
-              <CardContent className="space-y-4 max-h-[500px] overflow-y-auto">
-                {allUsers.map(u => {
-                  const isSelected = groupUsers.some(gu => gu.userId === u.id);
-                  const selectedTariff = groupUsers.find(gu => gu.userId === u.id)?.tariffId;
-
-                  return (
-                    <div key={u.id} className={`p-4 border rounded space-y-3 ${isSelected ? 'bg-primary/5 border-primary/20' : ''}`}>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => toggleUser(u.id)}
-                          id={`user-${u.id}`}
-                        />
-                        <div className="flex-1">
-                          <Label htmlFor={`user-${u.id}`} className="cursor-pointer font-medium block">{u.email}</Label>
-                          <p className="text-xs text-muted-foreground">{u.userType} - {u.companyName || 'No company'}</p>
+              <CardContent className="space-y-4">
+                <div className="relative">
+                  <Input
+                    value={userSearch}
+                    onChange={(e: any) => setUserSearch(e.target.value)}
+                    placeholder="Search users by name or email..."
+                  />
+                  {searchedUsers.length > 0 && userSearch && (
+                    <div className="absolute z-10 w-full mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                      {searchedUsers.map(user => (
+                        <div
+                          key={user.id}
+                          className="p-2 hover:bg-muted cursor-pointer flex justify-between"
+                          onClick={() => addUser(user)}
+                        >
+                          <span>{user.email} <span className="text-xs text-muted-foreground">({user.name || 'No name'})</span></span>
                         </div>
-                      </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-                      {isSelected && (
-                        <div className="pl-6 pt-2">
+                <div className="max-h-[500px] overflow-y-auto space-y-4 mt-4">
+                  {selectedUsersDetails.map(u => {
+                    if (!u) return null; // Safe guard
+                    const selectedTariff = groupUsers.find(gu => gu.userId === u.id)?.tariffId;
+
+                    return (
+                      <div key={u.id} className="p-4 border rounded space-y-3 bg-primary/5 border-primary/20">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <Label className="font-medium block">{u.email}</Label>
+                            <p className="text-xs text-muted-foreground">{u.userType} - {u.companyName || 'No company'}</p>
+                          </div>
+                          <Button variant="ghost" size="icon" type="button" onClick={() => removeUser(u.id)} className="h-8 w-8 text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        <div className="pt-2">
                           <Label className="text-xs mb-1 block">Specific Tariff for this user in this group</Label>
                           <Select
                             value={selectedTariff ? selectedTariff.toString() : "none"}
@@ -183,10 +270,11 @@ export default function EditChargeGroupPage() {
                             </SelectContent>
                           </Select>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
+                      </div>
+                    );
+                  })}
+                  {selectedUsersDetails.length === 0 && <p className="text-muted-foreground text-sm">No users assigned yet.</p>}
+                </div>
               </CardContent>
             </Card>
           </div>
