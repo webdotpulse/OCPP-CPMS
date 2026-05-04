@@ -1,13 +1,11 @@
 import { Router } from "express";
 import {
-  getLocations,
-  getTariffs,
   getEndpoints,
   createEndpoint,
   updateEndpoint,
   deleteEndpoint,
   testEndpoint
-} from "./ocpi.controller.js";
+} from "./oicp.controller.js";
 
 const router = Router();
 
@@ -17,9 +15,5 @@ router.post("/endpoints", createEndpoint);
 router.put("/endpoints/:id", updateEndpoint);
 router.delete("/endpoints/:id", deleteEndpoint);
 router.post("/endpoints/:id/test", testEndpoint);
-
-// Placeholder routes for OCPI integration
-router.get("/locations", getLocations);
-router.get("/tariffs", getTariffs);
 
 export default router;

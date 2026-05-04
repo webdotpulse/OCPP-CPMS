@@ -14,6 +14,7 @@ import {
   Users,
   Menu,
   ReceiptText,
+  Globe,
 } from 'lucide-react';
 
 const routes = [
@@ -25,6 +26,7 @@ const routes = [
   { name: 'RFID Tags', path: '/rfid', icon: CreditCard },
   { name: 'Transactions', path: '/transactions', icon: ReceiptText },
   { name: 'Tariffs', path: '/tariffs', icon: WalletCards },
+  { name: 'Roaming', path: '/roaming', icon: Globe, adminOnly: true },
   { name: 'Settings', path: '/settings', icon: Settings },
   { name: 'OCPP Console', path: '/ocpp', icon: TerminalSquare },
 ];
