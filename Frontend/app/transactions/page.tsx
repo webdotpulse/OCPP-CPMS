@@ -1,7 +1,7 @@
 "use client";
 import { logger } from "@/lib/logger";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { api } from "@/lib/api";
@@ -18,7 +18,7 @@ export default function TransactionsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       const response = await api.get('/transactions', { params: { search: searchQuery || undefined } });
       const payload = response.data;
@@ -44,14 +44,14 @@ export default function TransactionsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchTransactions();
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [fetchTransactions]);
 
   const getStatusBadge = (status: string) => {
     const s = status?.toLowerCase() || '';

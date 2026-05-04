@@ -2,7 +2,7 @@
 import { logger } from "@/lib/logger";
 import { useAuth } from "@/hooks/useAuth";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { api } from "@/lib/api";
@@ -20,7 +20,7 @@ export default function ChargersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
-  const fetchChargers = async () => {
+  const fetchChargers = useCallback(async () => {
     try {
       const response = await api.get('/chargers', { params: { search: searchQuery || undefined } });
       setChargers(response.data?.data || response.data);
@@ -29,14 +29,14 @@ export default function ChargersPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchChargers();
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [fetchChargers]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this charger?")) return;

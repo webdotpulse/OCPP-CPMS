@@ -2,7 +2,7 @@
 import { logger } from "@/lib/logger";
 import { useAuth } from "@/hooks/useAuth";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { api } from "@/lib/api";
@@ -21,7 +21,7 @@ export default function TariffsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
-  const fetchTariffs = async () => {
+  const fetchTariffs = useCallback(async () => {
     try {
       const response = await api.get('/tariffs', { params: { search: searchQuery || undefined } });
       setTariffs(response.data?.data || response.data);
@@ -32,14 +32,14 @@ export default function TariffsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchTariffs();
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [fetchTariffs]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this tariff?")) return;

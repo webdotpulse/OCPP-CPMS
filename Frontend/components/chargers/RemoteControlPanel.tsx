@@ -351,7 +351,7 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
                     try {
                       const parsed = JSON.parse(chargingProfileJson);
                       sendCommand('set-charging-profile', { connectorId: parseInt(connectorId), csChargingProfiles: parsed });
-                    } catch (e) {
+                    } catch {
                       toast.error("Invalid JSON provided for charging profiles.");
                     }
                   }}

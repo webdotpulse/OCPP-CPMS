@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { AppShell } from "@/components/layout/AppShell";
@@ -21,7 +21,7 @@ export default function UsersPage() {
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
   const { user } = useAuth();
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const response = await api.get('/users', { params: { search: searchQuery || undefined } });
       setUsers(response.data.data || response.data);
@@ -30,14 +30,14 @@ export default function UsersPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchUsers();
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [fetchUsers]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this user?")) return;

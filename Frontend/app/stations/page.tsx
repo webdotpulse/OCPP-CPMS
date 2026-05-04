@@ -2,7 +2,7 @@
 import { logger } from "@/lib/logger";
 import { useAuth } from "@/hooks/useAuth";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { api } from "@/lib/api";
@@ -37,7 +37,7 @@ export default function StationsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
-  const fetchStations = async () => {
+  const fetchStations = useCallback(async () => {
     try {
       const response = await api.get('/stations', { params: { search: searchQuery || undefined } });
       setStations(response.data?.data || response.data);
@@ -46,14 +46,14 @@ export default function StationsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchStations();
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [fetchStations]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this station?")) return;

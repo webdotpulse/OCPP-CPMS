@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { AppShell } from "@/components/layout/AppShell";
@@ -21,7 +21,7 @@ export default function ChargeGroupsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
-  const fetchGroups = async () => {
+  const fetchGroups = useCallback(async () => {
     try {
       const response = await api.get('/charge-groups', { params: { search: searchQuery || undefined } });
       setGroups(response.data.data || response.data);
@@ -30,14 +30,14 @@ export default function ChargeGroupsPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchGroups();
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [fetchGroups]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this charge group?")) return;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { api } from "@/lib/api";
 import { logger } from "@/lib/logger";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -21,7 +21,7 @@ export function ChargerTransactionsTable({ chargerId }: ChargerTransactionsTable
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await api.get(`/transactions/charger/${chargerId}`);
@@ -56,13 +56,13 @@ export function ChargerTransactionsTable({ chargerId }: ChargerTransactionsTable
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [chargerId]);
 
   useEffect(() => {
     if (chargerId) {
       fetchTransactions();
     }
-  }, [chargerId]);
+  }, [chargerId, fetchTransactions]);
 
   const getStatusBadge = (status: string) => {
     const s = status?.toLowerCase() || '';

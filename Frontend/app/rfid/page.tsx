@@ -2,7 +2,7 @@
 import { logger } from "@/lib/logger";
 import { useAuth } from "@/hooks/useAuth";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { api } from "@/lib/api";
@@ -29,7 +29,7 @@ export default function RfidPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
-  const fetchTags = async () => {
+  const fetchTags = useCallback(async () => {
     try {
       const response = await api.get('/rfid', { params: { search: searchQuery || undefined } });
       setTags(response.data?.data || response.data);
@@ -38,14 +38,14 @@ export default function RfidPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchTags();
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [fetchTags]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this RFID tag? This action cannot be undone.")) return;
