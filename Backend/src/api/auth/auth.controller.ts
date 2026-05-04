@@ -60,8 +60,42 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
+export const getMe = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        userType: true,
+        companyName: true,
+        address: true,
+        phone: true,
+        taxNumber: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    res.json({ success: true, data: user });
+  } catch (error) {
+    logger.error(`Error getting profile: ${error}`);
+    res.status(500).json({ success: false, error: "Failed to get profile" });
+  }
+};
+
 /**
- * POST /api/auth/login - Login user
+ * PUT /api/auth/me - Update user profile
  */
 export const updateMe = async (req: AuthRequest, res: Response) => {
   try {
