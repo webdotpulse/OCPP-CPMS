@@ -66,7 +66,7 @@ class OcppServer {
             ipAddress: request.socket.remoteAddress || "Unknown",
             reason: "Charger not found in database",
           },
-        }).catch(err => logger.error(`Failed to log unrecognized connection: ${err}`));
+        }).catch((err: any) => logger.error(`Failed to log unrecognized connection: ${err}`));
 
         ws.close();
         return;
@@ -82,7 +82,7 @@ class OcppServer {
             ipAddress: request.socket.remoteAddress || "Unknown",
             reason: "Charger is disabled",
           },
-        }).catch(err => logger.error(`Failed to log unrecognized connection: ${err}`));
+        }).catch((err: any) => logger.error(`Failed to log unrecognized connection: ${err}`));
 
         ws.close();
         return;

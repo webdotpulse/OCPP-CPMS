@@ -7,7 +7,6 @@ import {
   BarChart3,
   MapPin,
   CreditCard,
-  Banknote,
   Settings,
   TerminalSquare,
   WalletCards,

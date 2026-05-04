@@ -60,7 +60,7 @@ export class LoadManagementService {
 
       // Check current load vs max capacity
       const totalRequestedLoad = activeTransactions.reduce(
-        (sum, tx) => sum + (tx.charger.power_capacity || 0),
+        (sum: number, tx: any) => sum + (tx.charger.power_capacity || 0),
         0
       );
 
