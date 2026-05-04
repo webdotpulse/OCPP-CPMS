@@ -21,6 +21,7 @@ import ocppRoutes from "./api/ocpp/ocpp.routes.js";
 import dashboardRoutes from "./api/dashboard/dashboard.routes.js";
 import paymentsRoutes from "./api/payments/payments.routes.js";
 import ocpiRoutes from "./api/ocpi/ocpi.routes.js";
+import oicpRoutes from "./api/oicp/oicp.routes.js";
 import usersRoutes from "./api/users/users.routes.js";
 import chargeGroupsRoutes from "./api/chargeGroups/chargeGroups.routes.js";
 
@@ -85,6 +86,7 @@ export function createApp(): Application {
   app.use("/api/charge-groups", authenticateToken, chargeGroupsRoutes);
   app.use("/api/payments", paymentsRoutes); // Removed auth for webhook/initial testing
   app.use("/api/ocpi", ocpiRoutes); // Removed auth for initial testing
+  app.use("/api/oicp", oicpRoutes); // Removed auth for initial testing
 
   // Error handling
   app.use(notFoundHandler);
