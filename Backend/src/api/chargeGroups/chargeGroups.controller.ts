@@ -8,22 +8,31 @@ import { parseId, parsePagination } from "../../utils/validation.js";
  */
 export const getAllChargeGroups = async (req: Request, res: Response) => {
   try {
-    const { page: queryPage, limit: queryLimit } = req.query;
+    const { page: queryPage, limit: queryLimit, search } = req.query;
     const { page, limit } = parsePagination(queryPage, queryLimit);
     const skip = (page - 1) * limit;
     const take = limit;
+
+    const where: any = {};
+    if (search) {
+      where.OR = [
+        { name: { contains: search as string, mode: "insensitive" } },
+        { description: { contains: search as string, mode: "insensitive" } }
+      ];
+    }
 
     const [groups, total] = await Promise.all([
       prisma.chargeGroup.findMany({
         skip,
         take,
+        where,
         include: {
           chargers: true,
           users: { include: { user: true, tariff: true } }
         },
         orderBy: { createdAt: "desc" },
       }),
-      prisma.chargeGroup.count(),
+      prisma.chargeGroup.count({ where }),
     ]);
 
     res.json({

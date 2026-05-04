@@ -15,6 +15,7 @@ import {
   clearChargingProfileController,
   testAuth,
   updateFirmwareController,
+  getDiagnosticsController,
 } from "./ocpp.controller.js";
 
 const router = Router();
@@ -31,6 +32,7 @@ router.post("/unlock", unlockConnectorController);
 router.post("/data-transfer", dataTransferController);
 router.post("/trigger-message", triggerMessageController);
 router.post("/update-firmware", updateFirmwareController);
+router.post("/get-diagnostics", getDiagnosticsController);
 router.post("/set-charging-profile", setChargingProfileController);
 router.post("/clear-charging-profile", clearChargingProfileController);
 router.post("/test-auth", testAuth);

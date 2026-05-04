@@ -18,14 +18,14 @@ import {
 
 const routes = [
   { name: 'Dashboard', path: '/dashboard', icon: BarChart3 },
-  { name: 'Chargers', path: '/chargers', icon: Zap },
+  { name: 'Customers', path: '/users', icon: Users, adminOnly: true },
   { name: 'Locations', path: '/stations', icon: MapPin },
+  { name: 'Chargers', path: '/chargers', icon: Zap },
   { name: 'Charge Groups', path: '/charge-groups', icon: Users },
-  { name: 'Transactions', path: '/transactions', icon: Banknote },
   { name: 'RFID Tags', path: '/rfid', icon: CreditCard },
   { name: 'Tariffs', path: '/tariffs', icon: WalletCards },
-  { name: 'OCPP Console', path: '/ocpp', icon: TerminalSquare },
   { name: 'Settings', path: '/settings', icon: Settings },
+  { name: 'OCPP Console', path: '/ocpp', icon: TerminalSquare },
 ];
 
 export function Sidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean, setIsCollapsed: (val: boolean) => void }) {
@@ -47,6 +47,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean,
       </div>
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {routes.map((route) => {
+          if (route.adminOnly && user?.role !== 'admin') return null;
           const isActive = pathname.startsWith(route.path);
           const Icon = route.icon;
           return (
@@ -67,22 +68,6 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean,
             </Link>
           );
         })}
-        {user?.role === 'admin' && (
-          <Link
-            href="/users"
-            className={cn(
-              "flex items-center gap-3 py-2 rounded-md text-sm transition-colors",
-              isCollapsed ? "justify-center px-0" : "px-3",
-              pathname.startsWith('/users')
-                ? "bg-white/20 font-medium"
-                : "text-white/80 hover:bg-white/10 hover:text-white"
-            )}
-            title={isCollapsed ? "Customers" : undefined}
-          >
-            <Users className="h-5 w-5" />
-            {!isCollapsed && "Customers"}
-          </Link>
-        )}
       </nav>
       {!isCollapsed && (
         <div className="p-4 border-t border-white/20 text-xs text-white/60 text-center">

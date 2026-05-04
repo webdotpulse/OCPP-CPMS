@@ -8,7 +8,7 @@ import { parseId, parsePagination } from "../../utils/validation.js";
  */
 export const getAllTransactions = async (req: Request, res: Response) => {
   try {
-    const { page: queryPage, limit: queryLimit, status, chargerId } = req.query;
+    const { page: queryPage, limit: queryLimit, status, chargerId, search } = req.query;
     const { page, limit } = parsePagination(queryPage, queryLimit);
 
     const skip = (page - 1) * limit;
@@ -23,6 +23,12 @@ export const getAllTransactions = async (req: Request, res: Response) => {
       if (parsedChargerId) {
         where.charger_id = parsedChargerId;
       }
+    }
+    if (search) {
+      where.OR = [
+        { transactionId: { contains: search as string, mode: "insensitive" } },
+        { status: { contains: search as string, mode: "insensitive" } }
+      ];
     }
 
     const [transactions, total] = await Promise.all([

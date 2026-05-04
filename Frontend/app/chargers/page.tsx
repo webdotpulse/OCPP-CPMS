@@ -20,8 +20,8 @@ export default function ChargersPage() {
 
   const fetchChargers = async () => {
     try {
-      const response = await api.get('/chargers');
-      setChargers(response.data);
+      const response = await api.get('/chargers', { params: { search: searchQuery || undefined } });
+      setChargers(response.data?.data || response.data);
     } catch (error) {
       logger.error("Failed to fetch chargers", error);
     } finally {
@@ -30,8 +30,11 @@ export default function ChargersPage() {
   };
 
   useEffect(() => {
-    fetchChargers();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchChargers();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this charger?")) return;
@@ -61,16 +64,6 @@ export default function ChargersPage() {
   };
 
   const sortedAndFilteredChargers = [...chargers]
-    .filter(charger => {
-      if (!searchQuery) return true;
-      const term = searchQuery.toLowerCase();
-      return (
-        charger.name?.toLowerCase().includes(term) ||
-        charger.manufacturer?.toLowerCase().includes(term) ||
-        charger.model?.toLowerCase().includes(term) ||
-        charger.chargingStation?.station_name?.toLowerCase().includes(term)
-      );
-    })
     .sort((a, b) => {
       if (!sortConfig) return 0;
 

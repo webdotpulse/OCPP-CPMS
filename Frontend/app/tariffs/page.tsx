@@ -7,19 +7,22 @@ import { AppShell } from "@/components/layout/AppShell";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Edit, Trash2, WalletCards } from "lucide-react";
+import { Plus, Edit, Trash2, WalletCards, ArrowUpDown } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
 import { AlertCircle } from "lucide-react";
 
 export default function TariffsPage() {
   const [tariffs, setTariffs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [apiError, setApiError] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
   const fetchTariffs = async () => {
     try {
-      const response = await api.get('/tariffs');
-      setTariffs(response.data);
+      const response = await api.get('/tariffs', { params: { search: searchQuery || undefined } });
+      setTariffs(response.data?.data || response.data);
       setApiError(false);
     } catch (error) {
       logger.error("Failed to fetch tariffs", error);
@@ -30,8 +33,11 @@ export default function TariffsPage() {
   };
 
   useEffect(() => {
-    fetchTariffs();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchTariffs();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this tariff?")) return;
@@ -43,6 +49,34 @@ export default function TariffsPage() {
       alert("Error deleting tariff.");
     }
   };
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedTariffs = [...tariffs].sort((a, b) => {
+    if (!sortConfig) return 0;
+    const { key, direction } = sortConfig;
+
+    let aVal: any = a[key];
+    let bVal: any = b[key];
+
+    if (key === 'charge') {
+      aVal = Number(a.charge);
+      bVal = Number(b.charge);
+    } else if (key === 'electricity_rate') {
+      aVal = Number(a.electricity_rate);
+      bVal = Number(b.electricity_rate);
+    }
+
+    if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+    if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   return (
     <AppShell>
@@ -68,29 +102,44 @@ export default function TariffsPage() {
         </Alert>
       )}
 
+      <div className="mb-4">
+        <Input
+          placeholder="Search tariffs by name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="max-w-sm"
+        />
+      </div>
+
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Plan Name</TableHead>
-              <TableHead className="text-right">Fixed Charge</TableHead>
-              <TableHead className="text-right">Energy Rate</TableHead>
+              <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('tariff_name')}>
+                <div className="flex items-center gap-1">Plan Name <ArrowUpDown className="h-3 w-3" /></div>
+              </TableHead>
+              <TableHead className="text-right cursor-pointer hover:bg-muted/50" onClick={() => handleSort('charge')}>
+                <div className="flex items-center justify-end gap-1">Fixed Charge <ArrowUpDown className="h-3 w-3" /></div>
+              </TableHead>
+              <TableHead className="text-right cursor-pointer hover:bg-muted/50" onClick={() => handleSort('electricity_rate')}>
+                <div className="flex items-center justify-end gap-1">Energy Rate <ArrowUpDown className="h-3 w-3" /></div>
+              </TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
+            {isLoading && tariffs.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="h-24 text-center">Loading tariffs...</TableCell>
               </TableRow>
-            ) : tariffs.length === 0 ? (
+            ) : sortedTariffs.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
                   {apiError ? 'Please implement the Tariff endpoints on the backend.' : 'No tariffs configured.'}
                 </TableCell>
               </TableRow>
             ) : (
-              tariffs.map((tariff) => (
+              sortedTariffs.map((tariff) => (
                 <TableRow key={tariff.tariff_id}>
                   <TableCell className="font-medium flex items-center gap-2">
                     <WalletCards className="h-4 w-4 text-muted-foreground" />

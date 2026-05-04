@@ -7,17 +7,20 @@ import { AppShell } from "@/components/layout/AppShell";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Eye, ReceiptText } from "lucide-react";
+import { Eye, ReceiptText, ArrowUpDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow, format } from "date-fns";
+import { Input } from "@/components/ui/input";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
   const fetchTransactions = async () => {
     try {
-      const response = await api.get('/transactions');
+      const response = await api.get('/transactions', { params: { search: searchQuery || undefined } });
       const payload = response.data;
       if (payload) {
         // Merge both basic transactions and RFID sessions, deduplicating by transactionId
@@ -44,8 +47,11 @@ export default function TransactionsPage() {
   };
 
   useEffect(() => {
-    fetchTransactions();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchTransactions();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const getStatusBadge = (status: string) => {
     const s = status?.toLowerCase() || '';
@@ -54,6 +60,34 @@ export default function TransactionsPage() {
     if (s === 'faulted') return <Badge variant="outline" className="text-red-500 bg-red-500/10">FAULTED</Badge>;
     return <Badge variant="outline" className="text-muted-foreground bg-muted">{status?.toUpperCase() || ''}</Badge>;
   };
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedTransactions = [...transactions].sort((a, b) => {
+    if (!sortConfig) return 0;
+    const { key, direction } = sortConfig;
+
+    let aVal: any = a[key];
+    let bVal: any = b[key];
+
+    if (key === 'startTime') {
+      aVal = new Date(a.startTime || a.createdAt).getTime();
+      bVal = new Date(b.startTime || b.createdAt).getTime();
+    } else if (key === 'charger') {
+      aVal = a.charger?.name || `Charger ID: ${a.charger_id}`;
+      bVal = b.charger?.name || `Charger ID: ${b.charger_id}`;
+    }
+
+    if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+    if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   return (
     <AppShell>
@@ -69,30 +103,51 @@ export default function TransactionsPage() {
         </Link>
       </div>
 
+      <div className="mb-4">
+        <Input
+          placeholder="Search transactions by ID or status..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="max-w-sm"
+        />
+      </div>
+
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Txn ID</TableHead>
-              <TableHead>Start Time</TableHead>
-              <TableHead>Charger / Connector</TableHead>
-              <TableHead>RFID Tag</TableHead>
-              <TableHead className="text-right">Energy</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('transactionId')}>
+                <div className="flex items-center gap-1">Txn ID <ArrowUpDown className="h-3 w-3" /></div>
+              </TableHead>
+              <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('startTime')}>
+                <div className="flex items-center gap-1">Start Time <ArrowUpDown className="h-3 w-3" /></div>
+              </TableHead>
+              <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('charger')}>
+                <div className="flex items-center gap-1">Charger / Connector <ArrowUpDown className="h-3 w-3" /></div>
+              </TableHead>
+              <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('idTag')}>
+                <div className="flex items-center gap-1">RFID Tag <ArrowUpDown className="h-3 w-3" /></div>
+              </TableHead>
+              <TableHead className="text-right cursor-pointer hover:bg-muted/50" onClick={() => handleSort('energyConsumed')}>
+                <div className="flex items-center justify-end gap-1">Energy <ArrowUpDown className="h-3 w-3" /></div>
+              </TableHead>
+              <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('status')}>
+                <div className="flex items-center gap-1">Status <ArrowUpDown className="h-3 w-3" /></div>
+              </TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? (
+            {isLoading && transactions.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center">Loading transactions...</TableCell>
               </TableRow>
-            ) : transactions.length === 0 ? (
+            ) : sortedTransactions.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">No transactions recorded.</TableCell>
               </TableRow>
             ) : (
-              transactions.map((txn) => (
+              sortedTransactions.map((txn) => (
                 <TableRow key={txn.id}>
                   <TableCell className="font-mono text-sm">
                     <div className="flex items-center gap-2">

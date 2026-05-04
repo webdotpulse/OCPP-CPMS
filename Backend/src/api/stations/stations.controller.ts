@@ -9,7 +9,7 @@ import type { CreateStationDto } from "../../types/index.js";
  */
 export const getAllStations = async (req: Request, res: Response) => {
   try {
-    const { page: queryPage, limit: queryLimit, status } = req.query;
+    const { page: queryPage, limit: queryLimit, status, search } = req.query;
     const { page, limit } = parsePagination(queryPage, queryLimit);
 
     // @ts-expect-error userRole is attached by authenticateToken middleware
@@ -27,6 +27,13 @@ export const getAllStations = async (req: Request, res: Response) => {
 
     if (userRole !== "admin") {
       where.owner_id = userId;
+    }
+
+    if (search) {
+      where.OR = [
+        { station_name: { contains: search as string, mode: "insensitive" } },
+        { city: { contains: search as string, mode: "insensitive" } }
+      ];
     }
 
     const [stations, total] = await Promise.all([

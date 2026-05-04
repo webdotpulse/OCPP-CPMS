@@ -454,6 +454,51 @@ export async function triggerMessage(
 }
 
 /**
+ * Send GetDiagnostics request to charger
+ * OCPP 1.6 CALL format: [2, messageId, "GetDiagnostics", payload]
+ */
+export async function getDiagnostics(
+  chargerId: number,
+  location: string,
+  retries?: number,
+  retryInterval?: number,
+  startTime?: string,
+  stopTime?: string
+): Promise<{ status: string; error?: string }> {
+  try {
+    if (!(await chargerRegistry.isConnectedGlobally(chargerId))) {
+      return { status: "Rejected", error: "Charger not connected" };
+    }
+
+    const messageId = generateMessageId();
+    const payload: any = { location };
+
+    if (retries !== undefined) payload.retries = retries;
+    if (retryInterval !== undefined) payload.retryInterval = retryInterval;
+    if (startTime !== undefined) payload.startTime = startTime;
+    if (stopTime !== undefined) payload.stopTime = stopTime;
+
+    const message = [
+      2,  // MessageTypeId: CALL
+      messageId,
+      "GetDiagnostics",
+      payload
+    ];
+
+    await chargerRegistry.publishCommand(chargerId, message);
+
+    logger.info(
+      `GetDiagnostics sent to charger ${chargerId}, location: ${location}`
+    );
+
+    return { status: "Accepted" };
+  } catch (error) {
+    logger.error(`Error in getDiagnostics: ${error}`);
+    return { status: "Rejected" };
+  }
+}
+
+/**
  * Trigger firmware update
  */
 export async function updateFirmware(

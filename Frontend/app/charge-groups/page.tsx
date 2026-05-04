@@ -6,7 +6,8 @@ import { api } from "@/lib/api";
 import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Users, Zap, Trash2, Edit } from "lucide-react";
+import { Plus, Users, Zap, Trash2, Edit, ArrowUpDown } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
@@ -15,10 +16,12 @@ import { toast } from "sonner";
 export default function ChargeGroupsPage() {
   const [groups, setGroups] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
   const fetchGroups = async () => {
     try {
-      const response = await api.get('/charge-groups');
+      const response = await api.get('/charge-groups', { params: { search: searchQuery || undefined } });
       setGroups(response.data.data || response.data);
     } catch (error) {
       console.error("Failed to fetch charge groups", error);
@@ -28,8 +31,11 @@ export default function ChargeGroupsPage() {
   };
 
   useEffect(() => {
-    fetchGroups();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchGroups();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this charge group?")) return;
@@ -41,6 +47,37 @@ export default function ChargeGroupsPage() {
       toast.error("Failed to delete charge group");
     }
   };
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const sortedGroups = [...groups].sort((a, b) => {
+    if (!sortConfig) return 0;
+    const { key, direction } = sortConfig;
+
+    let aVal: any = a[key];
+    let bVal: any = b[key];
+
+    if (key === 'chargers') {
+      aVal = a.chargers?.length || 0;
+      bVal = b.chargers?.length || 0;
+    } else if (key === 'users') {
+      aVal = a.users?.length || 0;
+      bVal = b.users?.length || 0;
+    } else if (key === 'createdAt') {
+      aVal = new Date(a.createdAt).getTime();
+      bVal = new Date(b.createdAt).getTime();
+    }
+
+    if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+    if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   return (
     <AppShell>
@@ -58,6 +95,15 @@ export default function ChargeGroupsPage() {
         </Link>
       </div>
 
+      <div className="mb-4">
+        <Input
+          placeholder="Search groups by name or description..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="max-w-sm"
+        />
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>All Charge Groups</CardTitle>
@@ -66,16 +112,26 @@ export default function ChargeGroupsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Chargers</TableHead>
-                <TableHead>Users</TableHead>
-                <TableHead>Created</TableHead>
+                <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('name')}>
+                  <div className="flex items-center gap-1">Name <ArrowUpDown className="h-3 w-3" /></div>
+                </TableHead>
+                <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('description')}>
+                  <div className="flex items-center gap-1">Description <ArrowUpDown className="h-3 w-3" /></div>
+                </TableHead>
+                <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('chargers')}>
+                  <div className="flex items-center gap-1">Chargers <ArrowUpDown className="h-3 w-3" /></div>
+                </TableHead>
+                <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('users')}>
+                  <div className="flex items-center gap-1">Users <ArrowUpDown className="h-3 w-3" /></div>
+                </TableHead>
+                <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('createdAt')}>
+                  <div className="flex items-center gap-1">Created <ArrowUpDown className="h-3 w-3" /></div>
+                </TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {groups.map((group) => (
+              {sortedGroups.map((group) => (
                 <TableRow key={group.id}>
                   <TableCell className="font-medium">{group.name}</TableCell>
                   <TableCell className="text-muted-foreground">{group.description || '—'}</TableCell>

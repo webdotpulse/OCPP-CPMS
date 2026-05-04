@@ -31,6 +31,10 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
   const [vendorId, setVendorId] = useState("");
   const [dataTransferMessageId, setDataTransferMessageId] = useState("");
   const [dataTransferData, setDataTransferData] = useState("");
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [diagnosticsLocation, setDiagnosticsLocation] = useState("");
+  const [showChargingProfile, setShowChargingProfile] = useState(false);
+  const [chargingProfileJson, setChargingProfileJson] = useState("");
 
   const testAuthTag = async () => {
     setIsLoading(true);
@@ -175,10 +179,26 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
             >
               <Send className="mr-2 h-4 w-4" /> Data transfer
             </Button>
+
+            <Button
+              variant={showDiagnostics ? "default" : "outline"}
+              onClick={() => setShowDiagnostics(!showDiagnostics)}
+              className="whitespace-nowrap"
+            >
+              <Zap className="mr-2 h-4 w-4" /> Get diagnostics
+            </Button>
+
+            <Button
+              variant={showChargingProfile ? "default" : "outline"}
+              onClick={() => setShowChargingProfile(!showChargingProfile)}
+              className="whitespace-nowrap"
+            >
+              <Send className="mr-2 h-4 w-4" /> Set charging profiles
+            </Button>
           </div>
         </div>
 
-        {(showRemoteStart || showRemoteStop || showTestAuth || showFirmwareUpdate || showDataTransfer) && (
+        {(showRemoteStart || showRemoteStop || showTestAuth || showFirmwareUpdate || showDataTransfer || showDiagnostics || showChargingProfile) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
             {/* Remote Start */}
             {showRemoteStart && (
@@ -284,6 +304,60 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
                   disabled={isLoading || !vendorId}
                 >
                   <Send className="mr-2 h-4 w-4" /> Send Data Transfer
+                </Button>
+              </div>
+            )}
+
+            {/* Diagnostics */}
+            {showDiagnostics && (
+              <div className="space-y-4 border p-4 rounded-md">
+                <h4 className="font-medium text-sm">Get Diagnostics</h4>
+                <div className="space-y-1">
+                  <Label className="text-xs">Diagnostics Upload Location URL</Label>
+                  <Input value={diagnosticsLocation} onChange={e => setDiagnosticsLocation(e.target.value)} placeholder="ftp://server/diagnostics" />
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full border-primary text-primary hover:bg-primary/10"
+                  onClick={() => sendCommand('get-diagnostics', { location: diagnosticsLocation })}
+                  disabled={isLoading || !diagnosticsLocation}
+                >
+                  <Zap className="mr-2 h-4 w-4" /> Trigger Get Diagnostics
+                </Button>
+              </div>
+            )}
+
+            {/* Charging Profile */}
+            {showChargingProfile && (
+              <div className="space-y-4 border p-4 rounded-md">
+                <h4 className="font-medium text-sm">Set Charging Profiles</h4>
+                <div className="space-y-1">
+                  <Label className="text-xs">Connector ID</Label>
+                  <Input value={connectorId} onChange={e => setConnectorId(e.target.value)} type="number" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">csChargingProfiles (JSON array)</Label>
+                  <textarea
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={chargingProfileJson}
+                    onChange={e => setChargingProfileJson(e.target.value)}
+                    placeholder='[{ "chargingProfileId": 1, "stackLevel": 0, "chargingProfilePurpose": "TxProfile", "chargingProfileKind": "Absolute", "chargingSchedule": { "chargingRateUnit": "A", "chargingSchedulePeriod": [{ "startPeriod": 0, "limit": 16 }] } }]'
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full border-primary text-primary hover:bg-primary/10"
+                  onClick={() => {
+                    try {
+                      const parsed = JSON.parse(chargingProfileJson);
+                      sendCommand('set-charging-profile', { connectorId: parseInt(connectorId), csChargingProfiles: parsed });
+                    } catch (e) {
+                      toast.error("Invalid JSON provided for charging profiles.");
+                    }
+                  }}
+                  disabled={isLoading || !chargingProfileJson}
+                >
+                  <Send className="mr-2 h-4 w-4" /> Send Profile
                 </Button>
               </div>
             )}

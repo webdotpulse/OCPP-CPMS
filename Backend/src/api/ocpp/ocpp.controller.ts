@@ -15,6 +15,7 @@ import {
   setChargingProfile,
   clearChargingProfile,
   updateFirmware,
+  getDiagnostics,
 } from "../../ocpp/remoteControl.js";
 import type { RemoteStartRequest, RemoteStopRequest, SetChargingProfileRequest, ClearChargingProfileRequest } from "../../types/index.js";
 
@@ -409,6 +410,35 @@ export const testAuth = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: "Failed to test auth",
+    });
+  }
+};
+
+/**
+ * POST /api/ocpp/get-diagnostics - Get diagnostics from charger
+ */
+export const getDiagnosticsController = async (req: Request, res: Response) => {
+  try {
+    const { chargerId, location, retries, retryInterval, startTime, stopTime } = req.body;
+
+    if (!chargerId || !location) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required fields: chargerId, location",
+      });
+    }
+
+    const result = await getDiagnostics(chargerId, location, retries, retryInterval, startTime, stopTime);
+
+    logger.info(
+      `GetDiagnostics triggered for charger ${chargerId} with location: ${location}`
+    );
+    res.json({ success: true, ...result });
+  } catch (error) {
+    logger.error(`Error triggering get diagnostics: ${error}`);
+    res.status(500).json({
+      success: false,
+      error: "Failed to trigger get diagnostics",
     });
   }
 };
