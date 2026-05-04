@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { Loader2, User, KeyRound } from "lucide-react";
 import { api } from "@/lib/api";
+import { toast } from "sonner";
 
 const profileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -62,25 +63,36 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (user) {
-      profileForm.reset({
-        name: user.name || "",
-        email: user.email,
-        userType: user.userType || "private",
-        companyName: user.companyName || "",
-        address: user.address || "",
-        phone: user.phone || "",
-        taxNumber: user.taxNumber || "",
-      });
-
-      api.get(`/users/${user.id}`)
+      api.get(`/auth/me`)
         .then(res => {
           const fetchedUser = res.data?.data || res.data;
+
+          profileForm.reset({
+            name: fetchedUser.name || user.name || "",
+            email: fetchedUser.email || user.email,
+            userType: fetchedUser.userType || user.userType || "private",
+            companyName: fetchedUser.companyName || user.companyName || "",
+            address: fetchedUser.address || user.address || "",
+            phone: fetchedUser.phone || user.phone || "",
+            taxNumber: fetchedUser.taxNumber || user.taxNumber || "",
+          });
+
           if (fetchedUser?.createdAt) {
             setCreatedAt(fetchedUser.createdAt);
           }
         })
         .catch(err => {
           logger.error("Failed to fetch full user profile for settings", err);
+          // Fallback to basic user data if fetch fails
+          profileForm.reset({
+            name: user.name || "",
+            email: user.email,
+            userType: user.userType || "private",
+            companyName: user.companyName || "",
+            address: user.address || "",
+            phone: user.phone || "",
+            taxNumber: user.taxNumber || "",
+          });
         });
     }
   }, [user, profileForm]);
@@ -88,12 +100,11 @@ export default function SettingsPage() {
   const onProfileSubmit = async (data: ProfileValues) => {
     setIsSavingProfile(true);
     try {
-      // Assuming a PUT /auth/me or similar exists. We'll simulate if needed.
       await api.put('/auth/me', data);
-      alert("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
     } catch (error) {
       logger.error("Failed to update profile", error);
-      alert("Failed to update profile. API might be missing.");
+      toast.error("Failed to update profile.");
     } finally {
       setIsSavingProfile(false);
     }
@@ -103,11 +114,11 @@ export default function SettingsPage() {
     setIsSavingPassword(true);
     try {
       await api.put('/auth/password', data);
-      alert("Password updated successfully!");
+      toast.success("Password updated successfully!");
       passwordForm.reset();
     } catch (error) {
       logger.error("Failed to update password", error);
-      alert("Failed to update password. API might be missing.");
+      toast.error("Failed to update password.");
     } finally {
       setIsSavingPassword(false);
     }
