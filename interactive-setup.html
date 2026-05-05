@@ -248,10 +248,12 @@ sudo -u postgres psql -c "ALTER ROLE cms_user SET client_encoding TO 'utf8';"
 sudo -u postgres psql -c "ALTER ROLE cms_user SET default_transaction_isolation TO 'read committed';"
 sudo -u postgres psql -c "ALTER ROLE cms_user SET timezone TO 'UTC';"
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ocpp_cms TO cms_user;"
+# Explicitly grant schema privileges (Required for PostgreSQL 15+)
 sudo -u postgres psql -d ocpp_cms -c "GRANT ALL ON SCHEMA public TO cms_user;"
 \`\`\`
 
 **Install Redis:**
+*Note: Make sure to use the exact service name \`redis-server\` (not \`redis.service\`) when interacting with systemd.*
 \`\`\`bash
 sudo apt install redis-server -y
 sudo systemctl start redis-server
@@ -423,16 +425,21 @@ Follow the prompts. Certbot will automatically modify your Nginx configurations 
 Since this is a fresh installation, you'll need to create an initial admin user and at least one charging station.
 
 ### Create Admin User
-To securely create the first admin user, you can run the initialization script on the VM:
+To securely create the first admin user, ensure the database tables exist and run the initialization script on the VM:
 \`\`\`bash
 cd /var/www/ocpp-cms/Backend
 npm run create-admin -- "admin_email" "admin_password"
 \`\`\`
+*(This command automatically runs \`npx prisma db push\` before creating the admin user).*
 
 ### Connecting a Charger in Production
-Once deployed and SSL is configured, point your OCPP 1.6 charger (or simulator) to your secure WebSocket endpoint:
+Once deployed and SSL is configured, point your OCPP 1.6 or OCPP 2.1/2.0.1 charger (or simulator) to your secure WebSocket endpoint:
 \`\`\`
 wss://ocpp.mobilitypulse.com/OCPP/1.6/{chargerId}
+\`\`\`
+or
+\`\`\`
+wss://ocpp.mobilitypulse.com/OCPP/2.1/{chargerId}
 \`\`\`
 *Note the use of \`wss://\` instead of \`ws://\` now that SSL is active.*
 
