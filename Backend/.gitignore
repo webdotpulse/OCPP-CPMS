@@ -7,3 +7,4 @@ node_modules
 logs/
 *.log
 dist/
+node_modules

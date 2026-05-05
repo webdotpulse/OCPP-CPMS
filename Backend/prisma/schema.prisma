@@ -21,8 +21,10 @@ model User {
   address     String?
   phone       String?
   taxNumber   String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   chargingStations ChargingStation[]
   chargers         Charger[]
