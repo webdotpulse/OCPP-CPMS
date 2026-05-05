@@ -134,6 +134,7 @@ export const getLiveSessions = async (req: Request, res: Response) => {
         connectorName: t.connectorName,
         startTime: t.startTime,
         energyConsumed: t.energyConsumed,
+        currentPower: t.currentPower,
         status: t.status,
         type: "basic",
         durationMinutes: Math.floor((Date.now() - t.startTime.getTime()) / 60000),
@@ -144,6 +145,7 @@ export const getLiveSessions = async (req: Request, res: Response) => {
         connectorName: s.connectorName,
         startTime: s.startTime,
         energyConsumed: s.energyConsumed,
+        currentPower: s.currentPower,
         status: s.status,
         type: "rfid",
         durationMinutes: Math.floor((Date.now() - s.startTime.getTime()) / 60000),
@@ -152,13 +154,28 @@ export const getLiveSessions = async (req: Request, res: Response) => {
       })),
     ];
 
+    // Deduplicate by transactionId
+    const uniqueSessionsMap = new Map();
+    for (const session of allActiveSessions) {
+      if (uniqueSessionsMap.has(session.transactionId)) {
+        // Prefer RFID session if it exists because it has more metadata
+        if (session.type === "rfid") {
+          uniqueSessionsMap.set(session.transactionId, session);
+        }
+      } else {
+        uniqueSessionsMap.set(session.transactionId, session);
+      }
+    }
+
+    const uniqueSessions = Array.from(uniqueSessionsMap.values());
+
     // Sort by start time (newest first)
-    allActiveSessions.sort((a, b) => b.startTime.getTime() - a.startTime.getTime());
+    uniqueSessions.sort((a, b) => b.startTime.getTime() - a.startTime.getTime());
 
     res.json({
       success: true,
-      data: allActiveSessions,
-      count: allActiveSessions.length,
+      data: uniqueSessions,
+      count: uniqueSessions.length,
     });
   } catch (error) {
     logger.error(`Error getting live sessions: ${error}`);

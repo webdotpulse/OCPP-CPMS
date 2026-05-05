@@ -84,6 +84,35 @@ export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
       payload = parsedMsg;
     }
 
+    let enhancedAction = action;
+    if (action === 'BootNotification') enhancedAction = 'Booting';
+    if (action === 'StatusNotification' && payload?.status === 'Preparing') enhancedAction = 'Preparing transaction';
+    if (action === 'Authorize') enhancedAction = 'OCPP authorization';
+    if (action === 'StartTransaction') enhancedAction = 'OCPP start transaction';
+    if (action === 'StopTransaction') enhancedAction = 'Commit transaction';
+    if (action === 'MeterValues') enhancedAction = 'OCPP meter values';
+
+    if (action === 'MeterValues' && payload?.meterValue) {
+      let energyValue = 0;
+      let powerValue = 0;
+      const meterValuesArray = Array.isArray(payload.meterValue) ? payload.meterValue : [];
+      for (const mv of meterValuesArray) {
+        if (mv.sampledValue && Array.isArray(mv.sampledValue)) {
+          for (const sv of mv.sampledValue) {
+            const measurand = sv.measurand || "Energy.Active.Import.Register";
+            if (measurand === "Energy.Active.Import.Register" || measurand === "Energy") {
+              energyValue = parseFloat(sv.value);
+            } else if (measurand === "Power.Active.Import" || measurand === "Power") {
+              powerValue = parseFloat(sv.value);
+            }
+          }
+        } else if (mv.value !== undefined) {
+           energyValue = parseFloat(mv.value);
+        }
+      }
+      payload = { ...payload, summary: `Power: ${powerValue > 0 ? (powerValue/1000).toFixed(2) : '-'} kW, Energy: ${energyValue > 0 ? (energyValue/1000).toFixed(2) : '-'} kWh` };
+    }
+
     // Filter by connectorId
     if (payload?.connectorId !== undefined && payload.connectorId !== connectorId) {
       if (action === 'BootNotification' || action === 'Heartbeat') {
@@ -104,7 +133,7 @@ export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
       timestamp: new Date(rawLog.timestamp),
       chargePointId: rawLog.charger?.name || rawLog.chargerId?.toString() || chargerId.toString(),
       messageType,
-      action,
+      action: enhancedAction,
       payload,
       direction: rawLog.direction
     };

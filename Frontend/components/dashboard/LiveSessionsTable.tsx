@@ -14,6 +14,7 @@ interface ActiveSession {
   connectorName: string;
   startTime: string;
   energyConsumed: number;
+  currentPower: number;
   status: string;
 }
 
@@ -69,7 +70,8 @@ export function LiveSessionsTable() {
                 <TableHead>Charger</TableHead>
                 <TableHead>Connector</TableHead>
                 <TableHead>Started</TableHead>
-                <TableHead className="text-right">Generated Energy</TableHead>
+                <TableHead className="text-right">Power</TableHead>
+                <TableHead className="text-right">Energy</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -80,6 +82,9 @@ export function LiveSessionsTable() {
                   <TableCell>{session.connectorName}</TableCell>
                   <TableCell>
                     {formatDistanceToNow(new Date(session.startTime), { addSuffix: true })}
+                  </TableCell>
+                  <TableCell className="text-right font-mono text-blue-500">
+                    {session.currentPower > 0 ? `${(session.currentPower / 1000).toFixed(2)} kW` : '-'}
                   </TableCell>
                   <TableCell className="text-right font-mono text-primary">
                     {session.energyConsumed > 0 ? `${(session.energyConsumed / 1000).toFixed(2)} kWh` : 'Starting...'}

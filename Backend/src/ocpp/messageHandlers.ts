@@ -438,7 +438,25 @@ export async function handleMeterValues(
   try {
     if (!transactionId) return;
 
-    const energyValue = meterValue?.find((m: any) => m.value)?.value || 0;
+    let energyValue = 0;
+    let powerValue = 0;
+
+    if (Array.isArray(meterValue)) {
+      for (const mv of meterValue) {
+        if (mv.sampledValue && Array.isArray(mv.sampledValue)) {
+          for (const sv of mv.sampledValue) {
+            const measurand = sv.measurand || "Energy.Active.Import.Register";
+            if (measurand === "Energy.Active.Import.Register" || measurand === "Energy") {
+              energyValue = parseFloat(sv.value);
+            } else if (measurand === "Power.Active.Import" || measurand === "Power") {
+              powerValue = parseFloat(sv.value);
+            }
+          }
+        } else if (mv.value !== undefined) {
+           energyValue = parseFloat(mv.value);
+        }
+      }
+    }
 
     // Update Transaction record
     const transaction = await prisma.transaction.findFirst({
@@ -449,7 +467,8 @@ export async function handleMeterValues(
       await prisma.transaction.update({
         where: { id: transaction.id },
         data: {
-          energyConsumed: energyValue,
+          energyConsumed: energyValue || transaction.energyConsumed,
+          currentPower: powerValue || transaction.currentPower,
           status: "charging",
         },
       });
@@ -464,7 +483,8 @@ export async function handleMeterValues(
       await prisma.rfidSession.update({
         where: { id: rfidSession.id },
         data: {
-          energyConsumed: energyValue,
+          energyConsumed: energyValue || rfidSession.energyConsumed,
+          currentPower: powerValue || rfidSession.currentPower,
           status: "charging",
         },
       });

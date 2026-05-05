@@ -68,7 +68,8 @@ export default function ActiveSessionsPage() {
               <TableHead>Txn ID</TableHead>
               <TableHead>Charger / Connector</TableHead>
               <TableHead>Started</TableHead>
-              <TableHead className="text-right">Generated Energy</TableHead>
+              <TableHead className="text-right">Power</TableHead>
+              <TableHead className="text-right">Energy</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -90,6 +91,9 @@ export default function ActiveSessionsPage() {
                   <TableCell>{session.chargerName} <span className="text-muted-foreground text-xs ml-1">({session.connectorName})</span></TableCell>
                   <TableCell>
                     {formatDistanceToNow(new Date(session.startTime), { addSuffix: true })}
+                  </TableCell>
+                  <TableCell className="text-right font-mono text-blue-500 text-lg">
+                    {session.currentPower > 0 ? `${(session.currentPower / 1000).toFixed(2)} kW` : '-'}
                   </TableCell>
                   <TableCell className="text-right font-mono text-primary text-lg">
                     {session.energyConsumed > 0 ? `${(session.energyConsumed / 1000).toFixed(2)} kWh` : 'Starting...'}

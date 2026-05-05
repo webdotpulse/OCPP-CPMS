@@ -157,7 +157,20 @@ export const getActiveTransactions = async (req: Request, res: Response) => {
       ...activeRfidSessions.map((s: any) => ({ ...s, type: "rfid" })),
     ];
 
-    res.json({ success: true, data: allActiveSessions, count: allActiveSessions.length });
+    // Deduplicate by transactionId
+    const uniqueSessionsMap = new Map();
+    for (const session of allActiveSessions) {
+      if (uniqueSessionsMap.has(session.transactionId)) {
+        if (session.type === "rfid") {
+          uniqueSessionsMap.set(session.transactionId, session);
+        }
+      } else {
+        uniqueSessionsMap.set(session.transactionId, session);
+      }
+    }
+    const uniqueSessions = Array.from(uniqueSessionsMap.values());
+
+    res.json({ success: true, data: uniqueSessions, count: uniqueSessions.length });
   } catch (error) {
     logger.error(`Error getting active transactions: ${error}`);
     res.status(500).json({

@@ -143,6 +143,7 @@ model RfidSession {
   initialMeterValue Float?
   finalMeterValue   Float?
   energyConsumed    Float     @default(0)
+  currentPower      Float?    @default(0)
   tariffRate        Float?
   amountDue         Float     @default(0)
   status            String    @default("charging")
@@ -164,6 +165,7 @@ model Transaction {
   initialMeterValue Float?
   finalMeterValue   Float?
   energyConsumed    Float     @default(0)
+  currentPower      Float?    @default(0)
   status            String    @default("initiated")
   idTag             String?
   createdAt         DateTime  @default(now())

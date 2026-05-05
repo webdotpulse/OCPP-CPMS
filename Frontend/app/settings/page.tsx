@@ -144,8 +144,8 @@ export default function SettingsPage() {
     try {
       if (method === 'authenticator') {
         const res = await api.get('/auth/2fa/generate');
-        setQrCodeUrl(res.data.data.qrCodeUrl);
-        setSetupSecret(res.data.data.secret);
+        setQrCodeUrl(res.data.qrCodeUrl || res.data.data?.qrCodeUrl);
+        setSetupSecret(res.data.secret || res.data.data?.secret);
       } else if (method === 'email') {
         await api.post('/auth/2fa/send-email-code');
         toast.success('Setup code sent to your email.');
