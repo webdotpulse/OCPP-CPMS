@@ -133,14 +133,12 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-10"></TableHead>
-            <TableHead>Ch#</TableHead>
+            <TableHead>Connector</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Power</TableHead>
+            <TableHead>Energy</TableHead>
+            <TableHead>Time</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Notification</TableHead>
-            <TableHead>Power (kW)</TableHead>
-            <TableHead>Energy (kWh)</TableHead>
-            <TableHead>Transaction time</TableHead>
-            <TableHead>Card</TableHead>
-            <TableHead>Client</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -158,63 +156,44 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
                   )}
                 </TableCell>
                 <TableCell className="font-medium">
-                  {conn.connector_id}
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center justify-center">
-                    {conn.status?.toLowerCase() === 'charging' ? (
-                      <div className="w-6 h-6 rounded-full bg-blue-600 border border-blue-900" />
-                    ) : conn.status?.toLowerCase() === 'available' ? (
-                      <div className="w-6 h-6 rounded-full bg-green-500 border border-green-800" />
-                    ) : conn.status?.toLowerCase() === 'faulted' ? (
-                      <div className="w-6 h-6 rounded-full bg-red-500 border border-red-800" />
-                    ) : (
-                      <div className="w-6 h-6 rounded-full bg-gray-500 border border-gray-800" />
-                    )}
+                  <div className="flex items-center gap-2">
+                    {getStatusIcon(conn.status)}
+                    <span>{conn.connector_name || `Connector ${conn.connector_id}`}</span>
                   </div>
                 </TableCell>
                 <TableCell>
-                  {conn.status}
+                  <Badge variant="secondary">{conn.current_type || 'N/A'}</Badge>
                 </TableCell>
                 {(() => {
                   const activeTxn = activeTxns.find(t => t.connectorName === String(conn.connector_id) || t.connectorName === conn.connector_name);
                   const isCharging = conn.status?.toLowerCase() === 'charging' || activeTxn;
 
                   if (isCharging && activeTxn) {
-                    const power = activeTxn.currentPower ? (activeTxn.currentPower / 1000).toFixed(2) : '0.00';
-                    const energy = activeTxn.energyConsumed ? (activeTxn.energyConsumed / 1000).toFixed(2) : '0.00';
+                    const power = activeTxn.currentPower ? (activeTxn.currentPower / 1000).toFixed(2) + ' kW' : '0.00 kW';
+                    const energy = activeTxn.energyConsumed ? (activeTxn.energyConsumed / 1000).toFixed(2) + ' kWh' : '0.00 kWh';
                     const duration = formatDuration(activeTxn.startTime || activeTxn.createdAt);
-                    const card = activeTxn.idTag || activeTxn.rfidUser?.rfid_tag || '';
-                    const client = activeTxn.rfidUser?.name || '';
-
                     return (
                       <>
-                        <TableCell className="text-zinc-300">{power}</TableCell>
-                        <TableCell className="text-zinc-300">{energy}</TableCell>
-                        <TableCell className="text-zinc-300">{duration}</TableCell>
-                        <TableCell className="text-blue-400">
-                          {card ? (
-                            <span className="flex items-center gap-1">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-rss"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
-                              {card}
-                            </span>
-                          ) : ''}
-                        </TableCell>
-                        <TableCell className="text-blue-400">{client}</TableCell>
+                        <TableCell className="font-mono text-primary">{power}</TableCell>
+                        <TableCell className="font-mono text-primary">{energy}</TableCell>
+                        <TableCell className="font-mono text-muted-foreground">{duration}</TableCell>
                       </>
                     );
                   }
 
                   return (
                     <>
-                      <TableCell className="text-zinc-300"></TableCell>
-                      <TableCell className="text-zinc-300"></TableCell>
-                      <TableCell className="text-zinc-300"></TableCell>
-                      <TableCell className="text-blue-400"></TableCell>
-                      <TableCell className="text-blue-400"></TableCell>
+                      <TableCell className="text-muted-foreground">N/A</TableCell>
+                      <TableCell className="text-muted-foreground">N/A</TableCell>
+                      <TableCell className="text-muted-foreground">-</TableCell>
                     </>
                   );
                 })()}
+                <TableCell>
+                  <Badge className={getStatusColor(conn.status)}>
+                    {conn.status}
+                  </Badge>
+                </TableCell>
               </TableRow>
               {expandedId === conn.connector_id && (
                 <TableRow>

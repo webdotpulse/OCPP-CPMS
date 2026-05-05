@@ -13,11 +13,6 @@ interface ChannelLog {
   messageType: string;
   action: string;
   payload: any;
-  power?: number;
-  energy?: number;
-  card?: string;
-  client?: string;
-  transactionTime?: string;
   direction?: string;
 }
 
@@ -90,49 +85,32 @@ export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
     }
 
     let enhancedAction = action;
-    if (action === 'BootNotification') enhancedAction = 'OCPP boot notification';
-    if (action === 'Heartbeat') enhancedAction = 'OCPP heartbeat';
-    if (action === 'StatusNotification') {
-      if (payload?.status === 'Available') enhancedAction = 'Ready';
-      else if (payload?.status === 'Charging') enhancedAction = 'Charging';
-      else if (payload?.status === 'Preparing') enhancedAction = 'Preparing transaction';
-      else if (payload?.status === 'Finishing') enhancedAction = 'Finishing transaction';
-      else if (payload?.status === 'SuspendedEVSE') enhancedAction = 'Charging (no available power)';
-      else if (payload?.status === 'SuspendedEV') enhancedAction = 'Charging (full)';
-      else enhancedAction = 'OCPP status notification';
-    }
+    if (action === 'BootNotification') enhancedAction = 'Booting';
+    if (action === 'StatusNotification' && payload?.status === 'Preparing') enhancedAction = 'Preparing transaction';
     if (action === 'Authorize') enhancedAction = 'OCPP authorization';
     if (action === 'StartTransaction') enhancedAction = 'OCPP start transaction';
     if (action === 'StopTransaction') enhancedAction = 'Commit transaction';
     if (action === 'MeterValues') enhancedAction = 'OCPP meter values';
 
-    let logPower: number | undefined;
-    let logEnergy: number | undefined;
-    let logCard: string | undefined;
-
-    if (action === 'Authorize' || action === 'StartTransaction') {
-      logCard = payload?.idTag;
-    }
-    if (action === 'StopTransaction') {
-      logCard = payload?.idTag;
-    }
-
     if (action === 'MeterValues' && payload?.meterValue) {
+      let energyValue = 0;
+      let powerValue = 0;
       const meterValuesArray = Array.isArray(payload.meterValue) ? payload.meterValue : [];
       for (const mv of meterValuesArray) {
         if (mv.sampledValue && Array.isArray(mv.sampledValue)) {
           for (const sv of mv.sampledValue) {
             const measurand = sv.measurand || "Energy.Active.Import.Register";
             if (measurand === "Energy.Active.Import.Register" || measurand === "Energy") {
-              logEnergy = parseFloat(sv.value) / 1000;
+              energyValue = parseFloat(sv.value);
             } else if (measurand === "Power.Active.Import" || measurand === "Power") {
-              logPower = parseFloat(sv.value) / 1000;
+              powerValue = parseFloat(sv.value);
             }
           }
         } else if (mv.value !== undefined) {
-           logEnergy = parseFloat(mv.value) / 1000;
+           energyValue = parseFloat(mv.value);
         }
       }
+      payload = { ...payload, summary: `Power: ${powerValue > 0 ? (powerValue/1000).toFixed(2) : '-'} kW, Energy: ${energyValue > 0 ? (energyValue/1000).toFixed(2) : '-'} kWh` };
     }
 
     // Filter by connectorId only if explicitly targeting another non-zero connector
@@ -152,9 +130,6 @@ export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
       messageType,
       action: enhancedAction,
       payload,
-      power: logPower,
-      energy: logEnergy,
-      card: logCard,
       direction: rawLog.direction
     };
   }, [chargerId, connectorId]);
@@ -216,23 +191,21 @@ export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
       <Table>
         <TableHeader className="sticky top-0 bg-zinc-900 z-10">
           <TableRow className="border-zinc-800 hover:bg-zinc-900">
-            <TableHead className="text-zinc-400">Date</TableHead>
-            <TableHead className="text-zinc-400">Notification</TableHead>
-            <TableHead className="text-zinc-400">Power (kW)</TableHead>
-            <TableHead className="text-zinc-400">Energy (kWh)</TableHead>
-            <TableHead className="text-zinc-400">Transaction time</TableHead>
-            <TableHead className="text-zinc-400">Card</TableHead>
-            <TableHead className="text-zinc-400">Client</TableHead>
+            <TableHead className="text-zinc-400">Timestamp</TableHead>
+            <TableHead className="text-zinc-400">Charger ID</TableHead>
+            <TableHead className="text-zinc-400">Type</TableHead>
+            <TableHead className="text-zinc-400">Action</TableHead>
+            <TableHead className="text-zinc-400 w-1/2">Payload Snippet</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {isLoading && logs.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center text-zinc-500">Loading channel logs...</TableCell>
+              <TableCell colSpan={5} className="h-24 text-center text-zinc-500">Loading channel logs...</TableCell>
             </TableRow>
           ) : logs.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center text-zinc-500">
+              <TableCell colSpan={5} className="h-24 text-center text-zinc-500">
                 No logs available for this channel
               </TableCell>
             </TableRow>
@@ -244,37 +217,32 @@ export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
                   onClick={() => toggleRow(log.id)}
                 >
                   <TableCell className="text-zinc-400 whitespace-nowrap">
-                    {format(log.timestamp, 'dd-MMM-yyyy HH:mm:ss')}
+                    {format(log.timestamp, 'HH:mm:ss.SSS')}
                   </TableCell>
-                  <TableCell className="text-zinc-300">
+                  <TableCell className="text-blue-400">
+                    {log.chargePointId}
+                  </TableCell>
+                  <TableCell>
+                    <span className={
+                      log.messageType === 'CALL' ? 'text-purple-400' :
+                      log.messageType === 'CALLRESULT' ? 'text-green-400' :
+                      log.messageType === 'CALLERROR' ? 'text-red-400' :
+                      log.direction === 'in' ? 'text-blue-400' : 'text-orange-400'
+                    }>
+                      {log.messageType}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-yellow-200">
                     {log.action || '-'}
                   </TableCell>
-                  <TableCell className="text-zinc-300">
-                    {log.power !== undefined ? log.power.toFixed(2) : ''}
-                  </TableCell>
-                  <TableCell className="text-zinc-300">
-                    {log.energy !== undefined ? log.energy.toFixed(2) : ''}
-                  </TableCell>
-                  <TableCell className="text-zinc-300">
-                    {log.transactionTime || ''}
-                  </TableCell>
-                  <TableCell className="text-blue-400">
-                    {log.card ? (
-                      <span className="flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-rss"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
-                        {log.card}
-                      </span>
-                    ) : ''}
-                  </TableCell>
-                  <TableCell className="text-blue-400">
-                    {log.client || ''}
+                  <TableCell className="text-zinc-500 truncate max-w-md">
+                    {JSON.stringify(log.payload)}
                   </TableCell>
                 </TableRow>
                 {expandedRowIds.has(log.id) && (
                   <TableRow className="border-zinc-800/50 hover:bg-zinc-800/50">
-                    <TableCell colSpan={7} className="p-0 border-b border-zinc-800/50">
+                    <TableCell colSpan={5} className="p-0 border-b border-zinc-800/50">
                       <div className="bg-zinc-950/50 p-4 font-mono text-xs whitespace-pre-wrap break-words break-all text-zinc-400">
-                        {log.messageType && <div className="mb-2 text-purple-400">Type: {log.messageType}</div>}
                         {JSON.stringify(log.payload, null, 2)}
                       </div>
                     </TableCell>
