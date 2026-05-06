@@ -174,11 +174,11 @@ export default function SimulatorPage() {
                   </div>
 
                   <div className="text-sm font-semibold mt-2 mb-1">Auto Simulation Loop</div>
-                  <div className="flex gap-2">
-                    <Button size="sm" className="w-full bg-green-600 hover:bg-green-700" onClick={() => handleAction(sim.chargerId, "startAuto")}>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button size="sm" className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => handleAction(sim.chargerId, "startAuto")}>
                       <RefreshCw className="w-4 h-4 mr-2" /> Start Auto Loop
                     </Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleAction(sim.chargerId, "stopAuto")}>
+                    <Button size="sm" variant="destructive" className="flex-1" onClick={() => handleAction(sim.chargerId, "stopAuto")}>
                       Stop Loop
                     </Button>
                   </div>

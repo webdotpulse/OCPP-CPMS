@@ -2,25 +2,17 @@
 > Frontend@0.0.1 dev
 > next dev -p 3002 --turbopack
 
- ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
- We detected multiple lockfiles and selected the directory of /app/package-lock.json as the root directory.
- To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
-   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
- Detected additional lockfiles:
-   * /app/Frontend/package-lock.json
-
    ▲ Next.js 15.5.15 (Turbopack)
    - Local:        http://localhost:3002
    - Network:      http://192.168.0.2:3002
 
  ✓ Starting...
- ✓ Compiled middleware in 363ms
- ✓ Ready in 1905ms
+ ○ Compiling middleware ...
+ ✓ Compiled middleware in 605ms
+ ✓ Ready in 2.5s
  ○ Compiling /login ...
- ✓ Compiled /login in 10.1s
- GET /login 200 in 11465ms
+ ✓ Compiled /login in 10.4s
+ GET /login 200 in 12101ms
  ○ Compiling /simulator ...
- ✓ Compiled /simulator in 2.3s
- GET /simulator 200 in 2570ms
- GET /login 200 in 220ms
- GET /simulator 200 in 209ms
+ ✓ Compiled /simulator in 2.8s
+ GET /simulator 200 in 3235ms
