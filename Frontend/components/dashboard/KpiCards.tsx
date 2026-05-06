@@ -51,13 +51,13 @@ export function KpiCards() {
     },
     {
       title: t('dashboard.energyToday'),
-      value: `${metrics?.energyToday?.toFixed(2) || 0} kWh`,
+      value: `${((metrics?.energyToday || 0) / 1000).toFixed(2)} kWh`,
       icon: BatteryCharging,
       description: t('dashboard.energyTodayDesc'),
     },
     {
       title: t('dashboard.revenueToday'),
-      value: `$${metrics?.revenueToday?.toFixed(2) || 0}`,
+      value: `€${metrics?.revenueToday?.toFixed(2) || 0}`,
       icon: Banknote,
       description: t('dashboard.revenueTodayDesc'),
     },
