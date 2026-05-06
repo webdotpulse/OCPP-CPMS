@@ -10,7 +10,7 @@ export default function ForgotPasswordPage() {
         <div className="bg-primary p-2 rounded-lg">
           <Zap className="h-6 w-6 text-primary-foreground" />
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Open-Source OCPP CMS</h1>
+        <h1 className="text-2xl font-bold tracking-tight">OCPP CMS</h1>
       </div>
       <ForgotPasswordForm />
     </div>

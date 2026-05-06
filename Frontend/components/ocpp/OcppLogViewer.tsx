@@ -1,7 +1,7 @@
 "use client";
 import { logger } from "@/lib/logger";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
@@ -17,6 +17,7 @@ export function OcppLogViewer() {
   const [search, setSearch] = useState("");
 
   const [ws, setWs] = useState<WebSocket | null>(null);
+  const messageActionMap = useRef<Record<string, string>>({});
 
   const enrichLog = useCallback((rawLog: any) => {
     let parsedMsg: any = null;
@@ -36,17 +37,29 @@ export function OcppLogViewer() {
 
     if (Array.isArray(parsedMsg)) {
       const typeId = parsedMsg[0];
+      const messageId = parsedMsg[1];
       if (typeId === 2) {
         messageType = 'CALL';
         action = parsedMsg[2];
         payload = parsedMsg[3];
+        if (messageId && action) {
+          messageActionMap.current[messageId] = action;
+        }
       } else if (typeId === 3) {
         messageType = 'CALLRESULT';
-        action = 'Response';
+        if (messageId && messageActionMap.current[messageId]) {
+          action = messageActionMap.current[messageId];
+        } else {
+          action = 'Response';
+        }
         payload = parsedMsg[2];
       } else if (typeId === 4) {
         messageType = 'CALLERROR';
-        action = 'Error';
+        if (messageId && messageActionMap.current[messageId]) {
+          action = messageActionMap.current[messageId];
+        } else {
+          action = 'Error';
+        }
         payload = parsedMsg.slice(2);
       }
     } else if (parsedMsg && typeof parsedMsg === 'object') {
@@ -130,6 +143,20 @@ export function OcppLogViewer() {
       try {
         const data = JSON.parse(event.data);
         if (data.type === 'history') {
+          // Pre-populate message action map chronologically (data.logs is oldest to newest or vice-versa, depending on backend)
+          // The backend currently sends in chronological order. We should process it as such.
+          const chronologicalData = Array.isArray(data.logs) ? data.logs : [];
+          for (const log of chronologicalData) {
+            try {
+              const parsedMsg = typeof log.message === 'string' ? JSON.parse(log.message) : log.message;
+              if (Array.isArray(parsedMsg) && parsedMsg[0] === 2 && parsedMsg[1] && parsedMsg[2]) {
+                messageActionMap.current[parsedMsg[1]] = parsedMsg[2];
+              }
+            } catch {
+              // Ignore parse errors
+            }
+          }
+
           // Reverse history so newest logs appear at the top
           setLogs([...data.logs].reverse().map(enrichLog));
           setIsLoading(false);

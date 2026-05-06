@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { format } from "date-fns";
 import { api } from "@/lib/api";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -25,6 +25,7 @@ export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
   const [logs, setLogs] = useState<ChannelLog[]>([]);
   const [expandedRowIds, setExpandedRowIds] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const messageActionMap = useRef<Record<string, string>>({});
 
   const toggleRow = (id: string) => {
     setExpandedRowIds(prev => {
@@ -56,16 +57,29 @@ export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
 
     if (Array.isArray(parsedMsg)) {
       const typeId = parsedMsg[0];
+      const messageId = parsedMsg[1];
       if (typeId === 2) {
         messageType = 'CALL';
         action = parsedMsg[2];
         payload = parsedMsg[3];
+        if (messageId && action) {
+          messageActionMap.current[messageId] = action;
+        }
       } else if (typeId === 3) {
         messageType = 'CALLRESULT';
+        if (messageId && messageActionMap.current[messageId]) {
+          action = messageActionMap.current[messageId];
+        } else if (action === '-') {
+          action = 'Response';
+        }
         payload = parsedMsg[2];
       } else if (typeId === 4) {
         messageType = 'CALLERROR';
-        action = parsedMsg[2];
+        if (messageId && messageActionMap.current[messageId]) {
+          action = messageActionMap.current[messageId];
+        } else {
+          action = parsedMsg[2] || 'Error';
+        }
         payload = {
           errorCode: parsedMsg[2],
           errorDescription: parsedMsg[3],
@@ -139,7 +153,23 @@ export function ChannelLogs({ chargerId, connectorId }: ChannelLogsProps) {
       setIsLoading(true);
       try {
         const response = await api.get(`/chargers/${chargerId}/logs`);
-        const historicalLogs = (response.data || [])
+        const data = response.data || [];
+
+        // Pre-populate map before enriching, iterating from oldest to newest
+        // assuming data is newest first, so we reverse it to process chronologically
+        const chronologicalData = [...data].reverse();
+        for (const log of chronologicalData) {
+          try {
+            const parsedMsg = typeof log.message === 'string' ? JSON.parse(log.message) : log.message;
+            if (Array.isArray(parsedMsg) && parsedMsg[0] === 2 && parsedMsg[1] && parsedMsg[2]) {
+              messageActionMap.current[parsedMsg[1]] = parsedMsg[2];
+            }
+          } catch {
+            // ignore JSON parse errors
+          }
+        }
+
+        const historicalLogs = data
           .map(enrichLog)
           .filter(Boolean) as ChannelLog[];
         setLogs(historicalLogs.slice(0, 50));
