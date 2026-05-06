@@ -5,6 +5,8 @@ export interface SimulatorConfig {
   protocol: "ocpp1.6" | "ocpp2.1";
   type: "AC" | "DC";
   maxPowerKw: number;
+  rfidTags?: string;
+  chargeProfile?: "SetSpeed" | "DynamicSpeed" | "RealLife1" | "RealLife2";
 }
 
 export const simulatorApi = {

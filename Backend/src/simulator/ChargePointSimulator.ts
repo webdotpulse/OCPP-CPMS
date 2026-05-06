@@ -7,6 +7,8 @@ export interface SimulatorConfig {
   protocol: "ocpp1.6" | "ocpp2.1";
   type: "AC" | "DC";
   maxPowerKw: number;
+  rfidTags?: string;
+  chargeProfile?: "SetSpeed" | "DynamicSpeed" | "RealLife1" | "RealLife2";
 }
 
 export type SimulatorState = "Offline" | "Available" | "Preparing" | "Charging" | "Finishing";
@@ -17,6 +19,8 @@ export class ChargePointSimulator {
   public state: SimulatorState = "Offline";
   public currentTransactionId: number | null = null;
   public energyConsumedWh: number = 0;
+
+  private sessionStartTime: number | null = null;
 
   private autoLoopInterval: NodeJS.Timeout | null = null;
   private autoChargingInterval: NodeJS.Timeout | null = null;
@@ -177,6 +181,7 @@ export class ChargePointSimulator {
       });
 
       this.currentTransactionId = startRes.transactionId;
+      this.sessionStartTime = Date.now();
       await this.sendStatusNotification("Charging");
     } catch (err) {
       logger.error(`Simulator ${this.config.chargerId} StartTransaction failed`, err);
@@ -212,8 +217,35 @@ export class ChargePointSimulator {
   public async sendMeterValues() {
     if (this.state !== "Charging" || !this.currentTransactionId) return;
 
-    // Simulate power based on config. Add some noise.
-    const currentPowerW = (this.config.maxPowerKw * 1000) * (0.8 + Math.random() * 0.2);
+    const maxW = this.config.maxPowerKw * 1000;
+    let currentPowerW = maxW;
+    const sessionDurationSeconds = this.sessionStartTime ? (Date.now() - this.sessionStartTime) / 1000 : 0;
+
+    switch (this.config.chargeProfile) {
+      case "SetSpeed":
+        currentPowerW = maxW; // Constant
+        break;
+      case "DynamicSpeed":
+        currentPowerW = maxW * (0.8 + Math.random() * 0.2); // Fluctuate 80-100%
+        break;
+      case "RealLife1":
+        // Tapering curve: start high, drop linearly over ~2 minutes (120s) for demo
+        let taperRatio = 1 - (sessionDurationSeconds / 120);
+        if (taperRatio < 0.1) taperRatio = 0.1;
+        currentPowerW = maxW * taperRatio * (0.95 + Math.random() * 0.05);
+        break;
+      case "RealLife2":
+        // Ramp up then fluctuate heavily
+        if (sessionDurationSeconds < 30) {
+          currentPowerW = maxW * (sessionDurationSeconds / 30);
+        } else {
+          currentPowerW = maxW * (0.4 + Math.random() * 0.6); // Fluctuate 40-100%
+        }
+        break;
+      default:
+        // Default behavior (same as DynamicSpeed)
+        currentPowerW = maxW * (0.8 + Math.random() * 0.2);
+    }
 
     // Add energy for 10 seconds interval (W * h)
     this.energyConsumedWh += currentPowerW * (10 / 3600);
@@ -260,7 +292,14 @@ export class ChargePointSimulator {
       if (this.state === "Available") {
         // Start charging randomly
         if (Math.random() > 0.5) {
-          this.startTransaction("SIM-CARD-" + Math.floor(Math.random() * 100));
+          let idTag = "SIM-CARD-" + Math.floor(Math.random() * 100);
+          if (this.config.rfidTags) {
+            const tags = this.config.rfidTags.split(",").map(t => t.trim()).filter(t => t);
+            if (tags.length > 0) {
+              idTag = tags[Math.floor(Math.random() * tags.length)];
+            }
+          }
+          this.startTransaction(idTag);
         }
       } else if (this.state === "Charging") {
         this.sendMeterValues();

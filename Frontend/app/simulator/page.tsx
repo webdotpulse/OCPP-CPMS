@@ -125,6 +125,28 @@ export default function SimulatorPage() {
                   onChange={(e) => setNewSim({ ...newSim, maxPowerKw: Number(e.target.value) })}
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="chargeProfile">Charge Profile</Label>
+                <Select value={newSim.chargeProfile} onValueChange={(val: any) => setNewSim({ ...newSim, chargeProfile: val })}>
+                  <SelectTrigger className="w-[160px]"><SelectValue placeholder="Default" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="SetSpeed">Set Speed</SelectItem>
+                    <SelectItem value="DynamicSpeed">Dynamic Speed</SelectItem>
+                    <SelectItem value="RealLife1">Real Life 1</SelectItem>
+                    <SelectItem value="RealLife2">Real Life 2</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="rfidTags">RFID Tags (comma separated)</Label>
+                <Input
+                  id="rfidTags"
+                  placeholder="e.g. A1B2,C3D4"
+                  className="w-[200px]"
+                  value={newSim.rfidTags || ""}
+                  onChange={(e) => setNewSim({ ...newSim, rfidTags: e.target.value })}
+                />
+              </div>
               <Button onClick={handleSpawn}><Zap className="w-4 h-4 mr-2" /> Spawn Simulator</Button>
             </div>
           </CardContent>
@@ -139,6 +161,7 @@ export default function SimulatorPage() {
                   <div className="text-sm text-muted-foreground flex gap-2 mt-1">
                     <Badge variant="outline">{sim.protocol}</Badge>
                     <Badge variant="outline">{sim.type} - {sim.maxPowerKw}kW</Badge>
+                    {sim.chargeProfile && <Badge variant="outline">{sim.chargeProfile}</Badge>}
                   </div>
                 </div>
                 <Badge variant={sim.state === "Offline" ? "destructive" : sim.state === "Charging" ? "default" : "secondary"}>

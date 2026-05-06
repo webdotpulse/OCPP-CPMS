@@ -36,6 +36,7 @@ class SimulatorManager {
         protocol: sim.config.protocol,
         type: sim.config.type,
         maxPowerKw: sim.config.maxPowerKw,
+        chargeProfile: sim.config.chargeProfile,
         state: sim.state,
         currentTransactionId: sim.currentTransactionId,
         energyConsumedWh: sim.energyConsumedWh

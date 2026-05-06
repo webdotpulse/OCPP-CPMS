@@ -25,8 +25,10 @@ export async function spawnSimulator(req: Request, res: Response) {
     try {
       const existing = await prisma.charger.findUnique({ where: { name: config.chargerId } });
       if (!existing) {
-        // Ensure at least one station exists or create a default one
-        let station = await prisma.chargingStation.findFirst();
+        // Connect to a location called "The Matrix"
+        let station = await prisma.chargingStation.findFirst({
+          where: { station_name: "The Matrix" }
+        });
 
         // Ensure we have a user (admin)
         const user = await prisma.user.findFirst({ where: { role: "admin" }});
@@ -34,10 +36,10 @@ export async function spawnSimulator(req: Request, res: Response) {
           if (!station) {
             station = await prisma.chargingStation.create({
               data: {
-                station_name: "Simulated Station",
-                street_name: "Virtual Street 1",
-                city: "Cloud",
-                postal_code: "1000",
+                station_name: "The Matrix",
+                street_name: "Construct",
+                city: "Zion",
+                postal_code: "10101",
                 latitude: 0,
                 longitude: 0,
                 owner_id: user.id,
@@ -72,8 +74,30 @@ export async function spawnSimulator(req: Request, res: Response) {
           logger.info(`Auto-registered simulator ${config.chargerId} in database.`);
         }
       }
+
+      // Auto-register RFID tags
+      if (config.rfidTags) {
+        const tags = config.rfidTags.split(",").map(t => t.trim()).filter(t => t);
+        const user = await prisma.user.findFirst({ where: { role: "admin" }});
+        if (user) {
+          for (const tag of tags) {
+            const existingTag = await prisma.rfidUser.findUnique({ where: { rfid_tag: tag } });
+            if (!existingTag) {
+              await prisma.rfidUser.create({
+                data: {
+                  rfid_tag: tag,
+                  name: `Simulated User ${tag}`,
+                  owner_id: user.id,
+                  active: true
+                }
+              });
+              logger.info(`Auto-registered RFID tag ${tag} for simulator.`);
+            }
+          }
+        }
+      }
     } catch (dbErr) {
-      logger.error(`Failed to auto-register simulator ${config.chargerId}`, dbErr);
+      logger.error(`Failed to auto-register simulator ${config.chargerId} or tags`, dbErr);
     }
 
     const success = await simulatorManager.spawn(config);
@@ -94,6 +118,25 @@ export async function killSimulator(req: Request, res: Response) {
 
     if (!success) {
       return res.status(404).json({ success: false, error: "Simulator not found" });
+    }
+
+    // Attempt to clean up the auto-registered charger from the database
+    try {
+      const charger = await prisma.charger.findUnique({ where: { name: chargerId } });
+      if (charger) {
+        await prisma.$transaction([
+          prisma.connector.deleteMany({ where: { charger_id: charger.charger_id } }),
+          prisma.transaction.deleteMany({ where: { charger_id: charger.charger_id } }),
+          prisma.ocppLog.deleteMany({ where: { chargerId: charger.charger_id } }),
+          prisma.rfidSession.deleteMany({ where: { charger_id: charger.charger_id } }),
+          prisma.chargerConfiguration.deleteMany({ where: { chargerId: charger.charger_id } }),
+          prisma.chargingProfile.deleteMany({ where: { chargerId: charger.charger_id } }),
+          prisma.charger.delete({ where: { charger_id: charger.charger_id } })
+        ]);
+        logger.info(`Auto-cleaned up simulator ${chargerId} from database.`);
+      }
+    } catch (dbErr) {
+      logger.error(`Failed to auto-cleanup simulator ${chargerId} from database`, dbErr);
     }
 
     res.json({ success: true, message: `Simulator ${chargerId} killed` });
