@@ -144,6 +144,9 @@ model RfidSession {
   finalMeterValue   Float?
   energyConsumed    Float     @default(0)
   currentPower      Float?    @default(0)
+  soc               Float?
+  current           Float?
+  voltage           Float?
   tariffRate        Float?
   amountDue         Float     @default(0)
   status            String    @default("charging")
@@ -166,6 +169,9 @@ model Transaction {
   finalMeterValue   Float?
   energyConsumed    Float     @default(0)
   currentPower      Float?    @default(0)
+  soc               Float?
+  current           Float?
+  voltage           Float?
   status            String    @default("initiated")
   idTag             String?
   createdAt         DateTime  @default(now())
@@ -296,4 +302,25 @@ model OicpEndpoint {
   status    String   @default("active")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Smart Charging Profiles applied to chargers
+model ConfigurationProfile {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items ConfigurationProfileItem[]
+}
+
+model ConfigurationProfileItem {
+  id        Int      @id @default(autoincrement())
+  profileId Int
+  key       String
+  value     String
+  profile   ConfigurationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, key])
 }

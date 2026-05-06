@@ -440,6 +440,9 @@ export async function handleMeterValues(
 
     let energyValue = 0;
     let powerValue = 0;
+    let socValue: number | null = null;
+    let currentValue: number | null = null;
+    let voltageValue: number | null = null;
 
     if (Array.isArray(meterValue)) {
       for (const mv of meterValue) {
@@ -450,6 +453,12 @@ export async function handleMeterValues(
               energyValue = parseFloat(sv.value);
             } else if (measurand === "Power.Active.Import" || measurand === "Power") {
               powerValue = parseFloat(sv.value);
+            } else if (measurand === "SoC") {
+              socValue = parseFloat(sv.value);
+            } else if (measurand === "Current.Import" || measurand === "Current.Offered") {
+              currentValue = parseFloat(sv.value);
+            } else if (measurand === "Voltage") {
+              voltageValue = parseFloat(sv.value);
             }
           }
         } else if (mv.value !== undefined) {
@@ -469,6 +478,9 @@ export async function handleMeterValues(
         data: {
           energyConsumed: energyValue || transaction.energyConsumed,
           currentPower: powerValue || transaction.currentPower,
+          ...(socValue !== null && { soc: socValue }),
+          ...(currentValue !== null && { current: currentValue }),
+          ...(voltageValue !== null && { voltage: voltageValue }),
           status: "charging",
         },
       });
@@ -485,6 +497,9 @@ export async function handleMeterValues(
         data: {
           energyConsumed: energyValue || rfidSession.energyConsumed,
           currentPower: powerValue || rfidSession.currentPower,
+          ...(socValue !== null && { soc: socValue }),
+          ...(currentValue !== null && { current: currentValue }),
+          ...(voltageValue !== null && { voltage: voltageValue }),
           status: "charging",
         },
       });

@@ -25,6 +25,7 @@ import oicpRoutes from "./api/oicp/oicp.routes.js";
 import usersRoutes from "./api/users/users.routes.js";
 import chargeGroupsRoutes from "./api/chargeGroups/chargeGroups.routes.js";
 import simulatorRoutes from "./api/simulator/simulator.routes.js";
+import configProfilesRoutes from "./api/config-profiles/config-profiles.routes.js";
 
 // Import OCPP servers
 import { ocppServer } from "./ocpp/ocppServer.js";
@@ -89,6 +90,7 @@ export function createApp(): Application {
   app.use("/api/ocpi", ocpiRoutes); // Removed auth for initial testing
   app.use("/api/oicp", oicpRoutes); // Removed auth for initial testing
   app.use("/api/simulator", authenticateToken, simulatorRoutes);
+  app.use("/api/config-profiles", authenticateToken, configProfilesRoutes);
 
   // Error handling
   app.use(notFoundHandler);
