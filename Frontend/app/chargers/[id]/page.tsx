@@ -17,6 +17,8 @@ import { ChargerConfigurationPanel } from "@/components/chargers/ChargerConfigur
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoadManagementOverview } from "@/components/dashboard/LoadManagementOverview";
 import { ChargerTransactionsTable } from "@/components/chargers/ChargerTransactionsTable";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 interface ChargerDetail {
   charger_id: number;
@@ -43,6 +45,10 @@ export default function ChargerDetailPage() {
   const [charger, setCharger] = useState<ChargerDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [profiles, setProfiles] = useState<any[]>([]);
+  const [selectedProfile, setSelectedProfile] = useState<string>("");
+  const [applyingProfile, setApplyingProfile] = useState(false);
+
   useEffect(() => {
     const fetchCharger = async () => {
       try {
@@ -54,8 +60,34 @@ export default function ChargerDetailPage() {
         setIsLoading(false);
       }
     };
-    if (id) fetchCharger();
+
+    const fetchProfiles = async () => {
+      try {
+        const response = await api.get('/api/config-profiles');
+        setProfiles(response.data?.data || []);
+      } catch (error) {
+        console.error("Failed to load profiles");
+      }
+    };
+
+    if (id) {
+      fetchCharger();
+      fetchProfiles();
+    }
   }, [id]);
+
+  const handleApplyProfile = async () => {
+    if (!selectedProfile) return;
+    setApplyingProfile(true);
+    try {
+      const res = await api.post(`/api/config-profiles/${selectedProfile}/apply/${id}`);
+      toast.success(res.data.message || "Profile applied successfully");
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to apply profile");
+    } finally {
+      setApplyingProfile(false);
+    }
+  };
 
   if (isLoading) return <AppShell><div className="p-8">Loading charger details...</div></AppShell>;
   if (!charger) return <AppShell><div className="p-8 text-red-500">Charger not found</div></AppShell>;
@@ -104,6 +136,7 @@ export default function ChargerDetailPage() {
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
           <TabsTrigger value="configuration">Configuration Parameters</TabsTrigger>
+          <TabsTrigger value="profiles">Configuration Profiles</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -221,6 +254,38 @@ export default function ChargerDetailPage() {
           <div className="mb-6">
             <ChargerConfigurationPanel chargerId={charger.charger_id} />
           </div>
+        </TabsContent>
+
+        <TabsContent value="profiles">
+          <Card>
+            <CardHeader>
+              <CardTitle>Apply Configuration Profile</CardTitle>
+              <CardDescription>Select a pre-defined profile to configure this charger with standard settings.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-end gap-4 max-w-lg">
+                <div className="flex-1 space-y-2">
+                  <label className="text-sm font-medium">Select Profile</label>
+                  <Select value={selectedProfile} onValueChange={setSelectedProfile}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose a configuration profile" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {profiles.map(p => (
+                        <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={handleApplyProfile} disabled={!selectedProfile || applyingProfile || charger.status === "offline"}>
+                  {applyingProfile ? "Applying..." : "Apply Profile"}
+                </Button>
+              </div>
+              {charger.status === "offline" && (
+                <p className="text-sm text-destructive mt-2">Charger must be online to apply profiles.</p>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </AppShell>

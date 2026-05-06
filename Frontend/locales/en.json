@@ -11,6 +11,7 @@
       "tariffs": "Tariffs",
       "roaming": "Roaming",
       "simulator": "Simulator",
+      "configProfiles": "Config Profiles",
       "settings": "Settings",
       "ocppConsole": "OCPP Console"
     },
