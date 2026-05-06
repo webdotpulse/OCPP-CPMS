@@ -145,7 +145,7 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
               onClick={() => setShowRemoteStart(!showRemoteStart)}
               className="whitespace-nowrap"
             >
-              <Play className="mr-2 h-4 w-4" /> Remote Start Transaction
+              <Play className="mr-2 h-4 w-4" /> Remote Start
             </Button>
 
             <Button
@@ -153,7 +153,7 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
               onClick={() => setShowRemoteStop(!showRemoteStop)}
               className="whitespace-nowrap"
             >
-              <Square className="mr-2 h-4 w-4" /> Remote Stop Transaction
+              <Square className="mr-2 h-4 w-4" /> Remote Stop
             </Button>
 
             <Button
@@ -203,7 +203,7 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
             {/* Remote Start */}
             {showRemoteStart && (
               <div className="space-y-4 border p-4 rounded-md">
-                <h4 className="font-medium text-sm">Remote Start Transaction</h4>
+                <h4 className="font-medium text-sm">Remote Start</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div className="space-y-1">
                     <Label className="text-xs">Connector ID</Label>
@@ -227,7 +227,7 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
             {/* Remote Stop */}
             {showRemoteStop && (
               <div className="space-y-4 border p-4 rounded-md">
-                <h4 className="font-medium text-sm">Remote Stop Transaction</h4>
+                <h4 className="font-medium text-sm">Remote Stop</h4>
                 <div className="space-y-1">
                   <Label className="text-xs">Transaction ID</Label>
                   <Input value={transactionId} onChange={e => setTransactionId(e.target.value)} type="number" placeholder="Enter Txn ID" />
