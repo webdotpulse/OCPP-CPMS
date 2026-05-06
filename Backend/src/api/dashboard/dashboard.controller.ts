@@ -129,7 +129,8 @@ export const getLiveSessions = async (req: Request, res: Response) => {
 
     const allActiveSessions = [
       ...activeTransactions.map((t: any) => ({
-        transactionId: t.id,
+        transactionId: t.transactionId,
+        chargerId: t.charger_id,
         chargerName: t.charger.name,
         connectorName: t.connectorName,
         startTime: t.startTime,
@@ -140,7 +141,8 @@ export const getLiveSessions = async (req: Request, res: Response) => {
         durationMinutes: Math.floor((Date.now() - t.startTime.getTime()) / 60000),
       })),
       ...activeRfidSessions.map((s: any) => ({
-        transactionId: s.id,
+        transactionId: s.transactionId,
+        chargerId: s.charger_id,
         chargerName: s.charger.name,
         connectorName: s.connectorName,
         startTime: s.startTime,

@@ -31,10 +31,10 @@ export default function ActiveSessionsPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const remoteStop = async (transactionId: number, chargerId: number) => {
+  const remoteStop = async (transactionId: string | number, chargerId: number) => {
     if (!confirm(`Are you sure you want to stop transaction ${transactionId}?`)) return;
     try {
-      await api.post(`/ocpp/remote-stop`, { transactionId, chargerId });
+      await api.post(`/ocpp/remote-stop`, { transactionId: Number(transactionId), chargerId });
       alert("Remote stop command sent.");
     } catch (error: any) {
       logger.error("Failed to stop transaction", error);
@@ -102,7 +102,7 @@ export default function ActiveSessionsPage() {
                     <Button 
                       variant="destructive" 
                       size="sm" 
-                      onClick={() => remoteStop(session.transactionId, session.charger_id)}
+                      onClick={() => remoteStop(session.transactionId, session.chargerId)}
                       className="bg-destructive/10 text-destructive hover:bg-destructive hover:text-white"
                     >
                       <StopCircle className="mr-2 h-4 w-4" /> Force Stop
