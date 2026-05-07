@@ -135,19 +135,22 @@ class OcppServer {
         }
 
         logger.info(`Charger ${charger.name} (ID: ${chargerId}) disconnected`);
-        chargerRegistry.unregister(chargerId);
-
-        // Update charger status to offline and all its connectors to Unavailable
-        Promise.all([
-          prisma.charger.update({
-            where: { charger_id: chargerId },
-            data: { status: "offline" },
-          }),
-          prisma.connector.updateMany({
-            where: { charger_id: chargerId },
-            data: { status: "Unavailable", updatedAt: new Date() },
-          })
-        ]).catch((err) => logger.error(`Error updating charger/connector status on disconnect: ${err}`));
+        chargerRegistry.unregister(chargerId).then(async () => {
+          // Verify it is truly offline before marking offline in DB (might have reconnected elsewhere)
+          if (!(await chargerRegistry.isConnectedGlobally(chargerId))) {
+            // Update charger status to offline and all its connectors to Unavailable
+            Promise.all([
+              prisma.charger.update({
+                where: { charger_id: chargerId },
+                data: { status: "offline" },
+              }),
+              prisma.connector.updateMany({
+                where: { charger_id: chargerId },
+                data: { status: "Unavailable", updatedAt: new Date() },
+              })
+            ]).catch((err) => logger.error(`Error updating charger/connector status on disconnect: ${err}`));
+          }
+        }).catch(err => logger.error(`Error during unregister: ${err}`));
       });
 
       ws.on("error", (error) => {
