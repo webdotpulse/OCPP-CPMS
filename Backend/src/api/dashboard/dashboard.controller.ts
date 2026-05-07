@@ -74,8 +74,8 @@ export const getOverview = async (req: Request, res: Response) => {
         totalChargers,
         onlineChargers,
         offlineChargers,
-        activeSessions: activeTransactions + activeRfidSessions,
-        energyToday: (todayEnergy._sum.energyConsumed || 0) + (todayRfidEnergy._sum.energyConsumed || 0),
+        activeSessions: activeTransactions,
+        energyToday: (todayEnergy._sum.energyConsumed || 0),
         revenueToday: 0, // Placeholder for now, can be calculated later
         connectorDistribution: connectorStatusDistribution,
       },
