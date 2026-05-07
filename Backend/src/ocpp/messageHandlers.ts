@@ -1,5 +1,6 @@
 import { prisma } from "../config/database.js";
 import { chargerRegistry } from "./chargerRegistry.js";
+import { MeterValueService } from "../services/MeterValueService.js";
 import { logger } from "../utils/logger.js";
 import type { OcppDirection } from "../types/index.js";
 import { redisPublisher } from "../config/redis.js";
@@ -444,8 +445,14 @@ export async function handleMeterValues(
     let currentValue: number | null = null;
     let voltageValue: number | null = null;
 
+    // Extract a timestamp from the meter value if available, or use current time
+    let timestamp = new Date();
+
     if (Array.isArray(meterValue)) {
       for (const mv of meterValue) {
+        if (mv.timestamp) {
+          timestamp = new Date(mv.timestamp);
+        }
         if (mv.sampledValue && Array.isArray(mv.sampledValue)) {
           for (const sv of mv.sampledValue) {
             const measurand = sv.measurand || "Energy.Active.Import.Register";
@@ -467,43 +474,18 @@ export async function handleMeterValues(
       }
     }
 
-    // Update Transaction record
-    const transaction = await prisma.transaction.findFirst({
-      where: { transactionId: String(transactionId) },
+    // Push meter value to background batch processor queue
+    await MeterValueService.addMeterValue({
+      transactionId: String(transactionId),
+      chargerId,
+      connectorId,
+      energyValue,
+      powerValue,
+      socValue,
+      currentValue,
+      voltageValue,
+      timestamp,
     });
-
-    if (transaction) {
-      await prisma.transaction.update({
-        where: { id: transaction.id },
-        data: {
-          energyConsumed: energyValue || transaction.energyConsumed,
-          currentPower: powerValue || transaction.currentPower,
-          ...(socValue !== null && { soc: socValue }),
-          ...(currentValue !== null && { current: currentValue }),
-          ...(voltageValue !== null && { voltage: voltageValue }),
-          status: "charging",
-        },
-      });
-    }
-
-    // Update RfidSession if exists
-    const rfidSession = await prisma.rfidSession.findFirst({
-      where: { transactionId: String(transactionId) },
-    });
-
-    if (rfidSession) {
-      await prisma.rfidSession.update({
-        where: { id: rfidSession.id },
-        data: {
-          energyConsumed: energyValue || rfidSession.energyConsumed,
-          currentPower: powerValue || rfidSession.currentPower,
-          ...(socValue !== null && { soc: socValue }),
-          ...(currentValue !== null && { current: currentValue }),
-          ...(voltageValue !== null && { voltage: voltageValue }),
-          status: "charging",
-        },
-      });
-    }
 
     await logOcppMessage(chargerId, "in", payload, transactionId);
   } catch (error) {

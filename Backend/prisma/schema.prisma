@@ -92,6 +92,7 @@ model Charger {
   chargeGroupId    Int?
   configurations   ChargerConfiguration[]
   chargingProfiles ChargingProfile[]
+  meterValues      MeterValue[]
 }
 
 // Charge connector (multiple per charger)
@@ -323,4 +324,19 @@ model ConfigurationProfileItem {
   profile   ConfigurationProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@unique([profileId, key])
+}
+
+model MeterValue {
+  id            Int      @id @default(autoincrement())
+  transactionId String
+  chargerId     Int
+  connectorId   Int?
+  energy        Float?
+  power         Float?
+  soc           Float?
+  current       Float?
+  voltage       Float?
+  timestamp     DateTime @default(now())
+
+  charger Charger @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
 }
