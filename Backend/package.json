@@ -36,7 +36,7 @@
     "@types/redis": "^4.0.10",
     "@types/speakeasy": "^2.0.10",
     "@types/ws": "^8.6.3",
-    "prisma": "^7.5.0",
+    "prisma": "^7.8.0",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   },
