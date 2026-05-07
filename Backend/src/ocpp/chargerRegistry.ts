@@ -34,7 +34,7 @@ class ChargerRegistry {
     });
   }
 
-  private getRedisKey(chargerId: number): string {
+  public getRedisKey(chargerId: number): string {
     return `charger:${chargerId}:session`;
   }
 

@@ -3,6 +3,7 @@ import { prisma } from "../../config/database.js";
 import { logger } from "../../utils/logger.js";
 import {
   isChargerConnected,
+  getChargerProtocol,
 } from "../../ocpp/remoteControl.js";
 import { parseId, parsePagination } from "../../utils/validation.js";
 import type { CreateChargerDto, UpdateChargerDto } from "../../types/index.js";
@@ -213,7 +214,7 @@ export const getChargerById = async (req: Request, res: Response) => {
       });
     }
 
-    res.json({ success: true, data: charger });
+    res.json({ success: true, data: { ...charger, protocol: await getChargerProtocol(chargerId) } });
   } catch (error) {
     logger.error(`Error getting charger: ${error}`);
     res.status(500).json({
@@ -269,6 +270,7 @@ export const getChargerStatus = async (req: Request, res: Response) => {
       data: {
         ...charger,
         isOnline: await isChargerConnected(chargerId),
+        protocol: await getChargerProtocol(chargerId),
         connectorsCount: await prisma.connector.count({
           where: { charger_id: chargerId },
         }),
@@ -373,7 +375,7 @@ export const updateCharger = async (req: Request, res: Response) => {
     });
 
     logger.info(`Charger updated: ${charger.name}`);
-    res.json({ success: true, data: charger });
+    res.json({ success: true, data: { ...charger, protocol: await getChargerProtocol(chargerId) } });
   } catch (error) {
     logger.error(`Error updating charger: ${error}`);
     res.status(500).json({

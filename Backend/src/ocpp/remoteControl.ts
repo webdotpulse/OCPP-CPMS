@@ -1,7 +1,7 @@
 import { chargerRegistry } from "./chargerRegistry.js";
 import { logger } from "../utils/logger.js";
 import type { RemoteStartRequest, RemoteStopRequest, SetChargingProfileRequest, ClearChargingProfileRequest } from "../types/index.js";
-import { redisSubscriber } from "../config/redis.js";
+import { redisSubscriber, redisClient } from "../config/redis.js";
 
 // Pending requests map for Promise resolution
 export const pendingRequests = new Map<string, { resolve: (val: any) => void; reject: (err: any) => void; timeout: NodeJS.Timeout }>();
@@ -553,4 +553,12 @@ export function getConnectedChargers(): number[] {
  */
 export async function isChargerConnected(chargerId: number): Promise<boolean> {
   return chargerRegistry.isConnectedGlobally(chargerId);
+}
+
+
+export async function getChargerProtocol(chargerId: number): Promise<string | undefined> {
+  const connection = chargerRegistry.getConnection(chargerId);
+  if (connection) return connection.protocol;
+  const cached = await redisClient.hget(chargerRegistry.getRedisKey(chargerId), 'protocol');
+  return cached || undefined;
 }
