@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 
 interface ChargerDetail {
+  protocol?: string;
   charger_id: number;
   name: string;
   model: string;
@@ -162,7 +163,7 @@ export default function ChargerDetailPage() {
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm text-muted-foreground">Protocol Version</p>
-                    <p className="font-medium">{charger.status !== 'offline' ? 'OCPP 1.6' : 'Unknown'}</p>
+                    <p className="font-medium">{charger.status !== 'offline' ? (charger.protocol === 'ocpp2.1' ? 'OCPP 2.1' : charger.protocol === 'ocpp2.0.1' ? 'OCPP 2.0.1' : 'OCPP 1.6') : 'Unknown'}</p>
                   </div>
                   <div className="space-y-1 flex items-center gap-4">
                     <div>
@@ -184,7 +185,7 @@ export default function ChargerDetailPage() {
                   <div>
                     <p className="font-medium text-sm">WebSocket Status</p>
                     <p className="text-xs text-muted-foreground">
-                      {charger.status !== 'offline' ? 'Connected (OCPP 1.6J)' : 'Disconnected'}
+                      {charger.status !== 'offline' ? `Connected (${charger.protocol === 'ocpp2.1' ? 'OCPP 2.1' : charger.protocol === 'ocpp2.0.1' ? 'OCPP 2.0.1' : 'OCPP 1.6J'})` : 'Disconnected'}
                     </p>
                   </div>
                 </div>
