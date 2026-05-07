@@ -175,3 +175,31 @@ export const applyConfigProfile = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, error: "Internal server error" });
   }
 };
+
+export const generateRecoveryProfile = async (req: Request, res: Response) => {
+  const { transactionId } = req.body;
+
+  if (!transactionId) {
+    return res.status(400).json({ success: false, error: "transactionId is required" });
+  }
+
+  try {
+    const { createProfileBasedOnTransaction } = await import("../../utils/config-profile-helpers.js");
+    const profile = await createProfileBasedOnTransaction(Number(transactionId));
+    res.status(201).json({ success: true, data: profile });
+  } catch (error: any) {
+    logger.error(`Failed to generate recovery profile for transaction ${transactionId}`, error);
+    res.status(500).json({ success: false, error: error.message || "Internal server error" });
+  }
+};
+
+export const generateStandardProfile = async (req: Request, res: Response) => {
+  try {
+    const { createSuperExtremeAdvancedProfile } = await import("../../utils/config-profile-helpers.js");
+    const profile = await createSuperExtremeAdvancedProfile();
+    res.status(201).json({ success: true, data: profile });
+  } catch (error: any) {
+    logger.error("Failed to generate standard advanced profile", error);
+    res.status(500).json({ success: false, error: error.message || "Internal server error" });
+  }
+};
