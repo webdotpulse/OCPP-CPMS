@@ -53,7 +53,7 @@ export default function ConfigProfilesPage() {
   const fetchProfiles = async () => {
     try {
       const response = await api.get("/config-profiles");
-      setProfiles(response.data?.data || []);
+      setProfiles(response.data || []);
     } catch (error) {
       toast.error("Failed to load profiles");
     } finally {

@@ -19,6 +19,7 @@ export class ChargePointSimulator {
   public state: SimulatorState = "Offline";
   public currentTransactionId: number | null = null;
   public energyConsumedWh: number = 0;
+  public sessionStartEnergyWh: number = 0;
 
   private sessionStartTime: number | null = null;
 
@@ -224,6 +225,7 @@ export class ChargePointSimulator {
       }
 
       this.sessionStartTime = Date.now();
+      this.sessionStartEnergyWh = this.energyConsumedWh;
       await this.sendStatusNotification("Charging");
     } catch (err) {
       logger.error(`Simulator ${this.config.chargerId} StartTransaction failed`, err);
@@ -404,7 +406,7 @@ export class ChargePointSimulator {
         this.sendMeterValues();
 
         // Stop charging randomly
-        if (Math.random() > 0.9) {
+        if (Math.random() > 0.9 && (this.energyConsumedWh - this.sessionStartEnergyWh) >= 15000) {
           this.stopTransaction();
         }
       }
