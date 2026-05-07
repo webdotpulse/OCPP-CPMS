@@ -1,16 +1,36 @@
 import { logger } from "../utils/logger.js";
 import type { ChargerConnection, ActiveTransaction } from "../types/index.js";
 import { redisClient, redisSubscriber, redisPublisher } from "../config/redis.js";
+import { config } from "../config/index.js";
 
 class ChargerRegistry {
   private chargers: Map<number, ChargerConnection> = new Map();
   private offlineMonitorInterval: NodeJS.Timeout | null = null;
   private offlineThreshold: number;
+  private heartbeatInterval: NodeJS.Timeout | null = null;
 
   constructor(offlineThresholdSeconds: number = 60) {
     this.offlineThreshold = offlineThresholdSeconds * 1000;
     this.startOfflineMonitor();
     this.setupRedisSubscriber();
+    this.startHeartbeat();
+  }
+
+  private startHeartbeat(): void {
+    // Send a heartbeat for all locally connected chargers to keep their Redis session active
+    this.heartbeatInterval = setInterval(async () => {
+      const now = new Date();
+      for (const [chargerId, connection] of this.chargers.entries()) {
+        try {
+          // If we haven't received a heartbeat from the charger recently, the offline monitor will handle it.
+          // This just keeps the Redis key alive for instances that we hold the connection for.
+          await redisClient.hset(this.getRedisKey(chargerId), "lastHeartbeat", now.toISOString());
+          await redisClient.expire(this.getRedisKey(chargerId), this.offlineThreshold / 1000 * 2);
+        } catch (error) {
+          logger.error(`Error updating heartbeat for charger ${chargerId} in Redis: ${error}`);
+        }
+      }
+    }, this.offlineThreshold / 2); // Run twice as fast as the threshold
   }
 
   private setupRedisSubscriber(): void {
@@ -58,7 +78,7 @@ class ChargerRegistry {
     };
 
     this.chargers.set(chargerId, connection);
-    logger.info(`Charger registered locally: ${chargerName} (ID: ${chargerId}) with protocol: ${protocol}`);
+    logger.info(`Charger registered locally: ${chargerName} (ID: ${chargerId}) with protocol: ${protocol} on instance: ${config.instanceId}`);
 
     // Cache connection metadata in Redis
     try {
@@ -68,7 +88,8 @@ class ChargerRegistry {
         "connectedAt", connection.connectedAt.toISOString(),
         "lastHeartbeat", connection.lastHeartbeat.toISOString(),
         "status", "connected",
-        "protocol", protocol
+        "protocol", protocol,
+        "instanceId", config.instanceId
       );
       // Expire session data slightly longer than offline threshold to avoid premature cleanup
       await redisClient.expire(this.getRedisKey(chargerId), this.offlineThreshold / 1000 * 2);
@@ -84,10 +105,15 @@ class ChargerRegistry {
     const connection = this.chargers.get(chargerId);
     if (connection) {
       this.chargers.delete(chargerId);
-      logger.info(`Charger unregistered locally: ${connection.chargerName} (ID: ${chargerId})`);
+      logger.info(`Charger unregistered locally: ${connection.chargerName} (ID: ${chargerId}) on instance: ${config.instanceId}`);
 
       try {
-        await redisClient.del(this.getRedisKey(chargerId));
+        // Only delete the session from Redis if this instance actually owns it
+        // (prevents race conditions during rapid reconnects to different instances)
+        const cachedSession = await redisClient.hgetall(this.getRedisKey(chargerId));
+        if (cachedSession && cachedSession.instanceId === config.instanceId) {
+          await redisClient.del(this.getRedisKey(chargerId));
+        }
       } catch (error) {
         logger.error(`Error removing cached charger session in Redis: ${error}`);
       }
@@ -261,17 +287,24 @@ class ChargerRegistry {
   }
 
   /**
-   * Get all connected charger IDs
+   * Get all connected charger IDs (across the cluster)
    */
-  getConnectedChargers(): number[] {
-    return Array.from(this.chargers.keys());
+  async getConnectedChargers(): Promise<number[]> {
+    try {
+      const keys = await redisClient.keys('charger:*:session');
+      return keys.map(key => parseInt(key.split(':')[1], 10)).filter(id => !isNaN(id));
+    } catch (error) {
+      logger.error(`Error getting connected chargers from Redis: ${error}`);
+      // Fallback to local connections if Redis fails
+      return Array.from(this.chargers.keys());
+    }
   }
 
   /**
    * Get connection count
    */
-  getConnectionCount(): number {
-    return this.chargers.size;
+  async getConnectionCount(): Promise<number> {
+    return (await this.getConnectedChargers()).length;
   }
 
   /**
@@ -284,19 +317,25 @@ class ChargerRegistry {
         const timeSinceHeartbeat = now - connection.lastHeartbeat.getTime();
         if (timeSinceHeartbeat > this.offlineThreshold) {
           logger.warn(`Charger ${connection.chargerName} (ID: ${chargerId}) appears to be offline. Last heartbeat: ${connection.lastHeartbeat.toISOString()}`);
-          // Note: We don't automatically unregister; let the system handle via DB update
+          // Terminate local connection forcefully
+          connection.ws.terminate();
+          // We leave unregistration to the close event handler to avoid race conditions
         }
       }
     }, 10000); // Check every 10 seconds
   }
 
   /**
-   * Stop the offline monitor
+   * Stop the offline monitor and heartbeat
    */
   stopOfflineMonitor(): void {
     if (this.offlineMonitorInterval) {
       clearInterval(this.offlineMonitorInterval);
       this.offlineMonitorInterval = null;
+    }
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
     }
   }
 

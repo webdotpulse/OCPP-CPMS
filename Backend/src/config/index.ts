@@ -1,6 +1,10 @@
+import { v4 as uuidv4 } from 'uuid';
 import "dotenv/config";
 
 export const config = {
+  // Instance ID for horizontal scaling
+  instanceId: process.env.INSTANCE_ID || uuidv4(),
+
   // Server Configuration
   port: parseInt(process.env.PORT || "3000", 10),
   nodeEnv: process.env.NODE_ENV || "development",

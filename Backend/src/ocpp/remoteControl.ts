@@ -544,8 +544,8 @@ export async function updateFirmware(
 /**
  * Get list of connected chargers
  */
-export function getConnectedChargers(): number[] {
-  return chargerRegistry.getConnectedChargers();
+export async function getConnectedChargers(): Promise<number[]> {
+  return await chargerRegistry.getConnectedChargers();
 }
 
 /**

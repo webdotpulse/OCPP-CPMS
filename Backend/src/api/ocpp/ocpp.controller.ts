@@ -88,8 +88,8 @@ export const clearChargingProfileController = async (req: Request, res: Response
 /**
  * GET /api/ocpp/connected - Get list of connected chargers
  */
-export const getConnectedChargers = (req: Request, res: Response) => {
-  const connectedChargers = getConnected();
+export const getConnectedChargers = async (req: Request, res: Response) => {
+  const connectedChargers = await getConnected();
   res.json({
     success: true,
     data: connectedChargers,
