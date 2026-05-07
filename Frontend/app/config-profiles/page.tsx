@@ -52,7 +52,7 @@ export default function ConfigProfilesPage() {
 
   const fetchProfiles = async () => {
     try {
-      const response = await api.get("/api/config-profiles");
+      const response = await api.get("/config-profiles");
       setProfiles(response.data?.data || []);
     } catch (error) {
       toast.error("Failed to load profiles");
@@ -98,10 +98,10 @@ export default function ConfigProfilesPage() {
       };
 
       if (editingProfile) {
-        await api.put(`/api/config-profiles/${editingProfile.id}`, payload);
+        await api.put(`/config-profiles/${editingProfile.id}`, payload);
         toast.success("Profile updated");
       } else {
-        await api.post("/api/config-profiles", payload);
+        await api.post("/config-profiles", payload);
         toast.success("Profile created");
       }
 
@@ -115,7 +115,7 @@ export default function ConfigProfilesPage() {
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this profile?")) return;
     try {
-      await api.delete(`/api/config-profiles/${id}`);
+      await api.delete(`/config-profiles/${id}`);
       toast.success("Profile deleted");
       fetchProfiles();
     } catch (error) {
@@ -166,7 +166,7 @@ export default function ConfigProfilesPage() {
       try {
         const json = JSON.parse(event.target?.result as string);
         if (json.name && json.items) {
-          await api.post("/api/config-profiles", {
+          await api.post("/config-profiles", {
             name: `${json.name} (Imported)`,
             description: json.description,
             items: json.items,

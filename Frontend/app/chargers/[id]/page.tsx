@@ -63,7 +63,7 @@ export default function ChargerDetailPage() {
 
     const fetchProfiles = async () => {
       try {
-        const response = await api.get('/api/config-profiles');
+        const response = await api.get('/config-profiles');
         setProfiles(response.data?.data || []);
       } catch (error) {
         console.error("Failed to load profiles");
@@ -80,7 +80,7 @@ export default function ChargerDetailPage() {
     if (!selectedProfile) return;
     setApplyingProfile(true);
     try {
-      const res = await api.post(`/api/config-profiles/${selectedProfile}/apply/${id}`);
+      const res = await api.post(`/config-profiles/${selectedProfile}/apply/${id}`);
       toast.success(res.data.message || "Profile applied successfully");
     } catch (error: any) {
       toast.error(error.response?.data?.error || "Failed to apply profile");
