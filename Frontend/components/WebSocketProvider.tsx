@@ -19,9 +19,17 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    // If NEXT_PUBLIC_API_URL is configured (e.g. for external backend),
+    // we should connect to that domain instead of relative path
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+    const isAbsoluteUrl = apiUrl.startsWith("http");
+
+    // We use undefined if relative so it falls back to window.location.origin
+    const socketUrl = isAbsoluteUrl ? new URL(apiUrl).origin : undefined;
+
     // In development with Next.js proxied routing or standard deployments,
     // we want to connect to the same host but at path /api/realtime
-    const newSocket = io({
+    const newSocket = io(socketUrl as string | undefined, {
       path: "/api/realtime",
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
