@@ -348,4 +348,4 @@ class ChargerRegistry {
 }
 
 // Singleton instance
-export const chargerRegistry = new ChargerRegistry();
+export const chargerRegistry = new ChargerRegistry(config.offlineThreshold);
