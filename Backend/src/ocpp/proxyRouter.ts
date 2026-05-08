@@ -1,0 +1,205 @@
+import { WebSocket } from "ws";
+import { logger } from "../utils/logger.js";
+import { prisma } from "../config/database.js";
+import { chargerRegistry } from "./chargerRegistry.js";
+import { handleOcppMessage } from "./messageHandlers.js";
+import { pendingRequests } from "./remoteControl.js";
+
+class ProxyRouter {
+  private activeProxies: Map<number, WebSocket> = new Map();
+  // Map of <chargerId> to <Map of MessageId -> Action> to track pending requests for interception
+  private pendingStartTransactions: Map<number, Map<string, string>> = new Map();
+
+  hasProxy(chargerId: number): boolean {
+    return this.activeProxies.has(chargerId);
+  }
+
+  setupProxy(chargerId: number, url: string, protocol: string): void {
+    if (this.hasProxy(chargerId)) {
+      logger.warn(`Proxy already exists for charger ${chargerId}, cleaning up before creating new one.`);
+      this.removeProxy(chargerId);
+    }
+
+    try {
+      const chargerConnection = chargerRegistry.getConnection(chargerId);
+      if (!chargerConnection || !chargerConnection.ws) {
+        logger.error(`Cannot setup proxy for charger ${chargerId}: Local connection not found in registry.`);
+        return;
+      }
+
+      // Enforce secure websocket for 3rd-party connection if specified or needed
+      const secureUrl = url.startsWith("ws://") ? url.replace("ws://", "wss://") : url;
+
+      logger.info(`Setting up proxy for charger ${chargerId} to ${secureUrl}`);
+
+      const remoteWs = new WebSocket(secureUrl, [protocol]);
+
+      remoteWs.on("open", () => {
+        logger.info(`Proxy connection established for charger ${chargerId} to ${url}`);
+      });
+
+      remoteWs.on("message", async (data: Buffer) => {
+        // Forward message from 3rd party backend to the charger
+        try {
+          const messageStr = data.toString();
+          const message = JSON.parse(messageStr);
+
+          if (chargerConnection.ws.readyState === WebSocket.OPEN) {
+             logger.info(`🔄 [PROXY] Forwarding remote message to charger ${chargerId}: ${messageStr}`);
+             chargerConnection.ws.send(messageStr);
+          } else {
+             logger.warn(`Cannot forward message to charger ${chargerId}, local socket not open.`);
+          }
+
+          // Intercept StartTransaction CALLRESULT to sync transaction ID
+          if (message[0] === 3) { // CALLRESULT
+            const messageId = message[1];
+            const payload = message[2];
+
+            const chargerPending = this.pendingStartTransactions.get(chargerId);
+            if (chargerPending && chargerPending.has(messageId)) {
+               const action = chargerPending.get(messageId);
+               if (action === "StartTransaction" && payload.transactionId) {
+                  const thirdPartyTransactionId = payload.transactionId;
+                  logger.info(`🔄 [PROXY] Intercepted StartTransaction response for charger ${chargerId}, attempting to sync local Transaction to third-party ID: ${thirdPartyTransactionId}`);
+
+                  // Use a retry mechanism to wait for local handleOcppMessage to create the transaction
+                  let retries = 0;
+                  const maxRetries = 5;
+
+                  const syncTransactionId = async () => {
+                     try {
+                        const updated = await prisma.transaction.updateMany({
+                           where: {
+                              charger_id: chargerId,
+                              status: "initiated"
+                           },
+                           data: {
+                              transactionId: String(thirdPartyTransactionId)
+                           }
+                        });
+
+                        if (updated.count > 0) {
+                           logger.info(`🔄 [PROXY] Successfully synced ${updated.count} local Transaction(s) to third-party ID: ${thirdPartyTransactionId}`);
+                        } else if (retries < maxRetries) {
+                           retries++;
+                           logger.debug(`🔄 [PROXY] Local Transaction not found yet for charger ${chargerId}. Retrying (${retries}/${maxRetries}) in 500ms...`);
+                           setTimeout(syncTransactionId, 500);
+                        } else {
+                           logger.warn(`🔄 [PROXY] Failed to sync transaction ID for charger ${chargerId} after ${maxRetries} retries. Initial local transaction may not have been created.`);
+                        }
+                     } catch (err) {
+                        logger.error(`🔄 [PROXY] Error syncing intercepted transaction ID: ${err}`);
+                     }
+                  };
+
+                  // Initial execution after brief delay
+                  setTimeout(syncTransactionId, 500);
+               }
+               chargerPending.delete(messageId);
+            }
+          }
+        } catch (err) {
+          logger.error(`Error forwarding message to charger ${chargerId}: ${err}`);
+        }
+      });
+
+      remoteWs.on("close", () => {
+        logger.info(`Proxy connection closed for charger ${chargerId}. Forcing local disconnect to sync.`);
+        this.activeProxies.delete(chargerId);
+
+        // Disconnect local socket if upstream disconnects to force a clean reconnect
+        if (chargerConnection.ws && chargerConnection.ws.readyState === WebSocket.OPEN) {
+          chargerConnection.ws.terminate();
+        }
+      });
+
+      remoteWs.on("error", (error) => {
+        logger.error(`Proxy connection error for charger ${chargerId}: ${error}. Forcing local disconnect.`);
+
+        // Disconnect local socket if upstream errors to force a clean reconnect
+        if (chargerConnection.ws && chargerConnection.ws.readyState === WebSocket.OPEN) {
+          chargerConnection.ws.terminate();
+        }
+      });
+
+      this.activeProxies.set(chargerId, remoteWs);
+
+    } catch (error) {
+      logger.error(`Failed to establish proxy connection for charger ${chargerId}: ${error}`);
+    }
+  }
+
+  removeProxy(chargerId: number): void {
+    const remoteWs = this.activeProxies.get(chargerId);
+    if (remoteWs) {
+      if (remoteWs.readyState === WebSocket.OPEN || remoteWs.readyState === WebSocket.CONNECTING) {
+        remoteWs.close();
+      }
+      this.activeProxies.delete(chargerId);
+      logger.info(`Removed proxy for charger ${chargerId}`);
+    }
+  }
+
+  async handleMessageFromCharger(chargerId: number, message: any, protocol: string): Promise<void> {
+    const remoteWs = this.activeProxies.get(chargerId);
+
+    // Do not forward CALLRESULT/CALLERROR if they are responses to local commands
+    let shouldForward = true;
+    if (message[0] === 3 || message[0] === 4) {
+      if (pendingRequests.has(message[1])) {
+        shouldForward = false;
+        logger.info(`🔄 [PROXY] Suppressing forward for local command response: ${message[1]}`);
+      }
+    }
+
+    // Forward raw message to 3rd party backend
+    if (shouldForward) {
+      if (remoteWs && remoteWs.readyState === WebSocket.OPEN) {
+        logger.info(`🔄 [PROXY] Forwarding local message from charger ${chargerId} to remote: ${JSON.stringify(message)}`);
+        remoteWs.send(JSON.stringify(message));
+      } else {
+        logger.warn(`🔄 [PROXY] Cannot forward message for charger ${chargerId}, remote socket not open`);
+      }
+    }
+
+    // Track StartTransaction to intercept the response
+    if (message[0] === 2 && message[2] === "StartTransaction") {
+       if (!this.pendingStartTransactions.has(chargerId)) {
+          this.pendingStartTransactions.set(chargerId, new Map());
+       }
+       this.pendingStartTransactions.get(chargerId)?.set(message[1], "StartTransaction");
+    }
+
+    // Mirror traffic locally for data duplication
+    try {
+      const messageType = message[0];
+      const messageId = message[1];
+      const actionName = message[2];
+      const payload = message[3];
+
+      // Execute asynchronously, don't await, and we don't send the local response to the charger
+      if (messageType === 2) {
+         handleOcppMessage(chargerId, messageType, messageId, actionName, payload, protocol).catch(err => {
+            logger.error(`🔄 [PROXY] Error mirroring local message for charger ${chargerId}: ${err}`);
+         });
+      } else if (messageType === 3 || messageType === 4) {
+         // It's a response to a local command, manually resolve the pending promise
+         const pending = pendingRequests.get(messageId);
+         if (pending) {
+            clearTimeout(pending.timeout);
+            if (messageType === 3) {
+               pending.resolve(message[2]); // CALLRESULT payload
+            } else {
+               pending.reject(message.slice(2)); // CALLERROR array
+            }
+            pendingRequests.delete(messageId);
+         }
+      }
+    } catch (err) {
+      logger.error(`🔄 [PROXY] Error preparing mirrored message for charger ${chargerId}: ${err}`);
+    }
+  }
+}
+
+export const proxyRouter = new ProxyRouter();

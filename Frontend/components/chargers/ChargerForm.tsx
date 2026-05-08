@@ -26,6 +26,7 @@ const chargerSchema = z.object({
   charging_station_id: z.number().positive("Must assign a station"),
   latitude: z.number().min(-90).max(90).optional().nullable(),
   longitude: z.number().min(-180).max(180).optional().nullable(),
+  thirdPartyBackendUrl: z.union([z.string().url("Must be a valid URL"), z.literal("")]).optional().nullable(),
   tariffId: z.number().optional(),
   owner_id: z.number().optional(),
   chargeGroupId: z.number().optional().nullable(),
@@ -50,12 +51,14 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
       ...initialData,
       latitude: initialData?.latitude || undefined,
       longitude: initialData?.longitude || undefined,
+      thirdPartyBackendUrl: initialData?.thirdPartyBackendUrl || undefined,
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,
       chargeGroupId: initialData?.chargeGroupId || undefined,
     } : {
       name: nameParam || '',
       latitude: undefined,
       longitude: undefined,
+      thirdPartyBackendUrl: undefined,
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,
       chargeGroupId: undefined,
     },
@@ -182,6 +185,11 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
               <Label htmlFor="power_capacity">Power Capacity (kW)</Label>
               <Input id="power_capacity" type="number" step="any" {...register('power_capacity', { valueAsNumber: true })} />
               {errors.power_capacity && <p className="text-sm text-destructive">{errors.power_capacity.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="thirdPartyBackendUrl">Third-Party Backend URL (Optional)</Label>
+              <Input id="thirdPartyBackendUrl" {...register('thirdPartyBackendUrl')} placeholder="wss://example.com/ocpp" />
+              {errors.thirdPartyBackendUrl && <p className="text-sm text-destructive">{errors.thirdPartyBackendUrl.message}</p>}
             </div>
           </div>
 
