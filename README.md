@@ -264,7 +264,7 @@ For a step-by-step guide covering local environment configuration, as well as a 
 ## Documentation
 
 - **[User Manual](./USER_MANUAL.md)**: A comprehensive guide on how to navigate the CMS dashboard, manage stations/chargers, RFID tags, and use remote operations.
-- **[Proposed Improvements](./PROPOSED_IMPROVEMENTS.md)**: An outline of architectural enhancements and advanced features (e.g., Docker, Redis, OCPI) recommended for production scaling.
+- **[Improvements & Prompts](./IMPROVEMENTS_PROMPTS.md)**: An outline of architectural enhancements and advanced features (e.g., Docker, Redis, OCPI) recommended for production scaling, including prompts for AI assistants.
 
 ---
 
