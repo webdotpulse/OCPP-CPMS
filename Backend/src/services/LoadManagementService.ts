@@ -4,6 +4,31 @@ import { setChargingProfile, clearChargingProfile } from "../ocpp/remoteControl.
 import type { SetChargingProfileRequest } from "../types/index.js";
 
 export class LoadManagementService {
+  private isEngineRunning = false;
+
+  public startSmartChargingEngine() {
+    if (this.isEngineRunning) return;
+    this.isEngineRunning = true;
+    this.runSmartChargingLoop();
+  }
+
+  private async runSmartChargingLoop() {
+    if (!this.isEngineRunning) return;
+
+    try {
+      const groups = await prisma.chargeGroup.findMany();
+      for (const group of groups) {
+        await this.balanceChargeGroupLoad(group.id).catch((err: any) =>
+          logger.error(`Smart Charging engine error for group ${group.id}: ${err}`)
+        );
+      }
+    } catch (error) {
+      logger.error(`Smart Charging engine global error: ${error}`);
+    } finally {
+      // Recursive algorithm: schedule next run after 60 seconds
+      setTimeout(() => this.runSmartChargingLoop(), 60 * 1000);
+    }
+  }
   /**
    * Calculate the total current power draw for a specific site
    */
@@ -60,7 +85,7 @@ export class LoadManagementService {
 
       // Check current load vs max capacity
       const totalRequestedLoad = activeTransactions.reduce(
-        (sum: number, tx: any) => sum + (tx.charger.power_capacity || 0),
+        (sum, tx) => sum + (tx.charger.power_capacity || 0),
         0
       );
 
@@ -117,9 +142,7 @@ export class LoadManagementService {
         where: { id: groupId },
       });
 
-      if (!group || !group.maxPower) {
-        return;
-      }
+      if (!group) return;
 
       const activeTransactions = await prisma.transaction.findMany({
         where: {
@@ -131,15 +154,59 @@ export class LoadManagementService {
 
       if (activeTransactions.length === 0) return;
 
+      // Calculate total active current across the group using the 'current' field which is populated from MeterValues
+      // Calculate total active current across the group using the 'current' field which is populated from MeterValues
+      const totalActiveCurrent = activeTransactions.reduce(
+        (sum, tx) => sum + (tx.current || 0),
+        0
+      );
+
+      // Check maxAmperage constraint
+      if (group.maxAmperage && totalActiveCurrent > group.maxAmperage) {
+        logger.info(`Charge Group ${groupId} active current (${totalActiveCurrent}A) exceeds limit (${group.maxAmperage}A). Balancing load...`);
+
+        // Fair-share reduction for each active transaction
+        const limitPerTransactionAmps = group.maxAmperage / activeTransactions.length;
+
+        for (const tx of activeTransactions) {
+          const profileRequest: SetChargingProfileRequest = {
+            chargerId: tx.charger_id,
+            connectorId: 0,
+            csChargingProfiles: {
+              chargingProfileId: 101, // ID representing Smart Load Management (Amps)
+              stackLevel: 2, // Higher priority
+              chargingProfilePurpose: "TxDefaultProfile", // Throttling charging speeds for tx
+              chargingProfileKind: "Absolute",
+              chargingSchedule: {
+                chargingRateUnit: "A", // Using Amps
+                chargingSchedulePeriod: [
+                  {
+                    startPeriod: 0,
+                    limit: limitPerTransactionAmps
+                  }
+                ]
+              }
+            }
+          };
+
+          // Dispatch profile to throttle
+          await this.dispatchChargingProfiles(profileRequest).catch((err: any) =>
+            logger.error(`Failed to dispatch amp throttle profile for tx ${tx.id}: ${err}`)
+          );
+        }
+      }
+
+      // We still run the old logic for maxPower if needed
+      if (!group.maxPower) return;
       const totalRequestedLoad = activeTransactions.reduce(
-        (sum: number, tx: any) => sum + (tx.charger.power_capacity || 0),
+        (sum, tx) => sum + (tx.charger.power_capacity || 0),
         0
       );
 
       if (totalRequestedLoad <= group.maxPower) {
         logger.debug(`Charge Group ${groupId} load (${totalRequestedLoad}kW) within limit (${group.maxPower}kW). Clearing any existing load management profiles.`);
         for (const tx of activeTransactions) {
-          await this.clearLoadManagementProfile(tx.charger_id);
+          await this.clearLoadManagementProfile(tx.charger_id).catch((err: any) => logger.error(`Failed to clear power load management profile ${tx.charger_id}: ${err}`));
         }
         return;
       }
@@ -169,7 +236,7 @@ export class LoadManagementService {
           }
         };
 
-        await this.dispatchChargingProfiles(profileRequest);
+        await this.dispatchChargingProfiles(profileRequest).catch((err: any) => logger.error(`Failed to dispatch power throttle profile ${tx.charger_id}: ${err}`));
       }
     } catch (error) {
       logger.error(`Error in balanceChargeGroupLoad for group ${groupId}: ${error}`);

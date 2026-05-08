@@ -229,12 +229,14 @@ model OcpiEndpoint {
 }
 
 model ChargeGroup {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String?
-  maxPower    Float? // Maximum allowed capacity in kW/Amps
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                  Int      @id @default(autoincrement())
+  name                String
+  description         String?
+  maxPower            Float? // Maximum allowed capacity in kW/Amps
+  maxAmperage         Float?
+  phaseUnbalanceLimit Float?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   chargers Charger[]
   users    ChargeGroupUser[]

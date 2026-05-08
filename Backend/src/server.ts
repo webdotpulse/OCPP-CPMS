@@ -9,4 +9,10 @@ startServers();
 // Start background workers
 MeterValueService.startWorker();
 
+
+import { loadManagementService } from "./services/LoadManagementService.js";
+
+// Start Smart Charging Engine background loop
+loadManagementService.startSmartChargingEngine();
+
 logger.info("Starting Open-Source OCPP CMS...");
