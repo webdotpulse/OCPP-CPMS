@@ -1,3 +1,4 @@
+import { config } from "../../config/index.js";
 import { Request, Response } from "express";
 import { prisma } from "../../config/database.js";
 import { logger } from "../../utils/logger.js";
@@ -326,7 +327,7 @@ export const getChargersStatus = async (req: Request, res: Response) => {
 
     // Determine online status based on last heartbeat
     const now = Date.now();
-    const offlineThreshold = 60 * 1000; // 60 seconds
+    const offlineThreshold = config.offlineThreshold * 1000; // 60 seconds
 
     const chargersWithStatus = chargers.map((charger: any) => {
       const timeSinceHeartbeat = now - charger.last_heartbeat.getTime();

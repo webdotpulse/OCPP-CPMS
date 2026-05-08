@@ -1,3 +1,4 @@
+import { config } from "../../config/index.js";
 import { prisma } from "../../config/database.js";
 import { chargerRegistry } from "../chargerRegistry.js";
 import { MeterValueService } from "../../services/MeterValueService.js";
@@ -31,7 +32,7 @@ export async function handleBootNotification(
       return {
         status: "Rejected",
         currentTime: new Date().toISOString(),
-        interval: 300,
+        interval: config.heartbeatInterval,
       };
     }
 
@@ -54,7 +55,7 @@ export async function handleBootNotification(
     const response = {
       status: "Accepted",
       currentTime: new Date().toISOString(),
-      interval: 300,
+      interval: config.heartbeatInterval,
     };
 
     await logOcppMessage(chargerId, "out", response);
@@ -64,7 +65,7 @@ export async function handleBootNotification(
     return {
       status: "Rejected",
       currentTime: new Date().toISOString(),
-      interval: 300,
+      interval: config.heartbeatInterval,
     };
   }
 }
