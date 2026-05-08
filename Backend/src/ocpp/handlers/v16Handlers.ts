@@ -1,0 +1,556 @@
+import { prisma } from "../../config/database.js";
+import { chargerRegistry } from "../chargerRegistry.js";
+import { MeterValueService } from "../../services/MeterValueService.js";
+import { logger } from "../../utils/logger.js";
+import { loadManagementService } from "../../services/LoadManagementService.js";
+import { logOcppMessage } from "../messageHandlers.js";
+
+/**
+ * Handle BootNotification from charger
+ */
+export async function handleBootNotification(
+  chargerId: number,
+  payload: any,
+  protocol?: string
+): Promise<any> {
+  logger.info(`BootNotification received from charger ${chargerId} using protocol ${protocol || "ocpp1.6"}`, payload);
+
+  let vendor = payload.chargePointVendor;
+  let model = payload.chargePointModel;
+  let serialNumber = payload.chargePointSerialNumber;
+
+  try {
+    // Check if charger exists in database
+    const charger = await prisma.charger.findUnique({
+      where: { charger_id: chargerId },
+    });
+
+    if (!charger) {
+      logger.warn(`Charger ${chargerId} not found in database. Rejecting.`);
+      await logOcppMessage(chargerId, "in", payload);
+      return {
+        status: "Rejected",
+        currentTime: new Date().toISOString(),
+        interval: 300,
+      };
+    }
+
+    // Update charger info if needed
+    await prisma.charger.update({
+      where: { charger_id: chargerId },
+      data: {
+        status: "active",
+        last_heartbeat: new Date(),
+        manufacturer: vendor,
+        model: model,
+        serial_number: serialNumber,
+        firmware_version: payload.chargePointSerialNumber ? payload.firmwareVersion : payload.chargingStation?.firmwareVersion || payload.firmwareVersion || "Unknown",
+      },
+    });
+
+    // Update registry heartbeat
+    await chargerRegistry.updateHeartbeat(chargerId);
+
+    const response = {
+      status: "Accepted",
+      currentTime: new Date().toISOString(),
+      interval: 300,
+    };
+
+    await logOcppMessage(chargerId, "out", response);
+    return response;
+  } catch (error) {
+    logger.error(`Error handling BootNotification: ${error}`);
+    return {
+      status: "Rejected",
+      currentTime: new Date().toISOString(),
+      interval: 300,
+    };
+  }
+}
+
+/**
+ * Handle Heartbeat from charger
+ */
+export async function handleHeartbeat(
+  chargerId: number,
+  payload: any
+): Promise<any> {
+  try {
+    // Update charger's last heartbeat in database
+    await prisma.charger.update({
+      where: { charger_id: chargerId },
+      data: { status: "active", last_heartbeat: new Date() },
+    });
+
+    // Update registry heartbeat
+    await chargerRegistry.updateHeartbeat(chargerId);
+
+    const response = {
+      currentTime: new Date().toISOString(),
+    };
+    await logOcppMessage(chargerId, "out", response);
+    return response;
+  } catch (error) {
+    logger.error(`Error handling Heartbeat: ${error}`);
+    return {
+      currentTime: new Date().toISOString(),
+    };
+  }
+}
+
+/**
+ * Handle Authorize request from charger
+ */
+export async function handleAuthorize(
+  chargerId: number,
+  payload: any,
+  protocol?: string
+): Promise<any> {
+  const idTag = payload.idToken?.idToken || payload.idTag;
+
+  try {
+    // Look up RFID tag in database
+    const rfidUser = await prisma.rfidUser.findUnique({
+      where: { rfid_tag: idTag },
+    });
+
+    let isAuthorized = true;
+
+    if (!rfidUser || !rfidUser.active) {
+      isAuthorized = false;
+    } else {
+      // Check if charger belongs to a group and if user is in that group
+      const charger = await prisma.charger.findUnique({
+        where: { charger_id: chargerId },
+        select: { chargeGroupId: true }
+      });
+
+      if (charger && charger.chargeGroupId) {
+        const userInGroup = await prisma.chargeGroupUser.findUnique({
+          where: {
+            chargeGroupId_userId: {
+              chargeGroupId: charger.chargeGroupId,
+              userId: rfidUser.owner_id
+            }
+          }
+        });
+        if (!userInGroup) {
+          logger.warn(`Authorize rejected: User of RFID tag ${idTag} is not in the required charge group ${charger.chargeGroupId}`);
+          isAuthorized = false;
+        }
+      }
+    }
+
+    if (!isAuthorized) {
+      logger.warn(`Authorize rejected: RFID tag ${idTag} not authorized`);
+      let response: any = {};
+      response.idTagInfo = { status: "Invalid" };
+      await logOcppMessage(chargerId, "out", response);
+      return response;
+    }
+
+    logger.info(`Authorize accepted: RFID tag ${idTag} (${rfidUser?.name})`);
+    let response: any = {};
+    response.idTagInfo = { status: "Accepted" };
+    await logOcppMessage(chargerId, "out", response);
+    return response;
+  } catch (error) {
+    logger.error(`Error handling Authorize: ${error}`);
+    let errResponse: any = {};
+    errResponse.idTagInfo = { status: "Invalid" };
+    return errResponse;
+  }
+}
+
+/**
+ * Handle StartTransaction request from charger
+ */
+export async function handleStartTransaction(
+  chargerId: number,
+  payload: any,
+  protocol?: string
+): Promise<any> {
+  const { connectorId, idTag, meterStart, timestamp } = payload;
+
+  try {
+    // Use transaction ID from payload if provided (OCPP 2.1), else generate (OCPP 1.6)
+    const transactionId = payload.transactionId ? String(payload.transactionId) : String(Math.floor(Date.now() / 1000));
+
+    // Check if RFID tag is valid (if provided)
+    let rfidUserId: number | undefined;
+    if (idTag) {
+      const rfidUser = await prisma.rfidUser.findUnique({
+        where: { rfid_tag: idTag },
+      });
+
+      let isAuthorized = true;
+
+      if (!rfidUser || !rfidUser.active) {
+        isAuthorized = false;
+      } else {
+        // Check if charger belongs to a group and if user is in that group
+        const chargerInfo = await prisma.charger.findUnique({
+          where: { charger_id: chargerId },
+          select: { chargeGroupId: true }
+        });
+
+        if (chargerInfo && chargerInfo.chargeGroupId) {
+          const userInGroup = await prisma.chargeGroupUser.findUnique({
+            where: {
+              chargeGroupId_userId: {
+                chargeGroupId: chargerInfo.chargeGroupId,
+                userId: rfidUser.owner_id
+              }
+            }
+          });
+          if (!userInGroup) {
+            isAuthorized = false;
+          }
+        }
+      }
+
+      if (!isAuthorized) {
+        logger.warn(`StartTransaction rejected: RFID tag ${idTag} not authorized`);
+        let response: any = {};
+        response.idTagInfo = { status: "Invalid" };
+        await logOcppMessage(chargerId, "out", response);
+        return response;
+      }
+      rfidUserId = rfidUser?.rfid_user_id;
+    }
+
+    // Always create a system Transaction record
+    const connectorName = `Connector ${connectorId}`;
+    const newTransaction = await prisma.transaction.create({
+      data: {
+        transactionId: String(transactionId),
+        charger_id: chargerId,
+        connectorName,
+        startTime: new Date(timestamp || new Date()),
+        initialMeterValue: meterStart,
+        status: "charging",
+        idTag,
+      },
+      include: { charger: true }
+    });
+
+    // Create RfidSession if an RFID tag was used
+    if (rfidUserId) {
+      await prisma.rfidSession.create({
+        data: {
+          transactionId: String(transactionId),
+          charger_id: chargerId, connectorName,
+          rfidUserId: rfidUserId,
+          startTime: new Date(timestamp || new Date()),
+          initialMeterValue: meterStart,
+          status: "charging",
+        },
+      });
+      logger.info(`Started RfidSession for tag ${idTag} on charger ${chargerId}`);
+    }
+
+    // Start transaction in registry memory/Redis
+    await chargerRegistry.startTransaction(chargerId, transactionId, connectorName, idTag);
+
+    // Update connector status
+    const existingConnector = await prisma.connector.findFirst({
+      where: {
+        charger_id: chargerId,
+        connector_name: connectorName
+      }
+    });
+
+    if (existingConnector) {
+      await prisma.connector.update({
+        where: { connector_id: existingConnector.connector_id },
+        data: { status: "Charging", updatedAt: new Date() },
+      });
+    }
+
+    logger.info(
+      `Transaction ${transactionId} started on charger ${chargerId}, connector ${connectorId}`
+    );
+
+    // Trigger Load Balancing to recalculate capacity with new session
+    if (newTransaction.charger.charging_station_id) {
+      loadManagementService.balanceSiteLoad(newTransaction.charger.charging_station_id)
+        .catch(err => logger.error(`Error balancing site load: ${err}`));
+    }
+    if (newTransaction.charger.chargeGroupId) {
+      loadManagementService.balanceChargeGroupLoad(newTransaction.charger.chargeGroupId)
+        .catch(err => logger.error(`Error balancing charge group load: ${err}`));
+    }
+
+    let response: any = {
+      transactionId: parseInt(transactionId, 10) || 0,
+    };
+    response.idTagInfo = { status: "Accepted" };
+
+    await logOcppMessage(chargerId, "out", response, transactionId);
+    return response;
+  } catch (error) {
+    logger.error(`Error handling StartTransaction: ${error}`);
+    let errResponse: any = { transactionId: 0 };
+    errResponse.idTagInfo = { status: "Invalid" };
+    return errResponse;
+  }
+}
+
+/**
+ * Handle StopTransaction request from charger
+ */
+export async function handleStopTransaction(
+  chargerId: number,
+  payload: any,
+  protocol?: string
+): Promise<any> {
+  const { transactionId, meterStop, timestamp, idTag } = payload;
+
+  try {
+    // End transaction in registry memory/Redis
+    await chargerRegistry.endTransaction(chargerId, transactionId);
+
+    // Update Transaction
+    const transaction = await prisma.transaction.findFirst({
+      where: { transactionId: String(transactionId) },
+    });
+
+    if (transaction) {
+      const updatedTransaction = await prisma.transaction.update({
+        where: { id: transaction.id },
+        data: {
+          finalMeterValue: meterStop,
+          endTime: new Date(timestamp),
+          status: "completed",
+          energyConsumed: meterStop - (transaction.initialMeterValue || 0),
+        },
+        include: { charger: true }
+      });
+
+      // Trigger Load Balancing since a transaction has stopped, freeing up capacity
+      if (updatedTransaction.charger.charging_station_id) {
+        loadManagementService.balanceSiteLoad(updatedTransaction.charger.charging_station_id)
+          .catch(err => logger.error(`Error balancing site load: ${err}`));
+      }
+      if (updatedTransaction.charger.chargeGroupId) {
+        loadManagementService.balanceChargeGroupLoad(updatedTransaction.charger.chargeGroupId)
+          .catch(err => logger.error(`Error balancing charge group load: ${err}`));
+      }
+    }
+
+    // Update RfidSession if exists
+    const rfidSession = await prisma.rfidSession.findFirst({
+      where: { transactionId: String(transactionId) },
+      include: { rfidUser: true },
+    });
+
+    if (rfidSession) {
+      // Get tariff rate (simplified - get first tariff or use default)
+      const tariff = await prisma.tariff.findFirst();
+      const tariffRate = tariff?.charge || 10; // Default Rs 10/kWh
+
+      const energyConsumed = meterStop - (rfidSession.initialMeterValue || 0);
+      const amountDue = (energyConsumed / 1000) * tariffRate * 100; // Convert to paise
+
+      await prisma.rfidSession.update({
+        where: { id: rfidSession.id },
+        data: {
+          finalMeterValue: meterStop,
+          endTime: new Date(timestamp),
+          energyConsumed,
+          tariffRate,
+          amountDue,
+          status: "completed",
+        },
+      });
+
+      logger.info(`RfidSession ${rfidSession.id} completed. Amount due: Rs ${(amountDue / 100).toFixed(2)}`);
+    }
+
+    let response: any = {};
+    response.idTagInfo = { status: "Accepted" };
+    await logOcppMessage(chargerId, "out", response, transactionId);
+    return response;
+  } catch (error) {
+    logger.error(`Error handling StopTransaction: ${error}`);
+    return {};
+  }
+}
+
+/**
+ * Handle MeterValues from charger
+ */
+export async function handleMeterValues(
+  chargerId: number,
+  payload: any
+): Promise<void> {
+  const { connectorId, meterValue, transactionId } = payload;
+
+  try {
+    if (!transactionId) return;
+
+    let energyValue = 0;
+    let powerValue = 0;
+    let socValue: number | null = null;
+    let currentValue: number | null = null;
+    let voltageValue: number | null = null;
+
+    // Extract a timestamp from the meter value if available, or use current time
+    let timestamp = new Date();
+
+    if (Array.isArray(meterValue)) {
+      for (const mv of meterValue) {
+        if (mv.timestamp) {
+          timestamp = new Date(mv.timestamp);
+        }
+        if (mv.sampledValue && Array.isArray(mv.sampledValue)) {
+          for (const sv of mv.sampledValue) {
+            const measurand = sv.measurand || "Energy.Active.Import.Register";
+            if (measurand === "Energy.Active.Import.Register" || measurand === "Energy") {
+              energyValue = parseFloat(sv.value);
+            } else if (measurand === "Power.Active.Import" || measurand === "Power") {
+              powerValue = parseFloat(sv.value);
+            } else if (measurand === "SoC") {
+              socValue = parseFloat(sv.value);
+            } else if (measurand === "Current.Import" || measurand === "Current.Offered") {
+              currentValue = parseFloat(sv.value);
+            } else if (measurand === "Voltage") {
+              voltageValue = parseFloat(sv.value);
+            }
+          }
+        } else if (mv.value !== undefined) {
+           energyValue = parseFloat(mv.value);
+        }
+      }
+    }
+
+    // Push meter value to background batch processor queue
+    await MeterValueService.addMeterValue({
+      transactionId: String(transactionId),
+      chargerId,
+      connectorId,
+      energyValue,
+      powerValue,
+      socValue,
+      currentValue,
+      voltageValue,
+      timestamp,
+    });
+
+    await logOcppMessage(chargerId, "in", payload, transactionId);
+  } catch (error) {
+    logger.error(`Error handling MeterValues: ${error}`);
+  }
+}
+
+/**
+ * Handle StatusNotification from charger
+ */
+export async function handleStatusNotification(
+  chargerId: number,
+  payload: any
+): Promise<any> {
+  const connectorId = payload.evseId ?? payload.connectorId;
+  const status = payload.connectorStatus ?? payload.status;
+  const errorCode = payload.errorCode;
+  const timestamp = payload.timestamp;
+  const info = payload.info;
+
+  try {
+    // Update/Create connector status in database
+    const connectorName = `Connector ${connectorId}`;
+
+    // For connectorId 0 (Charge Point itself), we don't usually create a "Connector" record
+    // unless the system design requires it. Here we only handle actual connectors (1+).
+    if (connectorId > 0) {
+      const existingConnector = await prisma.connector.findFirst({
+        where: {
+          charger_id: chargerId,
+          connector_name: connectorName
+        }
+      });
+
+      if (existingConnector) {
+        await prisma.connector.update({
+          where: { connector_id: existingConnector.connector_id },
+          data: { status, updatedAt: new Date() },
+        });
+      } else {
+        await prisma.connector.create({
+          data: {
+            charger_id: chargerId,
+            connector_name: connectorName,
+            status: status,
+            current_type: "AC", // Default, can be refined based on charger model
+            updatedAt: new Date(),
+          }
+        });
+        logger.info(`Auto-created connector ${connectorName} for charger ${chargerId}`);
+      }
+    }
+
+    // Update charger status to active if receiving status notifications
+    await prisma.charger.update({
+      where: { charger_id: chargerId },
+      data: { status: "active", last_heartbeat: new Date() },
+    });
+
+    logger.info(
+      `StatusNotification from charger ${chargerId}: connector ${connectorId} status = ${status}`
+    );
+
+    const response = {};
+    await logOcppMessage(chargerId, "out", response);
+    return response;
+  } catch (error) {
+    logger.error(`Error handling StatusNotification: ${error}`);
+    return {};
+  }
+}
+
+export async function handleOcppMessage16(
+  chargerId: number,
+  actionName: string,
+  payload: any,
+  protocol: string
+): Promise<any> {
+  let response: any;
+
+  switch (actionName) {
+    case "BootNotification":
+      logger.debug(`Routing action ${actionName} -> handleBootNotification`);
+      response = await handleBootNotification(chargerId, payload, protocol);
+      break;
+    case "Heartbeat":
+      logger.debug(`Routing action ${actionName} -> handleHeartbeat`);
+      response = await handleHeartbeat(chargerId, payload);
+      break;
+    case "Authorize":
+      logger.debug(`Routing action ${actionName} -> handleAuthorize`);
+      response = await handleAuthorize(chargerId, payload, protocol);
+      break;
+    case "StartTransaction":
+      logger.debug(`Routing action ${actionName} -> handleStartTransaction`);
+      response = await handleStartTransaction(chargerId, payload, protocol);
+      break;
+    case "StopTransaction":
+      logger.debug(`Routing action ${actionName} -> handleStopTransaction`);
+      response = await handleStopTransaction(chargerId, payload, protocol);
+      break;
+    case "MeterValues":
+      logger.debug(`Routing action ${actionName} -> handleMeterValues`);
+      await handleMeterValues(chargerId, payload);
+      response = {};
+      break;
+    case "StatusNotification":
+      logger.debug(`Routing action ${actionName} -> handleStatusNotification`);
+      response = await handleStatusNotification(chargerId, payload);
+      break;
+    default:
+      logger.warn(`Unknown action name: ${actionName}`);
+      response = {};
+  }
+
+  return response;
+}

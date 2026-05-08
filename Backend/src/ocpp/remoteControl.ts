@@ -33,79 +33,96 @@ function generateMessageId(): string {
   return `msg_${Date.now()}_${++messageIdCounter}`;
 }
 
+
+
+
+export async function sendRemoteCommand(
+  chargerId: number,
+  command: string,
+  params: any
+): Promise<{ status: string; error?: string; [key: string]: any }> {
+  try {
+    if (!(await chargerRegistry.isConnectedGlobally(chargerId))) {
+      return { status: "Rejected", error: "Charger not connected" };
+    }
+
+    const protocol = await getChargerProtocol(chargerId);
+    const messageId = generateMessageId();
+    let action = "";
+    let payload: any = {};
+
+    if (protocol === "ocpp2.1" || protocol === "ocpp2.0.1") {
+      switch (command) {
+        case "Start":
+          action = "RequestStartTransaction";
+          payload = {
+            idToken: { idToken: params.idTag || "12345", type: "ISO14443" },
+            remoteStartId: Math.floor(Math.random() * 1000000),
+            evseId: params.connectorId
+          };
+          break;
+        case "Stop":
+          action = "RequestStopTransaction";
+          payload = { transactionId: params.transactionId };
+          break;
+        default:
+          return { status: "Rejected", error: `Command ${command} not supported for protocol ${protocol}` };
+      }
+    } else {
+      switch (command) {
+        case "Start":
+          action = "RemoteStartTransaction";
+          payload = {
+            connectorId: params.connectorId,
+            idTag: params.idTag
+          };
+          break;
+        case "Stop":
+          action = "RemoteStopTransaction";
+          payload = { transactionId: params.transactionId };
+          break;
+        default:
+          return { status: "Rejected", error: `Command ${command} not supported for protocol ${protocol}` };
+      }
+    }
+
+    const message = [
+      2,  // MessageTypeId: CALL
+      messageId,
+      action,
+      payload
+    ];
+
+    await chargerRegistry.publishCommand(chargerId, message);
+    logger.info(`${action} sent to charger ${chargerId}`);
+
+    return { status: "Accepted" };
+  } catch (error) {
+    logger.error(`Error in sendRemoteCommand for ${command}: ${error}`);
+    return { status: "Rejected", error: `Failed to send ${command}` };
+  }
+}
+
 /**
  * Send RemoteStartTransaction request to charger
- * OCPP 1.6 CALL format: [2, messageId, "RemoteStartTransaction", payload]
  */
 export async function remoteStartTransaction(
   request: RemoteStartRequest
 ): Promise<{ status: string; transactionId?: number; error?: string }> {
   const { chargerId, connectorId, idTag } = request;
-
-  try {
-    // Check if charger is connected
-    if (!(await chargerRegistry.isConnectedGlobally(chargerId))) {
-      return { status: "Rejected", error: "Charger not connected" };
-    }
-
-    // Send RemoteStartTransaction using correct OCPP 1.6 CALL format
-    // MessageTypeId 2 = CALL (request from Central System to Charge Point)
-    const messageId = generateMessageId();
-    const message = [
-      2,  // MessageTypeId: CALL
-      messageId,
-      "RemoteStartTransaction",
-      {
-        connectorId,
-        idTag,
-      }
-    ];
-
-    await chargerRegistry.publishCommand(chargerId, message);
-
-    logger.info(`Remote start sent to charger ${chargerId}, connector ${connectorId}, idTag ${idTag}`);
-
-    return { status: "Accepted" };
-  } catch (error) {
-    logger.error(`Error in remoteStartTransaction: ${error}`);
-    return { status: "Rejected", error: "Failed to send remote start" };
-  }
+  return await sendRemoteCommand(chargerId, "Start", { connectorId, idTag });
 }
 
 /**
  * Send RemoteStopTransaction request to charger
- * OCPP 1.6 CALL format: [2, messageId, "RemoteStopTransaction", payload]
  */
 export async function remoteStopTransaction(
   request: RemoteStopRequest
 ): Promise<{ status: string; error?: string }> {
   const { chargerId, transactionId } = request;
-
-  try {
-    // Check if charger is connected
-    if (!(await chargerRegistry.isConnectedGlobally(chargerId))) {
-      return { status: "Rejected", error: "Charger not connected" };
-    }
-
-    // Send RemoteStopTransaction using correct OCPP 1.6 CALL format
-    const messageId = generateMessageId();
-    const message = [
-      2,  // MessageTypeId: CALL
-      messageId,
-      "RemoteStopTransaction",
-      { transactionId }
-    ];
-
-    await chargerRegistry.publishCommand(chargerId, message);
-
-    logger.info(`Remote stop sent to charger ${chargerId}, transaction ${transactionId}`);
-
-    return { status: "Accepted" };
-  } catch (error) {
-    logger.error(`Error in remoteStopTransaction: ${error}`);
-    return { status: "Rejected", error: "Failed to send remote stop" };
-  }
+  return await sendRemoteCommand(chargerId, "Stop", { transactionId });
 }
+
 
 /**
  * Send GetConfiguration request to charger
