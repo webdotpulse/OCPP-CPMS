@@ -7,6 +7,7 @@ import { handleOcppMessage } from "./messageHandlers.js";
 import { triggerMessage } from "./remoteControl.js";
 import { redisPublisher } from "../config/redis.js";
 import { pendingRequests } from "./remoteControl.js";
+import { proxyRouter } from "./proxyRouter.js";
 
 class OcppServer {
   private wss: WebSocketServer | null = null;
@@ -114,12 +115,21 @@ class OcppServer {
       // Register charger connection
       chargerRegistry.register(chargerId, charger.name, ws);
 
+      if (charger.thirdPartyBackendUrl) {
+        proxyRouter.setupProxy(chargerId, charger.thirdPartyBackendUrl, ws.protocol);
+      }
+
       ws.on("message", async (data: Buffer) => {
         try {
           const message = JSON.parse(data.toString());
           // Log incoming message
           logger.info(`📩 [OCPP IN] Charger ${chargerId} [${ws.protocol}]: ${JSON.stringify(message)}`);
-          await this.handleOcppMessage(chargerId, message, ws.protocol);
+
+          if (proxyRouter.hasProxy(chargerId)) {
+            await proxyRouter.handleMessageFromCharger(chargerId, message, ws.protocol);
+          } else {
+            await this.handleOcppMessage(chargerId, message, ws.protocol);
+          }
         } catch (error) {
           logger.error(`Error parsing OCPP message: ${error}`);
         }
@@ -134,6 +144,7 @@ class OcppServer {
           return;
         }
 
+        proxyRouter.removeProxy(chargerId);
         logger.info(`Charger ${charger.name} (ID: ${chargerId}) disconnected`);
         chargerRegistry.unregister(chargerId).then(async () => {
           // Verify it is truly offline before marking offline in DB (might have reconnected elsewhere)

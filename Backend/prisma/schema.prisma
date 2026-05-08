@@ -76,6 +76,7 @@ model Charger {
   service_contacts    String
   latitude            Float?
   longitude           Float?
+  thirdPartyBackendUrl String?
   owner_id            Int
   charging_station_id Int
   createdAt           DateTime  @default(now())
