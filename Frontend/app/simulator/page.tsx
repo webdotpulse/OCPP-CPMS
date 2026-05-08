@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,10 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { simulatorApi, SimulatorConfig } from "@/lib/simulatorApi";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { Play, Square, Power, Zap, Activity, RefreshCw } from "lucide-react";
+import { Play, Square, Power, Zap, RefreshCw } from "lucide-react";
 
 export default function SimulatorPage() {
-  const { t } = useTranslation();
   const [simulators, setSimulators] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,7 +27,7 @@ export default function SimulatorPage() {
     try {
       const data = await simulatorApi.getSimulators();
       setSimulators(data);
-    } catch (error) {
+    } catch {
       toast.error("Failed to load simulators");
     } finally {
       setLoading(false);
@@ -58,7 +56,7 @@ export default function SimulatorPage() {
       await simulatorApi.killSimulator(chargerId);
       toast.success(`Killed simulator ${chargerId}`);
       fetchSimulators();
-    } catch (error) {
+    } catch {
       toast.error("Failed to kill simulator");
     }
   };
@@ -68,7 +66,7 @@ export default function SimulatorPage() {
       await simulatorApi.triggerAction(chargerId, action, params);
       toast.success(`Triggered ${action} for ${chargerId}`);
       fetchSimulators();
-    } catch (error) {
+    } catch {
       toast.error(`Failed to trigger ${action}`);
     }
   };
