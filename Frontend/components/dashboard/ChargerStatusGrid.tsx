@@ -4,6 +4,7 @@ import { logger } from "@/lib/logger";
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useWebSocket } from '@/components/WebSocketProvider';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -27,23 +28,36 @@ const statusColors: Record<string, string> = {
 export function ChargerStatusGrid() {
   const [chargers, setChargers] = useState<ChargerStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { socket } = useWebSocket();
+
+  const fetchChargers = async () => {
+    try {
+      const response = await api.get('/dashboard/chargers-status');
+      setChargers(response.data);
+    } catch (error) {
+      logger.error('Failed to fetch charger status grid', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchChargers = async () => {
-      try {
-        const response = await api.get('/dashboard/chargers-status');
-        setChargers(response.data);
-      } catch (error) {
-        logger.error('Failed to fetch charger status grid', error);
-      } finally {
-        setIsLoading(false);
-      }
+    fetchChargers();
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUpdate = () => {
+      fetchChargers();
     };
 
-    fetchChargers();
-    const interval = setInterval(fetchChargers, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    socket.on("CHARGER_STATUS_UPDATE", handleUpdate);
+
+    return () => {
+      socket.off("CHARGER_STATUS_UPDATE", handleUpdate);
+    };
+  }, [socket]);
 
   return (
     <Card className="col-span-full">

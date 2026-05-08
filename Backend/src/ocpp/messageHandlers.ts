@@ -57,6 +57,11 @@ export async function handleOcppMessage(
     response = await handleOcppMessage16(chargerId, actionName, payload, protocol);
   }
 
+  // Publish charger status updates for real-time frontend
+  if (messageType === 2 && ["BootNotification", "StatusNotification", "StartTransaction", "StopTransaction", "Heartbeat"].includes(actionName)) {
+    redisPublisher.publish("charger_status_updates", JSON.stringify({ chargerId }));
+  }
+
   logger.debug(`Response for action ${actionName}: ${JSON.stringify(response)}`);
   return response;
 }

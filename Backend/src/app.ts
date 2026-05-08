@@ -30,6 +30,7 @@ import configProfilesRoutes from "./api/config-profiles/config-profiles.routes.j
 // Import OCPP servers
 import { ocppServer } from "./ocpp/ocppServer.js";
 import { ocppLogsServer } from "./ocpp/logsWebSocket.js";
+import { setupRealtimeSocket } from "./ocpp/realtime.socket.js";
 
 /**
  * Create and configure Express application
@@ -117,6 +118,9 @@ export function startServers(): void {
 
   // Start OCPP logs WebSocket server
   ocppLogsServer.start(server);
+
+  // Setup Socket.IO realtime server
+  setupRealtimeSocket(server);
 
   // Graceful shutdown
   const shutdown = (signal: string) => {

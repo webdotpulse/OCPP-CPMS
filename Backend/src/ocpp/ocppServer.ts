@@ -149,6 +149,8 @@ class OcppServer {
                 data: { status: "Unavailable", updatedAt: new Date() },
               })
             ]).catch((err) => logger.error(`Error updating charger/connector status on disconnect: ${err}`));
+
+            redisPublisher.publish("charger_status_updates", JSON.stringify({ chargerId }));
           }
         }).catch(err => logger.error(`Error during unregister: ${err}`));
       });
