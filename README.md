@@ -196,7 +196,7 @@ open-source-csms/
 ### Backend
 | Layer | Technology |
 |-------|-----------|
-| Runtime | Node.js 20+ |
+| Runtime | Node.js 22+ |
 | Language | TypeScript |
 | Framework | Express.js |
 | OCPP Protocol | Native `ws` WebSocket library |
