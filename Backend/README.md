@@ -77,7 +77,7 @@ A barebone OCPP 1.6 & 2.1/2.0.1 Charge Point Management System that anyone can b
 
 ## Technology Stack
 
-- **Runtime:** Node.js 20+
+- **Runtime:** Node.js 22+
 - **Language:** TypeScript
 - **Framework:** Express.js
 - **Database:** PostgreSQL with Prisma ORM
@@ -90,7 +90,7 @@ A barebone OCPP 1.6 & 2.1/2.0.1 Charge Point Management System that anyone can b
 
 ### Prerequisites
 
-- Node.js 20 or higher
+- Node.js 22 or higher
 - PostgreSQL database
 
 ### Installation
