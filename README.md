@@ -18,7 +18,6 @@
   <img alt="PostgreSQL" src="https://img.shields.io/badge/PostgreSQL-15%2B-blue?logo=postgresql" />
   <img alt="Redis" src="https://img.shields.io/badge/Redis-7%2B-red?logo=redis" />
   <img alt="OCPP" src="https://img.shields.io/badge/OCPP-1.6%20%7C%202.1-orange" />
-  <a href="https://csms.savekar.com"><img alt="Live Demo" src="https://img.shields.io/badge/Live%20Demo-csms.savekar.com-brightgreen" /></a>
 </p>
 
 ---
