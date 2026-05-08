@@ -4,11 +4,6 @@ Based on an analysis of the codebase, here is an overview of performance issues,
 
 ## 1. Things to be Fixed (Bugs & Linting)
 
-### Unused Variables & Linting Errors in Frontend
-**Problem:** The Next.js frontend has several ESLint warnings for unused variables (e.g., `error` in multiple `page.tsx` files, `Activity` and `t` in `simulator/page.tsx`, `err` in `ConnectorList.tsx`).
-**Prompt:**
-> "Please analyze the Next.js Frontend codebase and remove all unused variables to fix ESLint warnings. Specifically look at `Frontend/app/chargers/[id]/page.tsx`, `Frontend/app/config-profiles/page.tsx`, `Frontend/app/simulator/page.tsx`, and `Frontend/components/chargers/ConnectorList.tsx`. Run `npm run lint --prefix Frontend` to verify."
-
 ### Missing Database Indexes
 **Problem:** The `schema.prisma` defines several relations and heavily queried fields (e.g., `transactionId`, `charger_id`, `status` on `Transaction` and `MeterValue`), but lacks explicit `@@index` definitions which can cause performance bottlenecks when tables grow large.
 **Prompt:**

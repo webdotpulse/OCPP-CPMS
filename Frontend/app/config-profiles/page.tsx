@@ -54,7 +54,7 @@ export default function ConfigProfilesPage() {
     try {
       const response = await api.get("/config-profiles");
       setProfiles(response.data || []);
-    } catch (error) {
+    } catch {
       toast.error("Failed to load profiles");
     } finally {
       setLoading(false);
@@ -107,7 +107,7 @@ export default function ConfigProfilesPage() {
 
       setIsDialogOpen(false);
       fetchProfiles();
-    } catch (error) {
+    } catch {
       toast.error("Failed to save profile");
     }
   };
@@ -118,7 +118,7 @@ export default function ConfigProfilesPage() {
       await api.delete(`/config-profiles/${id}`);
       toast.success("Profile deleted");
       fetchProfiles();
-    } catch (error) {
+    } catch {
       toast.error("Failed to delete profile");
     }
   };
@@ -176,7 +176,7 @@ export default function ConfigProfilesPage() {
         } else {
           toast.error("Invalid profile format");
         }
-      } catch (err) {
+      } catch {
         toast.error("Failed to parse JSON");
       }
     };

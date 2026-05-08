@@ -66,7 +66,7 @@ export default function ChargerDetailPage() {
       try {
         const response = await api.get('/config-profiles');
         setProfiles(response.data || []);
-      } catch (error) {
+      } catch {
         console.error("Failed to load profiles");
       }
     };

@@ -74,7 +74,7 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
         }
 
         setActiveTxns(allTxns.filter(t => t.status === 'charging' || t.status === 'Preparing' || t.endTime === null));
-      } catch (err) {
+      } catch {
         // silently fail
       }
     };
