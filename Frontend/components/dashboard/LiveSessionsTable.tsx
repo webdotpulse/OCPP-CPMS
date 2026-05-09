@@ -1,43 +1,23 @@
 "use client";
-import { logger } from "@/lib/logger";
 
-import { useEffect, useState } from 'react';
-import { api } from '@/lib/api';
+
+import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatDistanceToNow } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-
-interface ActiveSession {
-  transactionId: number;
-  chargerName: string;
-  connectorName: string;
-  startTime: string;
-  energyConsumed: number;
-  currentPower: number;
-  status: string;
-}
+import { useTelemetryStore } from "@/store/useTelemetryStore";
 
 export function LiveSessionsTable() {
-  const [sessions, setSessions] = useState<ActiveSession[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const sessions = useTelemetryStore((state) => state.sessions);
+  const isSessionsLoading = useTelemetryStore((state) => state.isSessionsLoading);
+  const fetchSessions = useTelemetryStore((state) => state.fetchSessions);
 
   useEffect(() => {
-    const fetchSessions = async () => {
-      try {
-        const response = await api.get('/dashboard/live-sessions');
-        setSessions(response.data);
-      } catch (error) {
-        logger.error('Failed to fetch live sessions', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchSessions();
     const interval = setInterval(fetchSessions, 10000); // refresh every 10s
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchSessions]);
 
   return (
     <Card>
@@ -56,7 +36,7 @@ export function LiveSessionsTable() {
         </div>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {isSessionsLoading ? (
           <div className="flex justify-center p-8 text-muted-foreground">Loading...</div>
         ) : sessions.length === 0 ? (
           <div className="flex justify-center p-8 text-muted-foreground border border-dashed rounded-lg">

@@ -1,21 +1,11 @@
 "use client";
-import { logger } from "@/lib/logger";
 
-import { useEffect, useState } from 'react';
-import { api } from '@/lib/api';
+
+import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useWebSocket } from '@/components/WebSocketProvider';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
-
-interface ChargerStatus {
-  charger_id: number;
-  name: string;
-  status: string;
-  last_heartbeat: string;
-  connectors: number;
-  active_sessions: number;
-}
+import { useTelemetryStore } from "@/store/useTelemetryStore";
 
 const statusColors: Record<string, string> = {
   online: "bg-green-500/10 text-green-500 hover:bg-green-500/20",
@@ -26,38 +16,13 @@ const statusColors: Record<string, string> = {
 };
 
 export function ChargerStatusGrid() {
-  const [chargers, setChargers] = useState<ChargerStatus[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const { socket } = useWebSocket();
-
-  const fetchChargers = async () => {
-    try {
-      const response = await api.get('/dashboard/chargers-status');
-      setChargers(response.data);
-    } catch (error) {
-      logger.error('Failed to fetch charger status grid', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const chargers = useTelemetryStore((state) => state.chargers);
+  const isChargersLoading = useTelemetryStore((state) => state.isChargersLoading);
+  const fetchChargers = useTelemetryStore((state) => state.fetchChargers);
 
   useEffect(() => {
     fetchChargers();
-  }, []);
-
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleUpdate = () => {
-      fetchChargers();
-    };
-
-    socket.on("CHARGER_STATUS_UPDATE", handleUpdate);
-
-    return () => {
-      socket.off("CHARGER_STATUS_UPDATE", handleUpdate);
-    };
-  }, [socket]);
+  }, [fetchChargers]);
 
   return (
     <Card className="col-span-full">
@@ -65,7 +30,7 @@ export function ChargerStatusGrid() {
         <CardTitle>Charger Status Grid</CardTitle>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
+        {isChargersLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                <div key={i} className="h-24 bg-muted animate-pulse rounded-lg bg-card border p-4 text-center">
