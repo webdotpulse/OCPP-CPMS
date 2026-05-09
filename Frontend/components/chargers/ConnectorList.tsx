@@ -155,7 +155,10 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {connectors.map((conn) => (
+          {connectors.map((conn) => {
+            const activeTxn = activeTxns.find(t => t.connectorName === String(conn.connector_id) || t.connectorName === conn.connector_name);
+            const isCharging = conn.status?.toLowerCase() === 'charging' || activeTxn;
+            return (
             <React.Fragment key={conn.connector_id}>
               <TableRow
                 className="cursor-pointer hover:bg-muted/50 transition-colors"
@@ -237,7 +240,7 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
                 </TableRow>
               )}
             </React.Fragment>
-          ))}
+          )})}
         </TableBody>
       </Table>
     </div>
