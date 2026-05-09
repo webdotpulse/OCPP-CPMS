@@ -94,7 +94,6 @@ model Charger {
   configurations   ChargerConfiguration[]
   chargingProfiles ChargingProfile[]
   meterValues      MeterValue[]
-  deviceComponents DeviceComponent[]
 }
 
 model Evse {
@@ -366,51 +365,4 @@ model MeterValue {
 
   @@index([transactionId])
   @@index([chargerId])
-}
-
-model DeviceComponent {
-  id          Int      @id @default(autoincrement())
-  chargerId   Int
-  name        String
-  instance    String?
-  evseId      Int?
-  connectorId Int?
-
-  charger     Charger  @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
-  variables   DeviceVariable[]
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Note: For unique constraints with nullable fields, Prisma might allow multiple NULLs in standard SQL.
-}
-
-model DeviceVariable {
-  id          Int      @id @default(autoincrement())
-  componentId Int
-  name        String
-  instance    String?
-
-  component   DeviceComponent @relation(fields: [componentId], references: [id], onDelete: Cascade)
-  attributes  VariableAttribute[]
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model VariableAttribute {
-  id          Int      @id @default(autoincrement())
-  variableId  Int
-  type        String   @default("Actual")
-  value       String?
-  mutability  String?
-  persistent  Boolean  @default(false)
-  constant    Boolean  @default(false)
-
-  variable    DeviceVariable @relation(fields: [variableId], references: [id], onDelete: Cascade)
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([variableId, type])
 }

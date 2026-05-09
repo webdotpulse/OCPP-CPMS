@@ -6,12 +6,6 @@ import { logger } from "../../utils/logger.js";
 import { loadManagementService } from "../../services/LoadManagementService.js";
 import { logOcppMessage } from "../messageHandlers.js";
 import { OcppError } from "../errors/OcppError.js";
-import {
-  handleGetVariables,
-  handleSetVariables,
-  handleGetBaseReport,
-  handleNotifyReport,
-} from "./deviceModel/v21DeviceModelHandlers.js";
 
 /**
  * Handle BootNotification from charger
@@ -546,22 +540,6 @@ export async function handleOcppMessage21(
     case "TransactionEvent":
       logger.debug(`Routing action ${actionName} -> handleTransactionEvent`);
       response = await handleTransactionEvent(chargerId, payload, protocol);
-      break;
-    case "GetVariables":
-      logger.debug(`Routing action ${actionName} -> handleGetVariables`);
-      response = await handleGetVariables(chargerId, payload);
-      break;
-    case "SetVariables":
-      logger.debug(`Routing action ${actionName} -> handleSetVariables`);
-      response = await handleSetVariables(chargerId, payload);
-      break;
-    case "GetBaseReport":
-      logger.debug(`Routing action ${actionName} -> handleGetBaseReport`);
-      response = await handleGetBaseReport(chargerId, payload);
-      break;
-    case "NotifyReport":
-      logger.debug(`Routing action ${actionName} -> handleNotifyReport`);
-      response = await handleNotifyReport(chargerId, payload);
       break;
     default:
       logger.warn(`Unknown action name: ${actionName}`);
