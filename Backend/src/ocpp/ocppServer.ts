@@ -288,8 +288,21 @@ class OcppServer {
       if (connection?.ws) {
         connection.ws.send(JSON.stringify(response));
       }
-    } catch (error) {
+    } catch (error: any) {
       logger.error(`Error handling OCPP message: ${error}`);
+
+      const errorCode = error.errorCode || "InternalError";
+      const errorDescription = error.errorDescription || error.message || "An internal error occurred";
+      const errorDetails = error.errorDetails || {};
+
+      const errorResponse = [4, messageId, errorCode, errorDescription, errorDetails];
+
+      logger.error(`📤 [OCPP ERROR OUT] Sending CALLERROR to charger ${chargerId}, MessageID: ${messageId}: ${JSON.stringify(errorResponse)}`);
+
+      const connection = chargerRegistry.getConnection(chargerId);
+      if (connection?.ws) {
+        connection.ws.send(JSON.stringify(errorResponse));
+      }
     }
   }
 

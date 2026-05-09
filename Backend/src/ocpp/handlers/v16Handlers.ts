@@ -5,6 +5,7 @@ import { MeterValueService } from "../../services/MeterValueService.js";
 import { logger } from "../../utils/logger.js";
 import { loadManagementService } from "../../services/LoadManagementService.js";
 import { logOcppMessage } from "../messageHandlers.js";
+import { OcppError } from "../errors/OcppError.js";
 
 const ocpp16Reasons = [
   "EmergencyStop", "EVDisconnected", "HardReset", "Local", "Other",
@@ -629,7 +630,7 @@ export async function handleOcppMessage16(
       break;
     default:
       logger.warn(`Unknown action name: ${actionName}`);
-      response = {};
+      throw new OcppError("NotImplemented", `Unknown action name: ${actionName}`);
   }
 
   return response;
