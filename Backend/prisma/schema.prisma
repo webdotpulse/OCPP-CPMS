@@ -63,6 +63,7 @@ model ChargingStation {
 
 // Charging Point / Charger
 model Charger {
+  chargerAlerts    ChargerAlert[]
   charger_id          Int       @id @default(autoincrement())
   model               String
   name                String    @unique
@@ -413,4 +414,19 @@ model VariableAttribute {
   updatedAt   DateTime @updatedAt
 
   @@unique([variableId, type])
+}
+
+model ChargerAlert {
+  id          Int      @id @default(autoincrement())
+  chargerId   Int
+  eventId     Int
+  timestamp   DateTime
+  severity    Int
+  component   String
+  variable    String
+  actualValue String
+
+  charger     Charger  @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
 }

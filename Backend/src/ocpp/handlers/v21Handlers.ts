@@ -518,6 +518,56 @@ export async function handleTransactionEvent(
   return {};
 }
 
+
+/**
+ * Handle NotifyEvent from charger
+ */
+export async function handleNotifyEvent(
+  chargerId: number,
+  payload: any
+): Promise<any> {
+  try {
+    const eventData = payload.eventData;
+    if (Array.isArray(eventData)) {
+      for (const event of eventData) {
+        // According to the problem description, severity should be an Int.
+        // We will default it to 1 if it's not present or not parseable, but try to parse it if it is.
+        // wait, let's just make it a number.
+        const severityStr = event.severity ?? (event.eventNotificationType === 'HardwareStatusChange' ? 1 : 2);
+        let severity = 1;
+        if (typeof severityStr === 'number') {
+            severity = severityStr;
+        } else if (typeof severityStr === 'string' && !isNaN(parseInt(severityStr))) {
+            severity = parseInt(severityStr);
+        } else {
+            severity = 1; // default fallback
+        }
+
+        const componentName = event.component?.name || "Unknown";
+        const variableName = event.variable?.name || "Unknown";
+        const actualValue = event.actualValue || "Unknown";
+
+        await prisma.chargerAlert.create({
+          data: {
+            chargerId,
+            eventId: event.eventId,
+            timestamp: new Date(event.timestamp),
+            severity: severity,
+            component: componentName,
+            variable: variableName,
+            actualValue: actualValue
+          }
+        });
+      }
+    }
+
+    return {};
+  } catch (error) {
+    logger.error(`Error handling NotifyEvent: ${error}`);
+    return {};
+  }
+}
+
 export async function handleOcppMessage21(
   chargerId: number,
   actionName: string,
@@ -562,6 +612,10 @@ export async function handleOcppMessage21(
     case "NotifyReport":
       logger.debug(`Routing action ${actionName} -> handleNotifyReport`);
       response = await handleNotifyReport(chargerId, payload);
+      break;
+    case "NotifyEvent":
+      logger.debug(`Routing action ${actionName} -> handleNotifyEvent`);
+      response = await handleNotifyEvent(chargerId, payload);
       break;
     default:
       logger.warn(`Unknown action name: ${actionName}`);
