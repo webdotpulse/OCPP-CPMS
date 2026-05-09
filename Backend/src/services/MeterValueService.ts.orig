@@ -119,12 +119,6 @@ export class MeterValueService {
             soc: p.socValue,
             current: p.currentValue,
             voltage: p.voltageValue,
-            current_L1: p.current_L1 ?? null,
-            current_L2: p.current_L2 ?? null,
-            current_L3: p.current_L3 ?? null,
-            voltage_L1: p.voltage_L1 ?? null,
-            voltage_L2: p.voltage_L2 ?? null,
-            voltage_L3: p.voltage_L3 ?? null,
             timestamp: new Date(p.timestamp),
           }));
 
@@ -147,12 +141,6 @@ export class MeterValueService {
                 socValue: p.socValue !== null ? p.socValue : existing.socValue,
                 currentValue: p.currentValue !== null ? p.currentValue : existing.currentValue,
                 voltageValue: p.voltageValue !== null ? p.voltageValue : existing.voltageValue,
-                current_L1: p.current_L1 !== null && p.current_L1 !== undefined ? p.current_L1 : existing.current_L1,
-                current_L2: p.current_L2 !== null && p.current_L2 !== undefined ? p.current_L2 : existing.current_L2,
-                current_L3: p.current_L3 !== null && p.current_L3 !== undefined ? p.current_L3 : existing.current_L3,
-                voltage_L1: p.voltage_L1 !== null && p.voltage_L1 !== undefined ? p.voltage_L1 : existing.voltage_L1,
-                voltage_L2: p.voltage_L2 !== null && p.voltage_L2 !== undefined ? p.voltage_L2 : existing.voltage_L2,
-                voltage_L3: p.voltage_L3 !== null && p.voltage_L3 !== undefined ? p.voltage_L3 : existing.voltage_L3,
                 timestamp: new Date(Math.max(new Date(existing.timestamp).getTime(), new Date(p.timestamp).getTime())),
               });
             } else {
