@@ -84,7 +84,7 @@ model Charger {
 
   owner            User                   @relation(fields: [owner_id], references: [id])
   chargingStation  ChargingStation        @relation(fields: [charging_station_id], references: [id])
-  connectors       Connector[]
+  evses            Evse[]
   transactions     Transaction[]
   ocppLogs         OcppLog[]
   rfidSessions     RfidSession[]
@@ -96,7 +96,20 @@ model Charger {
   meterValues      MeterValue[]
 }
 
-// Charge connector (multiple per charger)
+model Evse {
+  id          Int       @id @default(autoincrement())
+  evse_id     Int
+  charger_id  Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  charger     Charger     @relation(fields: [charger_id], references: [charger_id])
+  connectors  Connector[]
+
+  @@unique([charger_id, evse_id])
+}
+
+// Charge connector (multiple per evse)
 model Connector {
   connector_id   Int      @id @default(autoincrement())
   connector_name String   @default("Connector 1")
@@ -105,11 +118,11 @@ model Connector {
   max_current    Float?
   max_power      Float?
   mac_address    String?
-  charger_id     Int
+  evse_id        Int
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  charger Charger @relation(fields: [charger_id], references: [charger_id])
+  evse Evse @relation(fields: [evse_id], references: [id])
 }
 
 // RFID tag whitelist

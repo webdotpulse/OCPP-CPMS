@@ -102,13 +102,19 @@ export async function spawnSimulatorGroup(req: Request, res: Response) {
               status: "offline",
             }
           });
+          const evse = await prisma.evse.create({
+            data: {
+              charger_id: newCharger.charger_id,
+              evse_id: 1,
+            }
+          });
           await prisma.connector.create({
             data: {
               connector_name: "Connector 1",
               status: "Available",
               current_type: simConfig.type,
               max_power: simConfig.maxPowerKw,
-              charger_id: newCharger.charger_id
+              evse_id: evse.id
             }
           });
         }
@@ -215,13 +221,19 @@ export async function spawnSimulator(req: Request, res: Response) {
             }
           });
 
+          const evse = await prisma.evse.create({
+            data: {
+              charger_id: newCharger.charger_id,
+              evse_id: 1,
+            }
+          });
           await prisma.connector.create({
             data: {
               connector_name: "Connector 1",
               status: "Available",
               current_type: config.type,
               max_power: config.maxPowerKw,
-              charger_id: newCharger.charger_id
+              evse_id: evse.id
             }
           });
           logger.info(`Auto-registered simulator ${config.chargerId} in database.`);
@@ -278,7 +290,8 @@ export async function killSimulator(req: Request, res: Response) {
       const charger = await prisma.charger.findUnique({ where: { name: chargerId } });
       if (charger) {
         await prisma.$transaction([
-          prisma.connector.deleteMany({ where: { charger_id: charger.charger_id } }),
+          prisma.connector.deleteMany({ where: { evse: { charger_id: charger.charger_id } } }),
+          prisma.evse.deleteMany({ where: { charger_id: charger.charger_id } }),
           prisma.transaction.deleteMany({ where: { charger_id: charger.charger_id } }),
           prisma.ocppLog.deleteMany({ where: { chargerId: charger.charger_id } }),
           prisma.rfidSession.deleteMany({ where: { charger_id: charger.charger_id } }),

@@ -19,7 +19,7 @@ export const getAllConnectors = async (req: Request, res: Response) => {
     if (charger_id) {
       const parsedChargerId = parseId(charger_id);
       if (parsedChargerId) {
-        where.charger_id = parsedChargerId;
+        where.evse = { charger_id: parsedChargerId };
       }
     }
 
@@ -29,7 +29,11 @@ export const getAllConnectors = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     if (userRole !== "admin") {
-      where.charger = { owner_id: userId };
+      if (where.evse) {
+        where.evse.charger = { owner_id: userId };
+      } else {
+        where.evse = { charger: { owner_id: userId } };
+      }
     }
 
     const [connectors, total] = await Promise.all([
@@ -37,7 +41,7 @@ export const getAllConnectors = async (req: Request, res: Response) => {
         skip,
         take,
         where,
-        include: { charger: true },
+        include: { evse: { include: { charger: true } } },
         orderBy: { createdAt: "desc" },
       }),
       prisma.connector.count({ where }),
@@ -88,7 +92,7 @@ export const getConnectorById = async (req: Request, res: Response) => {
 
     const connector = await prisma.connector.findFirst({
       where,
-      include: { charger: true },
+      include: { evse: { include: { charger: true } } },
     });
 
     if (!connector) {
@@ -113,23 +117,23 @@ export const getConnectorById = async (req: Request, res: Response) => {
  */
 export const createConnector = async (req: Request, res: Response) => {
   try {
-    const data = req.body as CreateConnectorDto;
+    const data: any = req.body;
 
-    // Verify charger exists
-    const charger = await prisma.charger.findUnique({
-      where: { charger_id: data.charger_id },
+    // Verify evse exists
+    const evse = await prisma.evse.findUnique({
+      where: { id: data.evse_id },
     });
 
-    if (!charger) {
+    if (!evse) {
       return res.status(400).json({
         success: false,
-        error: "Charger not found",
+        error: "EVSE not found",
       });
     }
 
     const connector = await prisma.connector.create({
       data,
-      include: { charger: true },
+      include: { evse: { include: { charger: true } } },
     });
 
     logger.info(`Connector created: ${connector.connector_name}`);
@@ -160,7 +164,7 @@ export const updateConnector = async (req: Request, res: Response) => {
     const connector = await prisma.connector.update({
       where: { connector_id: connectorId },
       data: req.body,
-      include: { charger: true },
+      include: { evse: { include: { charger: true } } },
     });
 
     logger.info(`Connector updated: ${connector.connector_name}`);

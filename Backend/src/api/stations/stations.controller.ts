@@ -44,7 +44,7 @@ export const getAllStations = async (req: Request, res: Response) => {
         include: {
           owner: { select: { id: true, email: true } },
           chargers: {
-            include: { connectors: true },
+            include: { evses: { include: { connectors: true } } },
           },
         },
         orderBy: { createdAt: "desc" },
@@ -100,7 +100,7 @@ export const getStationById = async (req: Request, res: Response) => {
       include: {
         owner: { select: { id: true, email: true } },
         chargers: {
-          include: { connectors: true },
+          include: { evses: { include: { connectors: true } } },
         },
       },
     });
@@ -148,7 +148,7 @@ export const getStationChargers = async (req: Request, res: Response) => {
 
     const chargers = await prisma.charger.findMany({
       where,
-      include: { connectors: true },
+      include: { evses: { include: { connectors: true } } },
       orderBy: { createdAt: "desc" },
     });
 

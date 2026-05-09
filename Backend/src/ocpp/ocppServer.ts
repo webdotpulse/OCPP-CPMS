@@ -186,7 +186,7 @@ class OcppServer {
                 data: { status: "offline" },
               }),
               prisma.connector.updateMany({
-                where: { charger_id: chargerId },
+                where: { evse: { charger_id: chargerId } },
                 data: { status: "Unavailable", updatedAt: new Date() },
               })
             ]).catch((err) => logger.error(`Error updating charger/connector status on disconnect: ${err}`));

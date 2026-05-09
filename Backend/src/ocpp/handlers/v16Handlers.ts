@@ -526,9 +526,27 @@ export async function handleStatusNotification(
     // For connectorId 0 (Charge Point itself), we don't usually create a "Connector" record
     // unless the system design requires it. Here we only handle actual connectors (1+).
     if (connectorId > 0) {
+      let evse = await prisma.evse.findUnique({
+        where: {
+          charger_id_evse_id: {
+            charger_id: chargerId,
+            evse_id: 1 // Default EVSE for OCPP 1.6
+          }
+        }
+      });
+
+      if (!evse) {
+        evse = await prisma.evse.create({
+          data: {
+            charger_id: chargerId,
+            evse_id: 1
+          }
+        });
+      }
+
       const existingConnector = await prisma.connector.findFirst({
         where: {
-          charger_id: chargerId,
+          evse_id: evse.id,
           connector_name: connectorName
         }
       });
@@ -541,7 +559,7 @@ export async function handleStatusNotification(
       } else {
         await prisma.connector.create({
           data: {
-            charger_id: chargerId,
+            evse_id: evse.id,
             connector_name: connectorName,
             status: status,
             current_type: "AC", // Default, can be refined based on charger model

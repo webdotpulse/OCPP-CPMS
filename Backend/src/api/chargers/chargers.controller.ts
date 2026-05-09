@@ -163,7 +163,7 @@ export const getAllChargers = async (req: Request, res: Response) => {
         include: {
           chargingStation: true,
           chargeGroup: true,
-          connectors: true,
+          evses: { include: { connectors: true } },
           owner: { select: { id: true, email: true } },
         },
         orderBy: { createdAt: "desc" },
@@ -218,7 +218,7 @@ export const getChargerById = async (req: Request, res: Response) => {
       where,
       include: {
         chargingStation: true,
-        connectors: true,
+        evses: { include: { connectors: true } },
         transactions: { take: 10, orderBy: { createdAt: "desc" } },
         owner: { select: { id: true, email: true } },
         tariffs: true,
@@ -290,7 +290,7 @@ export const getChargerStatus = async (req: Request, res: Response) => {
         isOnline: await isChargerConnected(chargerId),
         protocol: await getChargerProtocol(chargerId),
         connectorsCount: await prisma.connector.count({
-          where: { charger_id: chargerId },
+          where: { evse: { charger_id: chargerId } },
         }),
       },
     });
@@ -423,7 +423,8 @@ export const deleteCharger = async (req: Request, res: Response) => {
       prisma.rfidSession.deleteMany({ where: { charger_id: chargerId } }),
       prisma.chargerConfiguration.deleteMany({ where: { chargerId: chargerId } }),
       prisma.chargingProfile.deleteMany({ where: { chargerId: chargerId } }),
-      prisma.connector.deleteMany({ where: { charger_id: chargerId } }),
+      prisma.connector.deleteMany({ where: { evse: { charger_id: chargerId } } }),
+      prisma.evse.deleteMany({ where: { charger_id: chargerId } }),
       prisma.charger.delete({ where: { charger_id: chargerId } }),
     ]);
 

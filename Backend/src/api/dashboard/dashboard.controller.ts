@@ -69,7 +69,7 @@ export const getOverview = async (req: Request, res: Response) => {
 
     // Calculate connector status distribution
     const connectors = await prisma.connector.findMany({
-      where: isUser ? { charger: { owner_id: userId } } : undefined,
+      where: isUser ? { evse: { charger: { owner_id: userId } } } : undefined,
     });
     const connectorStatusDistribution: Record<string, number> = {};
     connectors.forEach((c: any) => {
@@ -214,8 +214,8 @@ export const getDistribution = async (req: Request, res: Response) => {
     const isUser = userRole !== "admin";
 
     const connectors = await prisma.connector.findMany({
-      where: isUser ? { charger: { owner_id: userId } } : undefined,
-      include: { charger: true },
+      where: isUser ? { evse: { charger: { owner_id: userId } } } : undefined,
+      include: { evse: { include: { charger: true } } },
     });
 
     const distribution = connectors.reduce(
@@ -332,7 +332,7 @@ export const getChargersStatus = async (req: Request, res: Response) => {
       where: isUser ? { owner_id: userId } : undefined,
       include: {
         chargingStation: { select: { station_name: true, city: true } },
-        connectors: true,
+        evses: { include: { connectors: true } },
       },
       orderBy: { last_heartbeat: "desc" },
     });
