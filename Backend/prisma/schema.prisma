@@ -152,6 +152,7 @@ model RfidSession {
   tariffRate        Float?
   amountDue         Float     @default(0)
   status            String    @default("charging")
+  stopReason        String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -175,6 +176,7 @@ model Transaction {
   current           Float?
   voltage           Float?
   status            String    @default("initiated")
+  stopReason        String?
   idTag             String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt

@@ -306,9 +306,24 @@ export async function handleStopTransaction(
   payload: any,
   protocol?: string
 ): Promise<any> {
-  const { transactionId, meterStop, timestamp, idTag } = payload;
+  const { transactionId, meterStop, timestamp, idTag, reason, transactionData } = payload;
 
   try {
+    // Process optional final meter values
+    if (transactionData && Array.isArray(transactionData)) {
+      // Find the transaction to get the connector ID, default to 1 if not found
+      const tempTransaction = await prisma.transaction.findFirst({
+        where: { transactionId: String(transactionId) },
+      });
+      const connectorId = tempTransaction && tempTransaction.connectorName ? parseInt(tempTransaction.connectorName, 10) : 1;
+
+      await handleMeterValues(chargerId, {
+        connectorId: connectorId,
+        transactionId: transactionId,
+        meterValue: transactionData,
+      });
+    }
+
     // End transaction in registry memory/Redis
     await chargerRegistry.endTransaction(chargerId, transactionId);
 
@@ -324,6 +339,7 @@ export async function handleStopTransaction(
           finalMeterValue: meterStop,
           endTime: new Date(timestamp),
           status: "completed",
+          stopReason: reason || null,
           energyConsumed: meterStop - (transaction.initialMeterValue || 0),
         },
         include: { charger: true }
@@ -363,6 +379,7 @@ export async function handleStopTransaction(
           tariffRate,
           amountDue,
           status: "completed",
+          stopReason: reason || null,
         },
       });
 
