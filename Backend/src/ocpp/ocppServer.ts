@@ -11,6 +11,7 @@ import { proxyRouter } from "./proxyRouter.js";
 
 class OcppServer {
   private wss: WebSocketServer | null = null;
+  private pingInterval: NodeJS.Timeout | null = null;
 
   start(): void {
     this.wss = new WebSocketServer({
@@ -38,11 +39,36 @@ class OcppServer {
 
     this.wss.on("close", () => {
       logger.info("OCPP WebSocket server closed");
+      if (this.pingInterval) {
+        clearInterval(this.pingInterval);
+        this.pingInterval = null;
+      }
     });
+
+    // Start Ping/Pong interval
+    this.pingInterval = setInterval(() => {
+      if (!this.wss) return;
+      this.wss.clients.forEach((ws: WebSocket) => {
+        const extWs = ws as WebSocket & { isAlive: boolean };
+        if (extWs.isAlive === false) {
+          logger.warn("Terminating dead WebSocket connection");
+          return ws.terminate();
+        }
+        extWs.isAlive = false;
+        ws.ping();
+      });
+    }, config.websocketPingInterval * 1000);
   }
 
   private async handleConnection(ws: WebSocket, request: any): Promise<void> {
     try {
+      const extWs = ws as WebSocket & { isAlive: boolean };
+      extWs.isAlive = true;
+
+      ws.on("pong", () => {
+        extWs.isAlive = true;
+      });
+
       // Extract charger ID from URL path: /{chargerId}
       const pathParts = request.url?.split("?")[0].split("/").filter(Boolean);
       const chargerIdStr = pathParts?.[pathParts.length - 1];
@@ -214,14 +240,20 @@ class OcppServer {
     // Handle CALLERROR (type 4) - error response from charger
     if (messageType === 4) {
       const [, , errorCode, errorDescription, errorDetails] = message;
+
+      let subCodeInfo = "";
+      if (errorDetails && typeof errorDetails === 'object' && errorDetails.SubCode) {
+        subCodeInfo = ` (SubCode: ${errorDetails.SubCode})`;
+      }
+
       logger.error(
-        `🔌 [OCPP] Received CALLERROR from charger ${chargerId}, MessageID: ${messageId}: ${errorCode} - ${errorDescription}`
+        `🔌 [OCPP] Received CALLERROR from charger ${chargerId}, MessageID: ${messageId}: ${errorCode}${subCodeInfo} - ${errorDescription}`
       );
 
       const pending = pendingRequests.get(messageId);
       if (pending) {
         clearTimeout(pending.timeout);
-        pending.reject(new Error(`[${errorCode}] ${errorDescription} - ${JSON.stringify(errorDetails || {})}`));
+        pending.reject(new Error(`[${errorCode}${subCodeInfo}] ${errorDescription} - ${JSON.stringify(errorDetails || {})}`));
         pendingRequests.delete(messageId);
       }
       return;
@@ -262,6 +294,10 @@ class OcppServer {
   }
 
   stop(): void {
+    if (this.pingInterval) {
+      clearInterval(this.pingInterval);
+      this.pingInterval = null;
+    }
     if (this.wss) {
       this.wss.close();
       this.wss = null;
