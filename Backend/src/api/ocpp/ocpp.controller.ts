@@ -379,7 +379,7 @@ export const unlockConnectorController = async (req: Request, res: Response) => 
  */
 export const testAuth = async (req: Request, res: Response) => {
   try {
-    const { idTag } = req.body;
+    const { idTag, chargerId } = req.body;
 
     if (!idTag) {
       return res.status(400).json({
@@ -390,6 +390,7 @@ export const testAuth = async (req: Request, res: Response) => {
 
     const rfidUser = await prisma.rfidUser.findUnique({
       where: { rfid_tag: idTag },
+      include: { owner: true }
     });
 
     if (!rfidUser || !rfidUser.active) {
@@ -398,6 +399,53 @@ export const testAuth = async (req: Request, res: Response) => {
         valid: false,
         message: "Tag is invalid or inactive"
       });
+    }
+
+    if (rfidUser.owner?.role === "admin") {
+      return res.json({
+        success: true,
+        valid: true,
+        message: `Tag is valid and belongs to ${rfidUser.name} (Admin)`
+      });
+    }
+
+    if (chargerId) {
+      const charger = await prisma.charger.findUnique({
+        where: { charger_id: Number(chargerId) }
+      });
+
+      if (!charger || !charger.chargeGroupId) {
+         return res.json({
+           success: true,
+           valid: false,
+           message: "Charger not found or not in a charge group"
+         });
+      }
+
+      if (!rfidUser.owner_id) {
+         return res.json({
+           success: true,
+           valid: false,
+           message: "Tag is not assigned to any user"
+         });
+      }
+
+      const groupUser = await prisma.chargeGroupUser.findUnique({
+        where: {
+          chargeGroupId_userId: {
+            chargeGroupId: charger.chargeGroupId,
+            userId: rfidUser.owner_id
+          }
+        }
+      });
+
+      if (!groupUser) {
+        return res.json({
+          success: true,
+          valid: false,
+          message: `Tag belongs to ${rfidUser.name} but user is not in the same charge group as charger`
+        });
+      }
     }
 
     return res.json({

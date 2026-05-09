@@ -39,7 +39,7 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
   const testAuthTag = async () => {
     setIsLoading(true);
     try {
-      const response = await api.post(`/ocpp/test-auth`, { idTag: testTagId });
+      const response = await api.post(`/ocpp/test-auth`, { idTag: testTagId, chargerId });
       if (response.data.valid) {
         toast.success(response.data.message);
       } else {

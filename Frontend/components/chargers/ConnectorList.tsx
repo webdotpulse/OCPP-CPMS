@@ -4,8 +4,11 @@ import React from "react";
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Zap, CheckCircle2, XCircle, Clock, AlertTriangle, ChevronDown, ChevronRight } from "lucide-react";
+import { Zap, CheckCircle2, XCircle, Clock, AlertTriangle, ChevronDown, ChevronRight, Search } from "lucide-react";
 import { ChannelLogs } from "./ChannelLogs";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { InvestigateDialog } from "./InvestigateDialog";
 
 interface Connector {
   connector_id: number;
@@ -41,6 +44,8 @@ function getStatusColor(status: string) {
 
 export function ConnectorList({ connectors }: ConnectorListProps) {
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [investigateDialogState, setInvestigateDialogState] = useState<{ open: boolean; chargerId: number; connectorId: number }>({ open: false, chargerId: 0, connectorId: 0 });
+  const { user } = useAuth();
   const [activeTxns, setActiveTxns] = useState<any[]>([]);
   const [now, setNow] = useState(Date.now());
 
@@ -129,6 +134,14 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
         </Badge>
       </div>
 
+      {investigateDialogState.open && (
+        <InvestigateDialog
+          open={investigateDialogState.open}
+          onOpenChange={(open) => setInvestigateDialogState(prev => ({ ...prev, open }))}
+          chargerId={investigateDialogState.chargerId}
+          connectorId={investigateDialogState.connectorId}
+        />
+      )}
       <Table>
         <TableHeader>
           <TableRow>
@@ -190,9 +203,25 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
                   );
                 })()}
                 <TableCell>
-                  <Badge className={getStatusColor(conn.status)}>
-                    {conn.status}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge className={getStatusColor(conn.status)}>
+                      {conn.status}
+                    </Badge>
+                    {isCharging && activeTxn && (!activeTxn.currentPower || activeTxn.currentPower === 0) && user?.role === "admin" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-6 px-2 text-xs"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (conn.charger_id) setInvestigateDialogState({ open: true, chargerId: conn.charger_id, connectorId: conn.connector_id });
+                        }}
+                      >
+                        <Search className="mr-1 h-3 w-3" />
+                        Investigate
+                      </Button>
+                    )}
+                  </div>
                 </TableCell>
               </TableRow>
               {expandedId === conn.connector_id && (
