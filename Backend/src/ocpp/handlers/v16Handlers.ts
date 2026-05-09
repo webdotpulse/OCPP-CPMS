@@ -6,6 +6,46 @@ import { logger } from "../../utils/logger.js";
 import { loadManagementService } from "../../services/LoadManagementService.js";
 import { logOcppMessage } from "../messageHandlers.js";
 
+const ocpp16Reasons = [
+  "EmergencyStop", "EVDisconnected", "HardReset", "Local", "Other",
+  "PowerLoss", "Reboot", "Remote", "SoftReset", "UnlockCommand", "DeAuthorized"
+];
+
+const ocpp16Measurands = [
+  "Current.Export", "Current.Import", "Current.Offered",
+  "Energy.Active.Export.Register", "Energy.Active.Import.Register",
+  "Energy.Reactive.Export.Register", "Energy.Reactive.Import.Register",
+  "Energy.Active.Export.Interval", "Energy.Active.Import.Interval",
+  "Energy.Reactive.Export.Interval", "Energy.Reactive.Import.Interval",
+  "Frequency", "Power.Active.Export", "Power.Active.Import", "Power.Offered",
+  "Power.Reactive.Export", "Power.Reactive.Import", "Power.Factor",
+  "SoC", "Temperature", "Voltage"
+];
+
+const ocpp16ChargePointStatuses = [
+  "Available", "Preparing", "Charging", "SuspendedEVSE", "SuspendedEV",
+  "Finishing", "Reserved", "Unavailable", "Faulted"
+];
+
+function validateAndCoerceEnum(value: string, allowedEnums: string[], enumName: string): string {
+  if (!value) return value;
+
+  if (allowedEnums.includes(value)) {
+    return value;
+  }
+
+  const lowerValue = value.toLowerCase();
+  const matchedEnum = allowedEnums.find(e => e.toLowerCase() === lowerValue);
+
+  if (matchedEnum) {
+    logger.warn(`OCPP 1.6 ${enumName} case violation: received '${value}', coercing to '${matchedEnum}'`);
+    return matchedEnum;
+  }
+
+  logger.warn(`Unknown OCPP 1.6 ${enumName}: received '${value}'. Proceeding in observation mode.`);
+  return value;
+}
+
 /**
  * Handle BootNotification from charger
  */
@@ -306,7 +346,9 @@ export async function handleStopTransaction(
   payload: any,
   protocol?: string
 ): Promise<any> {
-  const { transactionId, meterStop, timestamp, idTag, reason, transactionData } = payload;
+  let { transactionId, meterStop, timestamp, idTag, reason, transactionData } = payload;
+
+  reason = reason ? validateAndCoerceEnum(reason, ocpp16Reasons, 'Reason') : reason;
 
   try {
     // Process optional final meter values
@@ -424,7 +466,8 @@ export async function handleMeterValues(
         }
         if (mv.sampledValue && Array.isArray(mv.sampledValue)) {
           for (const sv of mv.sampledValue) {
-            const measurand = sv.measurand || "Energy.Active.Import.Register";
+            let rawMeasurand = sv.measurand || "Energy.Active.Import.Register";
+            const measurand = validateAndCoerceEnum(rawMeasurand, ocpp16Measurands, 'Measurand');
             if (measurand === "Energy.Active.Import.Register" || measurand === "Energy") {
               energyValue = parseFloat(sv.value);
             } else if (measurand === "Power.Active.Import" || measurand === "Power") {
@@ -470,7 +513,8 @@ export async function handleStatusNotification(
   payload: any
 ): Promise<any> {
   const connectorId = payload.evseId ?? payload.connectorId;
-  const status = payload.connectorStatus ?? payload.status;
+  let rawStatus = payload.connectorStatus ?? payload.status;
+  const status = rawStatus ? validateAndCoerceEnum(rawStatus, ocpp16ChargePointStatuses, 'ChargePointStatus') : rawStatus;
   const errorCode = payload.errorCode;
   const timestamp = payload.timestamp;
   const info = payload.info;
