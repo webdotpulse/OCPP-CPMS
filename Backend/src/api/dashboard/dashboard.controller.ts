@@ -2,6 +2,7 @@ import { config } from "../../config/index.js";
 import { Request, Response } from "express";
 import { prisma } from "../../config/database.js";
 import { logger } from "../../utils/logger.js";
+import { redisClient } from "../../config/redis.js";
 
 /**
  * GET /api/dashboard/overview - Get system overview metrics
@@ -12,6 +13,13 @@ export const getOverview = async (req: Request, res: Response) => {
     const userRole = req.userRole;
     // @ts-expect-error userId is attached by authenticateToken middleware
     const userId = req.userId;
+
+    const cacheKey = `dashboard:kpis:${userId || "admin"}`;
+    const cachedData = await redisClient.get(cacheKey);
+
+    if (cachedData) {
+      return res.json(JSON.parse(cachedData));
+    }
 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -68,7 +76,7 @@ export const getOverview = async (req: Request, res: Response) => {
       connectorStatusDistribution[c.status] = (connectorStatusDistribution[c.status] || 0) + 1;
     });
 
-    res.json({
+    const responseData = {
       success: true,
       data: {
         totalStations,
@@ -80,7 +88,11 @@ export const getOverview = async (req: Request, res: Response) => {
         revenueToday: 0, // Placeholder for now, can be calculated later
         connectorDistribution: connectorStatusDistribution,
       },
-    });
+    };
+
+    await redisClient.setex(cacheKey, 30, JSON.stringify(responseData));
+
+    res.json(responseData);
   } catch (error) {
     logger.error(`Error getting dashboard overview: ${error}`);
     res.status(500).json({
