@@ -217,6 +217,13 @@ class OcppServer {
       logger.error(
         `🔌 [OCPP] Received CALLERROR from charger ${chargerId}, MessageID: ${messageId}: ${errorCode} - ${errorDescription}`
       );
+
+      const pending = pendingRequests.get(messageId);
+      if (pending) {
+        clearTimeout(pending.timeout);
+        pending.reject(new Error(`[${errorCode}] ${errorDescription} - ${JSON.stringify(errorDetails || {})}`));
+        pendingRequests.delete(messageId);
+      }
       return;
     }
 
