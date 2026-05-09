@@ -83,11 +83,8 @@ export class LoadManagementService {
         return; // No active transactions, nothing to balance
       }
 
-      // Check current load vs max capacity using aggregation.
-      // We aggregate the `currentPower` from the transaction to get actual active load,
-      // but the original logic summed the theoretical max capacity of the charger (`power_capacity`).
-      // Since Prisma doesn't support aggregating over relation fields directly,
-      // we sum the actual `currentPower` and fallback if necessary.
+      // 1) Find ACTUAL active load (what the cars are currently drawing).
+      // We use actual load to know when a site is overloaded, so dynamic limits can kick in.
       const aggregateLoad = await prisma.transaction.aggregate({
         where: {
           status: { in: ["initiated", "charging"] },
@@ -98,34 +95,62 @@ export class LoadManagementService {
         }
       });
 
-      // currentPower is in Watts, convert to kW
-      let totalRequestedLoadKw = (aggregateLoad._sum.currentPower || 0) / 1000;
+      let totalActiveLoadKw = (aggregateLoad._sum.currentPower || 0) / 1000;
 
-      // Fallback: If no currentPower is reported, we fallback to theoretical capacity
-      if (totalRequestedLoadKw === 0) {
-        totalRequestedLoadKw = activeTransactions.reduce(
+      // Fallback: If no currentPower is reported, fallback to theoretical capacity
+      if (totalActiveLoadKw === 0) {
+        totalActiveLoadKw = activeTransactions.reduce(
           (sum, tx) => sum + (tx.charger.power_capacity || 0),
           0
         );
       }
 
-      // If we are back under capacity, we need to clear limits
-      if (totalRequestedLoadKw <= station.maxPower) {
-        logger.debug(`Station ${stationId} load (${totalRequestedLoadKw.toFixed(1)}kW) within limit (${station.maxPower}kW). Clearing any existing load management profiles.`);
+      // 2) Find THEORETICAL max load (what the chargers COULD draw if unbounded).
+      // We use theoretical load to decide when it's safe to CLEAR limits.
+      // If we used actual load to clear limits, we'd clear them as soon as throttling
+      // took effect, causing an oscillation (limit on -> load drops -> limit off -> load spikes -> limit on).
+      let theoreticalMaxLoadKw = activeTransactions.reduce(
+        (sum, tx) => sum + (tx.charger.power_capacity || 0),
+        0
+      );
+
+      const safeLimitKw = station.maxPower * 0.95;
+
+      // If THEORETICAL max load is safely under limits, clear limits.
+      if (theoreticalMaxLoadKw <= safeLimitKw) {
+        logger.debug(`Station ${stationId} theoretical load (${theoreticalMaxLoadKw.toFixed(1)}kW) within safe limit (${safeLimitKw.toFixed(1)}kW). Clearing any existing load management profiles.`);
         for (const tx of activeTransactions) {
-          await this.clearLoadManagementProfile(tx.charger_id);
+          await this.clearLoadManagementProfile(tx.charger_id, 100);
         }
         return;
       }
 
-      logger.info(`Station ${stationId} load (${totalRequestedLoadKw.toFixed(1)}kW) exceeds limit (${station.maxPower}kW). Balancing load...`);
+      // If ACTUAL active load exceeds safe limit, or if limits are needed to prevent going over.
+      // (If theoretical > safe limit, we must always enforce limits to be safe)
+      logger.info(`Station ${stationId} load (Active: ${totalActiveLoadKw.toFixed(1)}kW, Theoretical: ${theoreticalMaxLoadKw.toFixed(1)}kW) requires load balancing (Safe Limit: ${safeLimitKw.toFixed(1)}kW).`);
 
-      // Proportional distribution (or equal distribution depending on implementation preference)
-      // We will do equal distribution for active transactions to ensure no one is starved
-      const limitPerTransaction = station.maxPower / activeTransactions.length;
+      // Dynamic Equal Distribution:
+      // (In a more advanced implementation, this could allocate more to cars drawing more,
+      //  but equal distribution guarantees fairness and prevents starvation).
+      const limitPerTransactionKw = safeLimitKw / activeTransactions.length;
+      const limitW = Math.floor(limitPerTransactionKw * 1000);
 
       // Apply the limits via SetChargingProfile
       for (const tx of activeTransactions) {
+        // Skip dispatch if profile already exists with exact limit
+        const existingProfile = await prisma.chargingProfile.findUnique({
+          where: {
+            chargerId_chargingProfileId: { chargerId: tx.charger_id, chargingProfileId: 100 }
+          }
+        });
+
+        const existingSchedule = existingProfile?.chargingSchedule as any;
+        const currentLimitW = existingSchedule?.chargingSchedulePeriod?.[0]?.limit;
+
+        if (existingProfile && currentLimitW === limitW) {
+           continue; // Limit already applied correctly, skip redundant dispatch
+        }
+
         const profileRequest: SetChargingProfileRequest = {
           chargerId: tx.charger_id,
           connectorId: 0, // 0 = entire Charge Point
@@ -139,7 +164,7 @@ export class LoadManagementService {
               chargingSchedulePeriod: [
                 {
                   startPeriod: 0,
-                  limit: limitPerTransaction * 1000 // Convert kW to W
+                  limit: limitW
                 }
               ]
             }
@@ -174,63 +199,99 @@ export class LoadManagementService {
 
       if (activeTransactions.length === 0) return;
 
-      // Calculate total active current across the group using aggregate
-      const aggregateCurrent = await prisma.transaction.aggregate({
-        where: {
-          status: { in: ["initiated", "charging"] },
-          charger: { chargeGroupId: groupId }
-        },
-        _sum: {
-          current: true
-        }
-      });
+      // Calculate theoretical max power capacity of the chargers to prevent oscillation when clearing
+      let theoreticalMaxLoadKw = activeTransactions.reduce(
+        (sum, tx) => sum + (tx.charger.power_capacity || 0),
+        0
+      );
 
-      let totalActiveCurrent = aggregateCurrent._sum.current || 0;
-      if (totalActiveCurrent === 0) {
-        totalActiveCurrent = activeTransactions.reduce(
-          (sum, tx) => sum + (tx.current || 0),
-          0
-        );
-      }
+      // --- 1. AMPERAGE BALANCING ---
+      if (group.maxAmperage) {
+        // Find ACTUAL active current
+        const aggregateCurrent = await prisma.transaction.aggregate({
+          where: {
+            status: { in: ["initiated", "charging"] },
+            charger: { chargeGroupId: groupId }
+          },
+          _sum: {
+            current: true
+          }
+        });
 
-      // Check maxAmperage constraint
-      if (group.maxAmperage && totalActiveCurrent > group.maxAmperage) {
-        logger.info(`Charge Group ${groupId} active current (${totalActiveCurrent}A) exceeds limit (${group.maxAmperage}A). Balancing load...`);
-
-        // Fair-share reduction for each active transaction
-        const limitPerTransactionAmps = group.maxAmperage / activeTransactions.length;
-
-        for (const tx of activeTransactions) {
-          const profileRequest: SetChargingProfileRequest = {
-            chargerId: tx.charger_id,
-            connectorId: 0,
-            csChargingProfiles: {
-              chargingProfileId: 101, // ID representing Smart Load Management (Amps)
-              stackLevel: 2, // Higher priority
-              chargingProfilePurpose: "TxDefaultProfile", // Throttling charging speeds for tx
-              chargingProfileKind: "Absolute",
-              chargingSchedule: {
-                chargingRateUnit: "A", // Using Amps
-                chargingSchedulePeriod: [
-                  {
-                    startPeriod: 0,
-                    limit: limitPerTransactionAmps
-                  }
-                ]
-              }
-            }
-          };
-
-          // Dispatch profile to throttle
-          await this.dispatchChargingProfiles(profileRequest).catch((err: any) =>
-            logger.error(`Failed to dispatch amp throttle profile for tx ${tx.id}: ${err}`)
+        let totalActiveCurrent = aggregateCurrent._sum.current || 0;
+        if (totalActiveCurrent === 0) {
+          totalActiveCurrent = activeTransactions.reduce(
+            (sum, tx) => sum + (tx.current || 0),
+            0
           );
         }
+
+        const safeLimitAmps = group.maxAmperage * 0.95;
+
+        // Since we don't have a reliable `theoretical_max_current` field per charger in Prisma,
+        // we strictly throttle if the active measured current exceeds the safety margin.
+        // We will clear limits only when we have enough headroom (e.g. half the safety limit) to avoid heavy oscillation,
+        // or we just accept slight oscillation on Amperage until a DB field is added. For now, clear if safely below.
+        if (totalActiveCurrent > safeLimitAmps) {
+          logger.info(`Charge Group ${groupId} active current (${totalActiveCurrent.toFixed(1)}A) requires load balancing (Safe Limit: ${safeLimitAmps.toFixed(1)}A).`);
+
+          const limitPerTransactionAmps = Math.floor(safeLimitAmps / activeTransactions.length);
+
+          for (const tx of activeTransactions) {
+            const existingProfile = await prisma.chargingProfile.findUnique({
+              where: {
+                chargerId_chargingProfileId: { chargerId: tx.charger_id, chargingProfileId: 101 }
+              }
+            });
+
+            const existingSchedule = existingProfile?.chargingSchedule as any;
+            const currentLimitAmps = existingSchedule?.chargingSchedulePeriod?.[0]?.limit;
+
+            if (existingProfile && currentLimitAmps === limitPerTransactionAmps) {
+               continue; // Limit already applied correctly, skip redundant dispatch
+            }
+
+            const profileRequest: SetChargingProfileRequest = {
+              chargerId: tx.charger_id,
+              connectorId: 0,
+              csChargingProfiles: {
+                chargingProfileId: 101, // ID representing Smart Load Management (Amps)
+                stackLevel: 2, // Higher priority
+                chargingProfilePurpose: "TxDefaultProfile", // Throttling charging speeds for tx
+                chargingProfileKind: "Absolute",
+                chargingSchedule: {
+                  chargingRateUnit: "A", // Using Amps
+                  chargingSchedulePeriod: [
+                    {
+                      startPeriod: 0,
+                      limit: limitPerTransactionAmps
+                    }
+                  ]
+                }
+              }
+            };
+
+            // Dispatch profile to throttle
+            await this.dispatchChargingProfiles(profileRequest).catch((err: any) =>
+              logger.error(`Failed to dispatch amp throttle profile for tx ${tx.id}: ${err}`)
+            );
+          }
+        } else if (totalActiveCurrent < (safeLimitAmps * 0.8)) {
+          // Add a simple hysteresis / headroom check to reduce Amperage oscillation:
+          // Only clear limits if the active load has dropped significantly (below 80% of safe limit).
+          logger.debug(`Charge Group ${groupId} active current (${totalActiveCurrent.toFixed(1)}A) is well within safe limit (${safeLimitAmps.toFixed(1)}A). Clearing any existing amp load management profiles.`);
+          for (const tx of activeTransactions) {
+            await this.clearLoadManagementProfile(tx.charger_id, 101).catch((err: any) => logger.error(`Failed to clear amp load management profile ${tx.charger_id}: ${err}`));
+          }
+        }
       }
 
-      // We still run the old logic for maxPower if needed
+      // --- 2. POWER BALANCING ---
       if (!group.maxPower) return;
 
+      const safeLimitKw = group.maxPower * 0.95;
+
+      // Find ACTUAL active load to trigger limits
       const aggregateLoad = await prisma.transaction.aggregate({
         where: {
           status: { in: ["initiated", "charging"] },
@@ -241,30 +302,45 @@ export class LoadManagementService {
         }
       });
 
-      // currentPower is in Watts, convert to kW
-      let totalRequestedLoadKw = (aggregateLoad._sum.currentPower || 0) / 1000;
+      let totalActiveLoadKw = (aggregateLoad._sum.currentPower || 0) / 1000;
 
-      // Fallback: If no currentPower is reported, we fallback to theoretical capacity
-      if (totalRequestedLoadKw === 0) {
-        totalRequestedLoadKw = activeTransactions.reduce(
+      // Fallback
+      if (totalActiveLoadKw === 0) {
+        totalActiveLoadKw = activeTransactions.reduce(
           (sum, tx) => sum + (tx.charger.power_capacity || 0),
           0
         );
       }
 
-      if (totalRequestedLoadKw <= group.maxPower) {
-        logger.debug(`Charge Group ${groupId} load (${totalRequestedLoadKw.toFixed(1)}kW) within limit (${group.maxPower}kW). Clearing any existing load management profiles.`);
+      // CLEAR limits based on THEORETICAL max load to prevent oscillation
+      if (theoreticalMaxLoadKw <= safeLimitKw) {
+        logger.debug(`Charge Group ${groupId} theoretical load (${theoreticalMaxLoadKw.toFixed(1)}kW) within safe limit (${safeLimitKw.toFixed(1)}kW). Clearing any existing load management profiles.`);
         for (const tx of activeTransactions) {
-          await this.clearLoadManagementProfile(tx.charger_id).catch((err: any) => logger.error(`Failed to clear power load management profile ${tx.charger_id}: ${err}`));
+          await this.clearLoadManagementProfile(tx.charger_id, 100).catch((err: any) => logger.error(`Failed to clear power load management profile ${tx.charger_id}: ${err}`));
         }
         return;
       }
 
-      logger.info(`Charge Group ${groupId} load (${totalRequestedLoadKw.toFixed(1)}kW) exceeds limit (${group.maxPower}kW). Balancing load...`);
+      // APPLY limits based on ACTUAL load or if theoretical limit enforces it
+      logger.info(`Charge Group ${groupId} load (Active: ${totalActiveLoadKw.toFixed(1)}kW, Theoretical: ${theoreticalMaxLoadKw.toFixed(1)}kW) requires load balancing (Safe Limit: ${safeLimitKw.toFixed(1)}kW).`);
 
-      const limitPerTransaction = group.maxPower / activeTransactions.length;
+      const limitPerTransactionKw = safeLimitKw / activeTransactions.length;
+      const limitW = Math.floor(limitPerTransactionKw * 1000);
 
       for (const tx of activeTransactions) {
+        const existingProfile = await prisma.chargingProfile.findUnique({
+          where: {
+            chargerId_chargingProfileId: { chargerId: tx.charger_id, chargingProfileId: 100 }
+          }
+        });
+
+        const existingSchedule = existingProfile?.chargingSchedule as any;
+        const currentLimitW = existingSchedule?.chargingSchedulePeriod?.[0]?.limit;
+
+        if (existingProfile && currentLimitW === limitW) {
+           continue; // Limit already applied correctly, skip redundant dispatch
+        }
+
         const profileRequest: SetChargingProfileRequest = {
           chargerId: tx.charger_id,
           connectorId: 0,
@@ -278,7 +354,7 @@ export class LoadManagementService {
               chargingSchedulePeriod: [
                 {
                   startPeriod: 0,
-                  limit: limitPerTransaction * 1000
+                  limit: limitW
                 }
               ]
             }
@@ -344,25 +420,36 @@ export class LoadManagementService {
   /**
    * Clear the load management profile from a charger
    */
-  async clearLoadManagementProfile(chargerId: number): Promise<void> {
+  async clearLoadManagementProfile(chargerId: number, profileId: number = 100): Promise<void> {
     try {
+      // Only clear if the profile actually exists in the database
+      const existingProfile = await prisma.chargingProfile.findUnique({
+        where: {
+          chargerId_chargingProfileId: { chargerId, chargingProfileId: profileId }
+        }
+      });
+
+      if (!existingProfile) {
+        return; // Profile already cleared or never set, skip redundant dispatch
+      }
+
       const response = await clearChargingProfile({
         chargerId,
-        id: 100, // ID of our load management profile
-        chargingProfilePurpose: "ChargePointMaxProfile"
+        id: profileId,
+        chargingProfilePurpose: profileId === 101 ? "TxDefaultProfile" : "ChargePointMaxProfile"
       });
 
       if (response.status === "Accepted") {
-        logger.info(`Load management profile cleared for charger ${chargerId}`);
+        logger.info(`Load management profile ${profileId} cleared for charger ${chargerId}`);
         await prisma.chargingProfile.deleteMany({
           where: {
             chargerId: chargerId,
-            chargingProfileId: 100
+            chargingProfileId: profileId
           }
         });
       }
     } catch (error) {
-      logger.error(`Error clearing load management profile for charger ${chargerId}: ${error}`);
+      logger.error(`Error clearing load management profile ${profileId} for charger ${chargerId}: ${error}`);
     }
   }
 }
