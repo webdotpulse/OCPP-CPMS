@@ -271,12 +271,10 @@ sudo apt install certbot python3-certbot-nginx -y
 
 ### 2.3 Clone & Setup the Application
 
-*Note: Since the repository is private, you will need to provide your GitHub Username and a Personal Access Token (PAT) with \`repo\` read access.*
-
 \`\`\`bash
 sudo mkdir -p /var/www
 cd /var/www/
-sudo git clone https://<GITHUB_USER>:<GITHUB_PAT>@github.com/webdotpulse/OCPP-CMS.git ocpp-cms
+sudo git clone https://github.com/webdotpulse/OCPP-CMS.git ocpp-cms
 sudo chown -R \$USER:\$USER /var/www/ocpp-cms
 cd ocpp-cms
 \`\`\`

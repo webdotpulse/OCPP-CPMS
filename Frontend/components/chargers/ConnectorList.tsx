@@ -4,8 +4,10 @@ import React from "react";
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Zap, CheckCircle2, XCircle, Clock, AlertTriangle, ChevronDown, ChevronRight } from "lucide-react";
 import { ChannelLogs } from "./ChannelLogs";
+import { toast } from "sonner";
 
 interface Connector {
   connector_id: number;
@@ -112,6 +114,48 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
     setExpandedId(prev => (prev === id ? null : id));
   };
 
+  const handleDevAnalyzeSession = async (chargerId: number, connectorId: number | string) => {
+    try {
+      const { api } = await import('@/lib/api');
+      const response = await api.get(`/chargers/${chargerId}/logs?limit=50`);
+      const logs = response.data || [];
+
+      const connectorLogs = logs.filter((log: any) =>
+        log.action === 'MeterValues' &&
+        log.payload?.meterValue?.[0]?.sampledValue &&
+        (log.payload.connectorId === Number(connectorId) || !log.payload.connectorId)
+      );
+
+      if (connectorLogs.length === 0) {
+        toast.error("Analysis Result: No recent MeterValues found for this connector.");
+        return;
+      }
+
+      let hasPower = false;
+      let hasEnergy = false;
+
+      for (const log of connectorLogs) {
+        const values = log.payload.meterValue[0].sampledValue;
+        for (const val of values) {
+          if (val.measurand === 'Power.Active.Import') hasPower = true;
+          if (val.measurand === 'Energy.Active.Import.Register') hasEnergy = true;
+        }
+      }
+
+      if (!hasPower && !hasEnergy) {
+        toast.warning("Analysis Result: Charger is sending MeterValues, but missing both Power and Energy measurands. Apply a standard Config Profile.");
+      } else if (!hasPower) {
+        toast.warning("Analysis Result: Missing Power.Active.Import measurand. Apply Config Profile.");
+      } else if (!hasEnergy) {
+        toast.warning("Analysis Result: Missing Energy.Active.Import.Register measurand. Apply Config Profile.");
+      } else {
+        toast.success("Analysis Result: Both Power and Energy measurands are present. The UI should be updating.");
+      }
+    } catch (error) {
+      toast.error("Failed to fetch logs for analysis.");
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex gap-2 text-sm">
@@ -190,9 +234,31 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
                   );
                 })()}
                 <TableCell>
-                  <Badge className={getStatusColor(conn.status)}>
-                    {conn.status}
-                  </Badge>
+                  <div className="flex flex-col gap-2 items-start">
+                    <Badge className={getStatusColor(conn.status)}>
+                      {conn.status}
+                    </Badge>
+                    {(() => {
+                      const activeTxn = activeTxns.find(t => t.connectorName === String(conn.connector_id) || t.connectorName === conn.connector_name);
+                      const isCharging = conn.status?.toLowerCase() === 'charging' || activeTxn;
+                      if (isCharging && activeTxn && !activeTxn.currentPower && !activeTxn.energyConsumed) {
+                        return (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            className="h-6 text-[10px] px-2 py-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDevAnalyzeSession(conn.charger_id || 0, conn.connector_id);
+                            }}
+                          >
+                            DEV: Analyze Session
+                          </Button>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
                 </TableCell>
               </TableRow>
               {expandedId === conn.connector_id && (
