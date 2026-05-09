@@ -240,14 +240,20 @@ class OcppServer {
     // Handle CALLERROR (type 4) - error response from charger
     if (messageType === 4) {
       const [, , errorCode, errorDescription, errorDetails] = message;
+
+      let subCodeInfo = "";
+      if (errorDetails && typeof errorDetails === 'object' && errorDetails.SubCode) {
+        subCodeInfo = ` (SubCode: ${errorDetails.SubCode})`;
+      }
+
       logger.error(
-        `🔌 [OCPP] Received CALLERROR from charger ${chargerId}, MessageID: ${messageId}: ${errorCode} - ${errorDescription}`
+        `🔌 [OCPP] Received CALLERROR from charger ${chargerId}, MessageID: ${messageId}: ${errorCode}${subCodeInfo} - ${errorDescription}`
       );
 
       const pending = pendingRequests.get(messageId);
       if (pending) {
         clearTimeout(pending.timeout);
-        pending.reject(new Error(`[${errorCode}] ${errorDescription} - ${JSON.stringify(errorDetails || {})}`));
+        pending.reject(new Error(`[${errorCode}${subCodeInfo}] ${errorDescription} - ${JSON.stringify(errorDetails || {})}`));
         pendingRequests.delete(messageId);
       }
       return;
