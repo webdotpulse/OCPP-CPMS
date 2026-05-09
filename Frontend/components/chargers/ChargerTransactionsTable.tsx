@@ -117,6 +117,8 @@ export function ChargerTransactionsTable({ chargerId }: ChargerTransactionsTable
     overscan: 5,
   });
 
+  const virtualItems = rowVirtualizer.getVirtualItems();
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -169,12 +171,12 @@ export function ChargerTransactionsTable({ chargerId }: ChargerTransactionsTable
               </TableRow>
             ) : (
               <>
-                {rowVirtualizer.getVirtualItems().length > 0 && rowVirtualizer.getVirtualItems()[0].start > 0 && (
+                {virtualItems.length > 0 && virtualItems[0].start > 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} style={{ height: `${rowVirtualizer.getVirtualItems()[0].start}px`, padding: 0 }} />
+                    <TableCell colSpan={7} style={{ height: `${virtualItems[0].start}px`, padding: 0 }} />
                   </TableRow>
                 )}
-                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                {virtualItems.map((virtualRow) => {
                   const txn = sortedTransactions[virtualRow.index];
                   return (
                     <TableRow key={txn.id} data-index={virtualRow.index} ref={rowVirtualizer.measureElement}>
@@ -208,9 +210,9 @@ export function ChargerTransactionsTable({ chargerId }: ChargerTransactionsTable
                     </TableRow>
                   );
                 })}
-                {rowVirtualizer.getVirtualItems().length > 0 && rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1].end < rowVirtualizer.getTotalSize() && (
+                {virtualItems.length > 0 && virtualItems[virtualItems.length - 1].end < rowVirtualizer.getTotalSize() && (
                   <TableRow>
-                    <TableCell colSpan={7} style={{ height: `${rowVirtualizer.getTotalSize() - rowVirtualizer.getVirtualItems()[rowVirtualizer.getVirtualItems().length - 1].end}px`, padding: 0 }} />
+                    <TableCell colSpan={7} style={{ height: `${rowVirtualizer.getTotalSize() - virtualItems[virtualItems.length - 1].end}px`, padding: 0 }} />
                   </TableRow>
                 )}
               </>

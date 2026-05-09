@@ -55,7 +55,7 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
   }, []);
 
   React.useEffect(() => {
-    const chargerId = connectors[0]?.charger_id;
+    const chargerId = connectors?.[0]?.charger_id;
     if (!chargerId) return;
 
     const fetchActiveTxns = async () => {

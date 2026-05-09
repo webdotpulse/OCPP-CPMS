@@ -56,7 +56,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean,
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {routes.map((route) => {
           if (route.adminOnly && user?.role !== 'admin') return null;
-          const isActive = pathname.startsWith(route.path);
+          const isActive = (pathname || "").startsWith(route.path);
           const Icon = route.icon;
           return (
             <Link

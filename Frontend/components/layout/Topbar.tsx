@@ -21,7 +21,7 @@ export function Topbar() {
   const { t, i18n } = useTranslation();
 
   // Simple breadcrumb logic
-  const pathSegments = pathname.split('/').filter(Boolean);
+  const pathSegments = (pathname || "").split('/').filter(Boolean);
   const breadcrumb = pathSegments.length > 0 
     ? pathSegments[0].charAt(0).toUpperCase() + pathSegments[0].slice(1)
     : 'Dashboard';
