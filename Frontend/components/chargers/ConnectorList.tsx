@@ -4,11 +4,12 @@ import React from "react";
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Zap, CheckCircle2, XCircle, Clock, AlertTriangle, ChevronDown, ChevronRight, Search } from "lucide-react";
+import { Zap, CheckCircle2, XCircle, Clock, AlertTriangle, ChevronDown, ChevronRight, Search, Edit, Trash2 } from "lucide-react";
 import { ChannelLogs } from "./ChannelLogs";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { InvestigateDialog } from "./InvestigateDialog";
+import Link from "next/link";
 
 interface Connector {
   connector_id: number;
@@ -22,6 +23,7 @@ interface Connector {
 
 interface ConnectorListProps {
   connectors: Connector[];
+  readOnly?: boolean;
 }
 
 function getStatusIcon(status: string) {
@@ -42,12 +44,29 @@ function getStatusColor(status: string) {
   return 'bg-muted text-muted-foreground';
 }
 
-export function ConnectorList({ connectors }: ConnectorListProps) {
+export function ConnectorList({ connectors: initialConnectors, readOnly = false }: ConnectorListProps) {
+  const [connectors, setConnectors] = useState(initialConnectors);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [investigateDialogState, setInvestigateDialogState] = useState<{ open: boolean; chargerId: number; connectorId: number }>({ open: false, chargerId: 0, connectorId: 0 });
   const { user } = useAuth();
   const [activeTxns, setActiveTxns] = useState<any[]>([]);
   const [now, setNow] = useState(Date.now());
+
+  React.useEffect(() => {
+    setConnectors(initialConnectors);
+  }, [initialConnectors]);
+
+  const handleDelete = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this connector?")) return;
+    try {
+      const { api } = await import('@/lib/api');
+      await api.delete(`/connectors/${id}`);
+      setConnectors(connectors.filter(c => c.connector_id !== id));
+    } catch {
+      alert("Error deleting connector.");
+    }
+  };
 
   React.useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
@@ -148,10 +167,12 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
             <TableHead className="w-10"></TableHead>
             <TableHead>Connector</TableHead>
             <TableHead>Type</TableHead>
+            <TableHead>Max Power</TableHead>
             <TableHead>Power</TableHead>
             <TableHead>Energy</TableHead>
             <TableHead>Time</TableHead>
             <TableHead>Status</TableHead>
+            {!readOnly && user?.role === "admin" && <TableHead className="text-right">Actions</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -180,6 +201,7 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
                 <TableCell>
                   <Badge variant="secondary">{conn.current_type || 'N/A'}</Badge>
                 </TableCell>
+                <TableCell>{conn.max_power ? `${conn.max_power} kW` : 'N/A'}</TableCell>
                 {(() => {
                   const activeTxn = activeTxns.find(t => t.connectorName === String(conn.connector_id) || t.connectorName === conn.connector_name);
                   const isCharging = conn.status?.toLowerCase() === 'charging' || activeTxn;
@@ -226,10 +248,22 @@ export function ConnectorList({ connectors }: ConnectorListProps) {
                     )}
                   </div>
                 </TableCell>
+                {!readOnly && user?.role === "admin" && (
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link href={`/connectors/${conn.connector_id}/edit`} onClick={(e) => e.stopPropagation()}>
+                         <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>
+                      </Link>
+                      <Button variant="ghost" size="icon" onClick={(e) => handleDelete(conn.connector_id, e)} className="text-destructive hover:bg-destructive/10">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                )}
               </TableRow>
               {expandedId === conn.connector_id && (
                 <TableRow>
-                  <TableCell colSpan={7} className="p-0 border-b-0 bg-muted/10">
+                  <TableCell colSpan={!readOnly && user?.role === "admin" ? 9 : 8} className="p-0 border-b-0 bg-muted/10">
                     <div className="p-4 pt-0">
                       <ChannelLogs
                         chargerId={conn.charger_id || 0}

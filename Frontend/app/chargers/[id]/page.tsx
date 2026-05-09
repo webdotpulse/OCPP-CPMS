@@ -1,5 +1,6 @@
 "use client";
 import { logger } from "@/lib/logger";
+import { useAuth } from "@/hooks/useAuth";
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
@@ -16,6 +17,7 @@ import { ConnectorList } from "@/components/chargers/ConnectorList";
 import { ChargerConfigurationPanel } from "@/components/chargers/ChargerConfigurationPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoadManagementOverview } from "@/components/dashboard/LoadManagementOverview";
+import { useMemo } from "react";
 import { ChargerTransactionsTable } from "@/components/chargers/ChargerTransactionsTable";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
@@ -43,6 +45,7 @@ interface ChargerDetail {
 }
 
 export default function ChargerDetailPage() {
+  const { user } = useAuth();
   const { id } = useParams();
   const [charger, setCharger] = useState<ChargerDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -77,6 +80,11 @@ export default function ChargerDetailPage() {
       fetchProfiles();
     }
   }, [id]);
+
+  const allConnectors = useMemo(() => {
+    if (!charger) return [];
+    return (charger as any).evses?.flatMap((e: any) => e.connectors?.map((c: any) => ({ ...c, charger_id: charger.charger_id }))) || [];
+  }, [charger]);
 
   const handleApplyProfile = async () => {
     if (!selectedProfile) return;
@@ -136,6 +144,7 @@ export default function ChargerDetailPage() {
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="connectors">Connectors</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
           <TabsTrigger value="configuration">Configuration Parameters</TabsTrigger>
           <TabsTrigger value="profiles">Configuration Profiles</TabsTrigger>
@@ -241,7 +250,7 @@ export default function ChargerDetailPage() {
           </div>
 
           {/* Tertiary Section: Connectors */}
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-6 mb-6">
             <Card className="col-span-1">
               <CardHeader>
                 <div>
@@ -250,7 +259,31 @@ export default function ChargerDetailPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <ConnectorList connectors={charger.connectors} />
+                <ConnectorList connectors={allConnectors} readOnly={true} />
+              </CardContent>
+            </Card>
+          </div>
+
+        </TabsContent>
+
+        <TabsContent value="connectors">
+          <div className="grid grid-cols-1 gap-6 mb-6">
+            <Card className="col-span-1">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle>Manage Connectors</CardTitle>
+                  <CardDescription>Add, edit, or remove hardware connectors for this charger</CardDescription>
+                </div>
+                {user?.role === "admin" && (
+                  <Link href="/connectors/new">
+                    <Button size="sm">
+                      <Zap className="mr-2 h-4 w-4" /> Add Connector
+                    </Button>
+                  </Link>
+                )}
+              </CardHeader>
+              <CardContent>
+                <ConnectorList connectors={allConnectors} readOnly={false} />
               </CardContent>
             </Card>
           </div>

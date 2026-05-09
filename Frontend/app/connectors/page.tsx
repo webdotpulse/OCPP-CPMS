@@ -95,8 +95,8 @@ export default function ConnectorsPage() {
                     ID: {conn.connector_id} - {conn.connector_name}
                   </TableCell>
                   <TableCell>
-                    <Link href={`/chargers/${conn.charger_id}`} className="hover:underline text-primary">
-                      {conn.charger?.name || `Charger #${conn.charger_id}`}
+                    <Link href={`/chargers/${conn.evse?.charger?.charger_id}`} className="hover:underline text-primary">
+                      {conn.evse?.charger?.name || `Charger #${conn.evse?.charger?.charger_id}`}
                     </Link>
                   </TableCell>
                   <TableCell>
