@@ -117,22 +117,63 @@ export const getConnectorById = async (req: Request, res: Response) => {
  */
 export const createConnector = async (req: Request, res: Response) => {
   try {
-    const data: any = req.body;
+    const { charger_id, ...data } = req.body as any;
 
-    // Verify evse exists
-    const evse = await prisma.evse.findUnique({
-      where: { id: data.evse_id },
-    });
+    let evseIdToUse = data.evse_id;
 
-    if (!evse) {
+    if (charger_id) {
+      const parsedChargerId = parseInt(charger_id, 10);
+      const charger = await prisma.charger.findUnique({
+        where: { charger_id: parsedChargerId }
+      });
+      if (!charger) {
+        return res.status(400).json({
+          success: false,
+          error: "Charger not found",
+        });
+      }
+
+      let evse = await prisma.evse.findFirst({
+        where: { charger_id: parsedChargerId }
+      });
+
+      if (!evse) {
+        evse = await prisma.evse.create({
+          data: {
+            charger_id: parsedChargerId,
+            evse_id: 1
+          }
+        });
+      }
+      evseIdToUse = evse.id;
+    }
+
+    if (!evseIdToUse) {
       return res.status(400).json({
         success: false,
-        error: "EVSE not found",
+        error: "Either evse_id or charger_id must be provided",
       });
     }
 
+    if (!charger_id) {
+      // Verify evse exists only if charger_id was not provided
+      const evse = await prisma.evse.findUnique({
+        where: { id: evseIdToUse },
+      });
+
+      if (!evse) {
+        return res.status(400).json({
+          success: false,
+          error: "EVSE not found",
+        });
+      }
+    }
+
     const connector = await prisma.connector.create({
-      data,
+      data: {
+        ...data,
+        evse_id: evseIdToUse
+      },
       include: { evse: { include: { charger: true } } },
     });
 
@@ -161,9 +202,11 @@ export const updateConnector = async (req: Request, res: Response) => {
       });
     }
 
+    const { charger_id, ...updateData } = req.body as any;
+
     const connector = await prisma.connector.update({
       where: { connector_id: connectorId },
-      data: req.body,
+      data: updateData,
       include: { evse: { include: { charger: true } } },
     });
 
