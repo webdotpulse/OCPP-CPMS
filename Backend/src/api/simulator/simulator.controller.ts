@@ -30,6 +30,7 @@ export async function spawnSimulatorGroup(req: Request, res: Response) {
         type: config?.type || "AC",
         maxPowerKw: config?.maxPowerKw || 22,
         chargeProfile: config?.chargeProfile || "DynamicSpeed",
+        rfidTags: config?.rfidTags || `SIM-MATRIX-TAG-${i+1}`,
       };
 
       // Ensure station and group exist (extracted logic similar to spawnSimulator)
@@ -51,6 +52,7 @@ export async function spawnSimulatorGroup(req: Request, res: Response) {
             }
           });
         }
+
         let chargeGroup = await prisma.chargeGroup.findFirst({
           where: { name: "The Matrix Battery" }
         });
@@ -61,6 +63,24 @@ export async function spawnSimulatorGroup(req: Request, res: Response) {
               description: "Auto-generated charge group for simulators",
               maxAmperage: 100,
               maxPower: 100
+            }
+          });
+        }
+
+        // Ensure user is in the charge group to allow authorization
+        const userInGroup = await prisma.chargeGroupUser.findUnique({
+          where: {
+            chargeGroupId_userId: {
+              chargeGroupId: chargeGroup.id,
+              userId: user.id
+            }
+          }
+        });
+        if (!userInGroup) {
+          await prisma.chargeGroupUser.create({
+            data: {
+              chargeGroupId: chargeGroup.id,
+              userId: user.id
             }
           });
         }
@@ -91,6 +111,25 @@ export async function spawnSimulatorGroup(req: Request, res: Response) {
               charger_id: newCharger.charger_id
             }
           });
+        }
+
+        // Auto-register RFID tags
+        if (simConfig.rfidTags) {
+          const tags = simConfig.rfidTags.split(",").map(t => t.trim()).filter(t => t);
+          for (const tag of tags) {
+            const existingTag = await prisma.rfidUser.findUnique({ where: { rfid_tag: tag } });
+            if (!existingTag) {
+              await prisma.rfidUser.create({
+                data: {
+                  rfid_tag: tag,
+                  name: `Simulated User ${tag}`,
+                  owner_id: user.id,
+                  active: true
+                }
+              });
+              logger.info(`Auto-registered RFID tag ${tag} for simulator group.`);
+            }
+          }
         }
       }
 

@@ -98,26 +98,27 @@ export class LoadManagementService {
         }
       });
 
-      let totalRequestedLoad = aggregateLoad._sum.currentPower || 0;
+      // currentPower is in Watts, convert to kW
+      let totalRequestedLoadKw = (aggregateLoad._sum.currentPower || 0) / 1000;
 
       // Fallback: If no currentPower is reported, we fallback to theoretical capacity
-      if (totalRequestedLoad === 0) {
-        totalRequestedLoad = activeTransactions.reduce(
+      if (totalRequestedLoadKw === 0) {
+        totalRequestedLoadKw = activeTransactions.reduce(
           (sum, tx) => sum + (tx.charger.power_capacity || 0),
           0
         );
       }
 
       // If we are back under capacity, we need to clear limits
-      if (totalRequestedLoad <= station.maxPower) {
-        logger.debug(`Station ${stationId} load (${totalRequestedLoad}kW) within limit (${station.maxPower}kW). Clearing any existing load management profiles.`);
+      if (totalRequestedLoadKw <= station.maxPower) {
+        logger.debug(`Station ${stationId} load (${totalRequestedLoadKw.toFixed(1)}kW) within limit (${station.maxPower}kW). Clearing any existing load management profiles.`);
         for (const tx of activeTransactions) {
           await this.clearLoadManagementProfile(tx.charger_id);
         }
         return;
       }
 
-      logger.info(`Station ${stationId} load (${totalRequestedLoad}kW) exceeds limit (${station.maxPower}kW). Balancing load...`);
+      logger.info(`Station ${stationId} load (${totalRequestedLoadKw.toFixed(1)}kW) exceeds limit (${station.maxPower}kW). Balancing load...`);
 
       // Proportional distribution (or equal distribution depending on implementation preference)
       // We will do equal distribution for active transactions to ensure no one is starved
@@ -240,25 +241,26 @@ export class LoadManagementService {
         }
       });
 
-      let totalRequestedLoad = aggregateLoad._sum.currentPower || 0;
+      // currentPower is in Watts, convert to kW
+      let totalRequestedLoadKw = (aggregateLoad._sum.currentPower || 0) / 1000;
 
       // Fallback: If no currentPower is reported, we fallback to theoretical capacity
-      if (totalRequestedLoad === 0) {
-        totalRequestedLoad = activeTransactions.reduce(
+      if (totalRequestedLoadKw === 0) {
+        totalRequestedLoadKw = activeTransactions.reduce(
           (sum, tx) => sum + (tx.charger.power_capacity || 0),
           0
         );
       }
 
-      if (totalRequestedLoad <= group.maxPower) {
-        logger.debug(`Charge Group ${groupId} load (${totalRequestedLoad}kW) within limit (${group.maxPower}kW). Clearing any existing load management profiles.`);
+      if (totalRequestedLoadKw <= group.maxPower) {
+        logger.debug(`Charge Group ${groupId} load (${totalRequestedLoadKw.toFixed(1)}kW) within limit (${group.maxPower}kW). Clearing any existing load management profiles.`);
         for (const tx of activeTransactions) {
           await this.clearLoadManagementProfile(tx.charger_id).catch((err: any) => logger.error(`Failed to clear power load management profile ${tx.charger_id}: ${err}`));
         }
         return;
       }
 
-      logger.info(`Charge Group ${groupId} load (${totalRequestedLoad}kW) exceeds limit (${group.maxPower}kW). Balancing load...`);
+      logger.info(`Charge Group ${groupId} load (${totalRequestedLoadKw.toFixed(1)}kW) exceeds limit (${group.maxPower}kW). Balancing load...`);
 
       const limitPerTransaction = group.maxPower / activeTransactions.length;
 

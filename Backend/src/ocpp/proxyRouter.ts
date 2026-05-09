@@ -69,18 +69,60 @@ class ProxyRouter {
 
                   const syncTransactionId = async () => {
                      try {
-                        const updated = await prisma.transaction.updateMany({
+                        // Try to find the latest transaction for this charger that is either initiated or recently started charging
+                        const recentTransactions = await prisma.transaction.findMany({
                            where: {
                               charger_id: chargerId,
-                              status: "initiated"
+                              status: { in: ["initiated", "charging"] }
                            },
-                           data: {
-                              transactionId: String(thirdPartyTransactionId)
-                           }
+                           orderBy: {
+                              startTime: "desc"
+                           },
+                           take: 1
                         });
 
-                        if (updated.count > 0) {
-                           logger.info(`🔄 [PROXY] Successfully synced ${updated.count} local Transaction(s) to third-party ID: ${thirdPartyTransactionId}`);
+                        let updatedCount = 0;
+                        if (recentTransactions.length > 0) {
+                           const latestTx = recentTransactions[0];
+                           // Only sync if it doesn't match the third party one
+                           if (latestTx.transactionId !== String(thirdPartyTransactionId)) {
+                               const oldTransactionId = latestTx.transactionId;
+                               await prisma.transaction.update({
+                                   where: { id: latestTx.id },
+                                   data: { transactionId: String(thirdPartyTransactionId) }
+                               });
+
+                               // Also update RfidSession if it exists
+                               await prisma.rfidSession.updateMany({
+                                   where: {
+                                      charger_id: chargerId,
+                                      transactionId: oldTransactionId
+                                   },
+                                   data: { transactionId: String(thirdPartyTransactionId) }
+                               });
+
+                               // Update registry
+                               try {
+                                   const connection = chargerRegistry.getConnection(chargerId);
+                                   if (connection && connection.transactions.has(oldTransactionId)) {
+                                      const txData = connection.transactions.get(oldTransactionId)!;
+                                      txData.transactionId = String(thirdPartyTransactionId);
+                                      connection.transactions.delete(oldTransactionId);
+                                      connection.transactions.set(String(thirdPartyTransactionId), txData);
+                                   }
+                               } catch (regErr) {
+                                   logger.warn(`Failed to update charger registry transaction id: ${regErr}`);
+                               }
+
+                               updatedCount = 1;
+                           } else {
+                               // Already synced
+                               updatedCount = 1;
+                           }
+                        }
+
+                        if (updatedCount > 0) {
+                           logger.info(`🔄 [PROXY] Successfully synced local Transaction to third-party ID: ${thirdPartyTransactionId}`);
                         } else if (retries < maxRetries) {
                            retries++;
                            logger.debug(`🔄 [PROXY] Local Transaction not found yet for charger ${chargerId}. Retrying (${retries}/${maxRetries}) in 500ms...`);

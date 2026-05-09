@@ -27,23 +27,22 @@ export function LoadManagementOverview({ chargerId }: LoadManagementOverviewProp
   useEffect(() => {
     const fetchChargerLoad = async () => {
       try {
-        // Fetch specific charger details to get power capacity and status
-        const response = await api.get(`/chargers/${chargerId}`);
-        const charger = response.data;
+        // Fetch specific charger details to find the group and station
+        const chargerResponse = await api.get(`/chargers/${chargerId}`);
+        const charger = chargerResponse.data;
 
-        if (charger && charger.power_capacity) {
-          // If charger is 'charging', load is its full capacity (simplified logic)
-          // In a real system, we'd query active transactions or meter values
-          const currentLoad = charger.status === 'charging' ? charger.power_capacity : 0;
+        // Fetch all load metrics
+        const loadResponse = await api.get('/dashboard/load');
+        const allMetrics: LoadMetric[] = loadResponse.data;
 
-          setMetrics([{
-            id: charger.charger_id,
-            name: charger.name,
-            type: 'charger',
-            maxPower: charger.power_capacity,
-            currentLoad: currentLoad,
-            activeChargers: charger.status === 'charging' ? 1 : 0
-          }]);
+        if (charger && allMetrics) {
+          // Filter metrics to show the station and charge group this charger belongs to
+          const relevantMetrics = allMetrics.filter(m =>
+            (m.type === 'station' && m.id === charger.charging_station_id) ||
+            (m.type === 'group' && m.id === charger.chargeGroupId)
+          );
+
+          setMetrics(relevantMetrics);
         }
       } catch (error) {
         logger.error('Failed to fetch load metrics for charger', error);
@@ -106,7 +105,7 @@ export function LoadManagementOverview({ chargerId }: LoadManagementOverviewProp
                   <span className="text-muted-foreground ml-2 text-xs">({metric.type})</span>
                 </div>
                 <div className="font-medium">
-                  {metric.currentLoad}kW / {metric.maxPower}kW
+                  {metric.currentLoad.toFixed(1)}kW / {metric.maxPower}kW
                 </div>
               </div>
               <Progress value={Math.min(loadPercentage, 100)} className="h-2" indicatorColor={progressColor} />

@@ -279,7 +279,7 @@ export const getLoadMetrics = async (req: Request, res: Response) => {
 
     const siteLoads = stations.map((station: any) => {
       const activeTxs = activeTransactions.filter((tx: any) => tx.charger.charging_station_id === station.id);
-      const currentLoad = activeTxs.reduce((sum: number, tx: any) => sum + (tx.charger.power_capacity || 0), 0);
+      const currentLoad = activeTxs.reduce((sum: number, tx: any) => sum + (tx.currentPower ? tx.currentPower / 1000 : tx.charger.power_capacity || 0), 0);
       return {
         id: station.id,
         name: station.station_name,
@@ -292,7 +292,7 @@ export const getLoadMetrics = async (req: Request, res: Response) => {
 
     const groupLoads = groups.map((group: any) => {
       const activeTxs = activeTransactions.filter((tx: any) => tx.charger.chargeGroupId === group.id);
-      const currentLoad = activeTxs.reduce((sum: number, tx: any) => sum + (tx.charger.power_capacity || 0), 0);
+      const currentLoad = activeTxs.reduce((sum: number, tx: any) => sum + (tx.currentPower ? tx.currentPower / 1000 : tx.charger.power_capacity || 0), 0);
       return {
         id: group.id,
         name: group.name,
