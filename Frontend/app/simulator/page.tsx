@@ -40,6 +40,8 @@ export default function SimulatorPage() {
     return () => clearInterval(interval);
   }, []);
 
+  const [groupCount, setGroupCount] = useState(5);
+
   const handleSpawn = async () => {
     try {
       await simulatorApi.spawnSimulator(newSim);
@@ -68,6 +70,16 @@ export default function SimulatorPage() {
       fetchSimulators();
     } catch {
       toast.error(`Failed to trigger ${action}`);
+    }
+  };
+
+  const handleSpawnGroup = async () => {
+    try {
+      await simulatorApi.spawnSimulatorGroup(groupCount);
+      toast.success(`Spawned group of ${groupCount} simulators`);
+      fetchSimulators();
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to spawn simulator group");
     }
   };
 
@@ -148,6 +160,34 @@ export default function SimulatorPage() {
                 />
               </div>
               <Button onClick={handleSpawn}><Zap className="w-4 h-4 mr-2" /> Spawn Simulator</Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-muted/50">
+          <CardHeader>
+            <CardTitle>Spawn Matrix Battery Test Group</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap items-end gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="groupCount">Number of Simulators</Label>
+                <Input
+                  id="groupCount"
+                  type="number"
+                  min={1}
+                  max={50}
+                  className="w-[120px]"
+                  value={groupCount}
+                  onChange={(e) => setGroupCount(Number(e.target.value))}
+                />
+              </div>
+              <Button onClick={handleSpawnGroup} variant="secondary">
+                <Zap className="w-4 h-4 mr-2 text-yellow-500" /> Spawn Test Group
+              </Button>
+              <p className="text-sm text-muted-foreground max-w-xl">
+                Automatically creates {groupCount} random simulators attached to &quot;The Matrix Battery&quot; Charge Group to test Smart Charging Load Distribution.
+              </p>
             </div>
           </CardContent>
         </Card>

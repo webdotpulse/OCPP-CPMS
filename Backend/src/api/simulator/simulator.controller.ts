@@ -13,6 +13,100 @@ export async function listSimulators(req: Request, res: Response) {
   }
 }
 
+export async function spawnSimulatorGroup(req: Request, res: Response) {
+  try {
+    const { count = 5, config } = req.body;
+
+    if (count > 50) {
+      return res.status(400).json({ success: false, error: "Cannot spawn more than 50 simulators at once" });
+    }
+
+    const spawnedIds: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const chargerId = config?.chargerId ? `${config.chargerId}-${i+1}` : `Sim-Matrix-${Math.floor(Math.random() * 10000)}`;
+      const simConfig: SimulatorConfig = {
+        chargerId,
+        protocol: config?.protocol || "ocpp2.1",
+        type: config?.type || "AC",
+        maxPowerKw: config?.maxPowerKw || 22,
+        chargeProfile: config?.chargeProfile || "DynamicSpeed",
+      };
+
+      // Ensure station and group exist (extracted logic similar to spawnSimulator)
+      const user = await prisma.user.findFirst({ where: { role: "admin" } });
+      if (user) {
+        let station = await prisma.chargingStation.findFirst({
+          where: { station_name: "The Matrix" }
+        });
+        if (!station) {
+          station = await prisma.chargingStation.create({
+            data: {
+              station_name: "The Matrix",
+              street_name: "Construct",
+              city: "Zion",
+              postal_code: "10101",
+              latitude: 50.84967820466121,
+              longitude: 4.356986627577444,
+              owner_id: user.id,
+            }
+          });
+        }
+        let chargeGroup = await prisma.chargeGroup.findFirst({
+          where: { name: "The Matrix Battery" }
+        });
+        if (!chargeGroup) {
+          chargeGroup = await prisma.chargeGroup.create({
+            data: {
+              name: "The Matrix Battery",
+              description: "Auto-generated charge group for simulators",
+              maxAmperage: 100,
+              maxPower: 100
+            }
+          });
+        }
+
+        const existing = await prisma.charger.findUnique({ where: { name: chargerId } });
+        if (!existing) {
+          const newCharger = await prisma.charger.create({
+            data: {
+              name: chargerId,
+              model: "Simulated Group Model",
+              manufacturer: "MobilityPulse Simulator",
+              serial_number: `SIM-GRP-${Date.now()}-${i}`,
+              power_capacity: simConfig.maxPowerKw,
+              firmware_version: "1.0.0",
+              service_contacts: "admin@example.com",
+              owner_id: user.id,
+              charging_station_id: station.id,
+              chargeGroupId: chargeGroup.id,
+              status: "offline",
+            }
+          });
+          await prisma.connector.create({
+            data: {
+              connector_name: "Connector 1",
+              status: "Available",
+              current_type: simConfig.type,
+              max_power: simConfig.maxPowerKw,
+              charger_id: newCharger.charger_id
+            }
+          });
+        }
+      }
+
+      const success = await simulatorManager.spawn(simConfig);
+      if (success) {
+        spawnedIds.push(chargerId);
+      }
+    }
+
+    res.json({ success: true, message: `Spawned ${spawnedIds.length} simulators`, data: spawnedIds });
+  } catch (error) {
+    logger.error(`Failed to spawn simulator group:`, error);
+    res.status(500).json({ success: false, error: "Failed to spawn simulator group" });
+  }
+}
+
 export async function spawnSimulator(req: Request, res: Response) {
   try {
     const config: SimulatorConfig = req.body;
@@ -51,6 +145,21 @@ export async function spawnSimulator(req: Request, res: Response) {
             });
           }
 
+          let chargeGroup = await prisma.chargeGroup.findFirst({
+            where: { name: "The Matrix Battery" }
+          });
+
+          if (!chargeGroup) {
+            chargeGroup = await prisma.chargeGroup.create({
+              data: {
+                name: "The Matrix Battery",
+                description: "Auto-generated charge group for simulators",
+                maxAmperage: 100,
+                maxPower: 100
+              }
+            });
+          }
+
           const newCharger = await prisma.charger.create({
             data: {
               name: config.chargerId,
@@ -62,6 +171,7 @@ export async function spawnSimulator(req: Request, res: Response) {
               service_contacts: "admin@example.com",
               owner_id: user.id,
               charging_station_id: station.id,
+              chargeGroupId: chargeGroup.id,
               status: "offline",
             }
           });

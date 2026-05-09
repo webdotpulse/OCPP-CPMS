@@ -20,6 +20,11 @@ export const simulatorApi = {
     return response.data;
   },
 
+  spawnSimulatorGroup: async (count: number, config?: Partial<SimulatorConfig>) => {
+    const response = await api.post("/simulator/spawn-group", { count, config });
+    return response.data;
+  },
+
   killSimulator: async (chargerId: string) => {
     const response = await api.delete(`/simulator/${chargerId}`);
     return response.data;
