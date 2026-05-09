@@ -1,22 +1,15 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { io, Socket } from "socket.io-client";
+import { useEffect } from "react";
+import { io } from "socket.io-client";
 import { logger } from "@/lib/logger";
-
-interface WebSocketContextType {
-  socket: Socket | null;
-  isConnected: boolean;
-}
-
-const WebSocketContext = createContext<WebSocketContextType>({
-  socket: null,
-  isConnected: false,
-});
+import { useTelemetryStore } from "@/store/useTelemetryStore";
 
 export function WebSocketProvider({ children }: { children: React.ReactNode }) {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
+  const setSocket = useTelemetryStore((state) => state.setSocket);
+  const setIsConnected = useTelemetryStore((state) => state.setIsConnected);
+  const fetchChargers = useTelemetryStore((state) => state.fetchChargers);
+  const fetchSessions = useTelemetryStore((state) => state.fetchSessions);
 
   useEffect(() => {
     // If NEXT_PUBLIC_API_URL is configured (e.g. for external backend),
@@ -51,20 +44,18 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       setIsConnected(false);
     });
 
+    newSocket.on("CHARGER_STATUS_UPDATE", () => {
+        fetchChargers();
+        fetchSessions();
+    });
+
     setSocket(newSocket);
 
     return () => {
       newSocket.disconnect();
+      setSocket(null);
     };
-  }, []);
+  }, [setSocket, setIsConnected, fetchChargers, fetchSessions]);
 
-  return (
-    <WebSocketContext.Provider value={{ socket, isConnected }}>
-      {children}
-    </WebSocketContext.Provider>
-  );
-}
-
-export function useWebSocket() {
-  return useContext(WebSocketContext);
+  return <>{children}</>;
 }
