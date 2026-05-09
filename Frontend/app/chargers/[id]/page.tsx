@@ -136,7 +136,6 @@ export default function ChargerDetailPage() {
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="connectors">Connectors</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
           <TabsTrigger value="configuration">Configuration Parameters</TabsTrigger>
           <TabsTrigger value="profiles">Configuration Profiles</TabsTrigger>
@@ -241,10 +240,8 @@ export default function ChargerDetailPage() {
             )}
           </div>
 
-        </TabsContent>
-
-        <TabsContent value="connectors">
-          <div className="grid grid-cols-1 gap-6 mb-6">
+          {/* Tertiary Section: Connectors */}
+          <div className="grid grid-cols-1 gap-6">
             <Card className="col-span-1">
               <CardHeader>
                 <div>

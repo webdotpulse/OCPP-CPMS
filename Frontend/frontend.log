@@ -1,5 +1,19 @@
 
-> Frontend@0.0.1 start
-> next start -p 3002 3000
+> Frontend@0.0.1 dev
+> next dev -p 3002 --turbopack
 
-Invalid project directory provided, no such directory: /app/Frontend/3000
+   ▲ Next.js 15.5.15 (Turbopack)
+   - Local:        http://localhost:3002
+   - Network:      http://192.168.0.2:3002
+
+ ✓ Starting...
+ ✓ Compiled middleware in 341ms
+ ✓ Ready in 1882ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 8.5s
+ GET /login 200 in 9830ms
+ ○ Compiling /simulator ...
+ ✓ Compiled /simulator in 2.4s
+ GET /simulator 200 in 2751ms
+ GET /login 200 in 241ms
+ GET /simulator 200 in 202ms
