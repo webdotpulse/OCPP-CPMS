@@ -11,16 +11,16 @@ datasource db {
 
 // Admin user accounts
 model User {
-  id               Int       @id @default(autoincrement())
-  name             String?
-  email            String    @unique
-  password         String
-  role             String    @default("admin")
-  userType         String    @default("private")
-  companyName      String?
-  address          String?
-  phone            String?
-  taxNumber        String?
+  id                  Int       @id @default(autoincrement())
+  name                String?
+  email               String    @unique
+  password            String
+  role                String    @default("admin")
+  userType            String    @default("private")
+  companyName         String?
+  address             String?
+  phone               String?
+  taxNumber           String?
   resetToken          String?
   resetTokenExpiry    DateTime?
   twoFactorEnabled    Boolean   @default(false)
@@ -63,25 +63,25 @@ model ChargingStation {
 
 // Charging Point / Charger
 model Charger {
-  chargerAlerts    ChargerAlert[]
-  charger_id          Int       @id @default(autoincrement())
-  model               String
-  name                String    @unique
-  manufacturer        String
-  serial_number       String    @unique
-  manufacturing_date  DateTime?
-  power_capacity      Float
-  status              String    @default("offline")
-  last_heartbeat      DateTime  @default("1970-01-01T00:00:00.000Z")
-  firmware_version    String
-  service_contacts    String
-  latitude            Float?
-  longitude           Float?
+  chargerAlerts        ChargerAlert[]
+  charger_id           Int            @id @default(autoincrement())
+  model                String
+  name                 String         @unique
+  manufacturer         String
+  serial_number        String         @unique
+  manufacturing_date   DateTime?
+  power_capacity       Float
+  status               String         @default("offline")
+  last_heartbeat       DateTime       @default("1970-01-01T00:00:00.000Z")
+  firmware_version     String
+  service_contacts     String
+  latitude             Float?
+  longitude            Float?
   thirdPartyBackendUrl String?
-  owner_id            Int
-  charging_station_id Int
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  owner_id             Int
+  charging_station_id  Int
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
 
   owner            User                   @relation(fields: [owner_id], references: [id])
   chargingStation  ChargingStation        @relation(fields: [charging_station_id], references: [id])
@@ -99,14 +99,14 @@ model Charger {
 }
 
 model Evse {
-  id          Int       @id @default(autoincrement())
-  evse_id     Int
-  charger_id  Int
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         Int      @id @default(autoincrement())
+  evse_id    Int
+  charger_id Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  charger     Charger     @relation(fields: [charger_id], references: [charger_id])
-  connectors  Connector[]
+  charger    Charger     @relation(fields: [charger_id], references: [charger_id])
+  connectors Connector[]
 
   @@unique([charger_id, evse_id])
 }
@@ -342,7 +342,7 @@ model ConfigurationProfile {
 }
 
 model ConfigurationProfileItem {
-  id        Int      @id @default(autoincrement())
+  id        Int                  @id @default(autoincrement())
   profileId Int
   key       String
   value     String
@@ -361,6 +361,12 @@ model MeterValue {
   soc           Float?
   current       Float?
   voltage       Float?
+  current_L1    Float?
+  current_L2    Float?
+  current_L3    Float?
+  voltage_L1    Float?
+  voltage_L2    Float?
+  voltage_L3    Float?
   timestamp     DateTime @default(now())
 
   charger Charger @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
@@ -370,48 +376,48 @@ model MeterValue {
 }
 
 model DeviceComponent {
-  id          Int      @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   chargerId   Int
   name        String
   instance    String?
   evseId      Int?
   connectorId Int?
 
-  charger     Charger  @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
-  variables   DeviceVariable[]
+  charger   Charger          @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
+  variables DeviceVariable[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Note: For unique constraints with nullable fields, Prisma might allow multiple NULLs in standard SQL.
 }
 
 model DeviceVariable {
-  id          Int      @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   componentId Int
   name        String
   instance    String?
 
-  component   DeviceComponent @relation(fields: [componentId], references: [id], onDelete: Cascade)
-  attributes  VariableAttribute[]
+  component  DeviceComponent     @relation(fields: [componentId], references: [id], onDelete: Cascade)
+  attributes VariableAttribute[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model VariableAttribute {
-  id          Int      @id @default(autoincrement())
-  variableId  Int
-  type        String   @default("Actual")
-  value       String?
-  mutability  String?
-  persistent  Boolean  @default(false)
-  constant    Boolean  @default(false)
+  id         Int     @id @default(autoincrement())
+  variableId Int
+  type       String  @default("Actual")
+  value      String?
+  mutability String?
+  persistent Boolean @default(false)
+  constant   Boolean @default(false)
 
-  variable    DeviceVariable @relation(fields: [variableId], references: [id], onDelete: Cascade)
+  variable DeviceVariable @relation(fields: [variableId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([variableId, type])
 }
@@ -426,7 +432,7 @@ model ChargerAlert {
   variable    String
   actualValue String
 
-  charger     Charger  @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
+  charger Charger @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 }
