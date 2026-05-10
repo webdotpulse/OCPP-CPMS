@@ -96,6 +96,19 @@ model Charger {
   chargingProfiles ChargingProfile[]
   meterValues      MeterValue[]
   deviceComponents DeviceComponent[]
+  quirkProfile     ChargerQuirkProfile?   @relation(fields: [quirkProfileId], references: [id], onDelete: SetNull)
+  quirkProfileId   Int?
+}
+
+model ChargerQuirkProfile {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  rules       Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  chargers Charger[]
 }
 
 model Evse {
