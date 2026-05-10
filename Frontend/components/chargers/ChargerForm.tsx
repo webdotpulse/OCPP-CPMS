@@ -30,6 +30,7 @@ const chargerSchema = z.object({
   tariffId: z.number().optional(),
   owner_id: z.number().optional(),
   chargeGroupId: z.number().optional().nullable(),
+  quirkProfileId: z.number().optional().nullable(),
 });
 
 type ChargerFormValues = z.infer<typeof chargerSchema>;
@@ -39,6 +40,7 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
   const [stations, setStations] = useState<any[]>([]);
   const [tariffs, setTariffs] = useState<any[]>([]);
   const [chargeGroups, setChargeGroups] = useState<any[]>([]);
+  const [quirkProfiles, setQuirkProfiles] = useState<any[]>([]);
   const [usersList, setUsersList] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
@@ -54,6 +56,7 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
       thirdPartyBackendUrl: initialData?.thirdPartyBackendUrl || undefined,
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,
       chargeGroupId: initialData?.chargeGroupId || undefined,
+      quirkProfileId: initialData?.quirkProfileId || undefined,
     } : {
       name: nameParam || '',
       latitude: undefined,
@@ -61,6 +64,7 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
       thirdPartyBackendUrl: undefined,
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,
       chargeGroupId: undefined,
+      quirkProfileId: undefined,
     },
   });
 
@@ -70,7 +74,8 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
         const promises = [
           api.get('/stations'),
           api.get('/tariffs'),
-          api.get('/charge-groups')
+          api.get('/charge-groups'),
+          api.get('/quirk-profiles')
         ];
 
         if (user?.role === 'admin') {
@@ -81,9 +86,10 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
         setStations(results[0].data);
         setTariffs(results[1].data);
         setChargeGroups(results[2].data?.data || results[2].data);
+        setQuirkProfiles(results[3].data?.data || results[3].data);
 
-        if (results[3]) {
-          setUsersList(results[3].data);
+        if (results[4]) {
+          setUsersList(results[4].data);
         }
       } catch (error) {
         logger.error("Failed to fetch initial data", error);
@@ -208,6 +214,26 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
                   {chargeGroups.map(group => (
                     <SelectItem key={group.id} value={group.id.toString()}>
                       {group.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="quirkProfileId">Hardware Quirk Profile</Label>
+              <Select
+                value={watch('quirkProfileId')?.toString() || 'none'}
+                onValueChange={(val) => setValue('quirkProfileId', val === 'none' ? null : parseInt(val))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a quirk profile" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Standard / No Quirks</SelectItem>
+                  {quirkProfiles.map(profile => (
+                    <SelectItem key={profile.id} value={profile.id.toString()}>
+                      {profile.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
