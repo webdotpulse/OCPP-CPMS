@@ -1,7 +1,7 @@
 import { config } from "../../config/index.js";
 import { prisma } from "../../config/database.js";
 import { chargerRegistry } from "../chargerRegistry.js";
-import { MeterValueService } from "../../services/MeterValueService.js";
+import { MeterValueService, MeterValuePayload } from "../../services/MeterValueService.js";
 import { logger } from "../../utils/logger.js";
 import { loadManagementService } from "../../services/LoadManagementService.js";
 import { logOcppMessage } from "../messageHandlers.js";
@@ -515,15 +515,15 @@ export async function handleMeterValues(
       }
 
       if (hasReadings) {
-        let parsedPayload = {
+        let parsedPayload: MeterValuePayload = {
           transactionId: String(transactionId),
           chargerId,
           connectorId,
           energyValue: energyValue ?? 0,
           powerValue: powerValue ?? 0,
-          socValue,
-          currentValue,
-          voltageValue,
+          socValue: socValue ?? null,
+          currentValue: currentValue ?? null,
+          voltageValue: voltageValue ?? null,
           timestamp,
         };
 
