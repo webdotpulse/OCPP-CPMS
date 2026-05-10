@@ -125,6 +125,15 @@ export class LoadManagementService {
         return;
       }
 
+      // Only throttle if load is nearing the safe limit.
+      if (totalActiveLoadKw < safeLimitKw * 0.8) {
+        logger.debug(`Station ${stationId} active load (${totalActiveLoadKw.toFixed(1)}kW) is well within safe limit (${safeLimitKw.toFixed(1)}kW). Clearing power load management profiles.`);
+        for (const tx of activeTransactions) {
+          await this.clearLoadManagementProfile(tx.charger_id, 100);
+        }
+        return;
+      }
+
       // If ACTUAL active load exceeds safe limit, or if limits are needed to prevent going over.
       // (If theoretical > safe limit, we must always enforce limits to be safe)
       logger.info(`Station ${stationId} load (Active: ${totalActiveLoadKw.toFixed(1)}kW, Theoretical: ${theoreticalMaxLoadKw.toFixed(1)}kW) requires load balancing (Safe Limit: ${safeLimitKw.toFixed(1)}kW).`);
@@ -132,7 +141,7 @@ export class LoadManagementService {
       // Dynamic Equal Distribution:
       // (In a more advanced implementation, this could allocate more to cars drawing more,
       //  but equal distribution guarantees fairness and prevents starvation).
-      const limitPerTransactionKw = safeLimitKw / activeTransactions.length;
+      const limitPerTransactionKw = Math.max(1.4, safeLimitKw / activeTransactions.length);
       const limitW = Math.floor(limitPerTransactionKw * 1000);
 
       // Apply the limits via SetChargingProfile
@@ -235,7 +244,8 @@ export class LoadManagementService {
         if (totalActiveCurrent > safeLimitAmps) {
           logger.info(`Charge Group ${groupId} active current (${totalActiveCurrent.toFixed(1)}A) requires load balancing (Safe Limit: ${safeLimitAmps.toFixed(1)}A).`);
 
-          const limitPerTransactionAmps = Math.floor(safeLimitAmps / activeTransactions.length);
+          // Ensure limit is at least 6A (standard minimum for EV charging)
+          const limitPerTransactionAmps = Math.max(6, Math.floor(safeLimitAmps / activeTransactions.length));
 
           for (const tx of activeTransactions) {
             const existingProfile = await prisma.chargingProfile.findUnique({
@@ -321,10 +331,26 @@ export class LoadManagementService {
         return;
       }
 
+      // Only enforce actual limit if actual load is dangerously close (e.g. > 90% of safe limit) or above
+      // otherwise, we can distribute more fairly or just let it be. But wait, if theoretical is high, we must throttle.
+      // If we throttle to limitPerTransactionKw, and the load drops, we shouldn't keep it there permanently if it's safe.
+
+      // Let's implement Dynamic Load Balancing logic.
+      // If actual load > safe limit, we throttle.
+      // If actual load < safe limit * 0.8, we clear limits to allow faster charging.
+      if (totalActiveLoadKw < safeLimitKw * 0.8) {
+        logger.debug(`Charge Group ${groupId} active load (${totalActiveLoadKw.toFixed(1)}kW) is well within safe limit (${safeLimitKw.toFixed(1)}kW). Clearing power load management profiles.`);
+        for (const tx of activeTransactions) {
+          await this.clearLoadManagementProfile(tx.charger_id, 100).catch((err: any) => logger.error(`Failed to clear power load management profile ${tx.charger_id}: ${err}`));
+        }
+        return;
+      }
+
       // APPLY limits based on ACTUAL load or if theoretical limit enforces it
       logger.info(`Charge Group ${groupId} load (Active: ${totalActiveLoadKw.toFixed(1)}kW, Theoretical: ${theoreticalMaxLoadKw.toFixed(1)}kW) requires load balancing (Safe Limit: ${safeLimitKw.toFixed(1)}kW).`);
 
-      const limitPerTransactionKw = safeLimitKw / activeTransactions.length;
+      // Ensure a reasonable minimum power limit (e.g. 1.4kW ~ 6A at 230V)
+      const limitPerTransactionKw = Math.max(1.4, safeLimitKw / activeTransactions.length);
       const limitW = Math.floor(limitPerTransactionKw * 1000);
 
       for (const tx of activeTransactions) {
