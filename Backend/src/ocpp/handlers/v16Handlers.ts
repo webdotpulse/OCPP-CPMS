@@ -6,6 +6,8 @@ import { logger } from "../../utils/logger.js";
 import { loadManagementService } from "../../services/LoadManagementService.js";
 import { logOcppMessage } from "../messageHandlers.js";
 import { OcppError } from "../errors/OcppError.js";
+import { normalizeMeterValues } from "../quirkNormalizer.js";
+import { redisClient } from "../../config/redis.js";
 
 const ocpp16Reasons = [
   "EmergencyStop", "EVDisconnected", "HardReset", "Local", "Other",
@@ -218,6 +220,19 @@ export async function handleStartTransaction(
   try {
     // Use transaction ID from payload if provided (OCPP 2.1), else generate (OCPP 1.6)
     const transactionId = payload.transactionId ? String(payload.transactionId) : String(Math.floor(Date.now() / 1000));
+
+    // Handle Quirks
+    const charger = await prisma.charger.findUnique({
+      where: { charger_id: chargerId },
+      include: { quirkProfile: true },
+    });
+
+    const rules = charger?.quirkProfile?.rules as any;
+    if ((rules && rules.ignoreMeterStart) || !meterStart) {
+       const ignoreMeterStartKey = `tx_ignore_meter_start:${transactionId}`;
+       await redisClient.set(ignoreMeterStartKey, "true", "EX", 86400); // 24h expiration
+       logger.debug(`[Quirk] Will ignore meterStart for transaction ${transactionId} and retroactively set via first MeterValue`);
+    }
 
     // Check if RFID tag is valid (if provided)
     let rfidUserId: number | undefined;
@@ -451,6 +466,13 @@ export async function handleMeterValues(
   try {
     if (!transactionId) return;
 
+    // Fetch the charger and its quirkProfile once per payload
+    const charger = await prisma.charger.findUnique({
+      where: { charger_id: chargerId },
+      include: { quirkProfile: true },
+    });
+    const rules = charger?.quirkProfile?.rules;
+
     if (Array.isArray(meterValue)) {
       let energyValue: number | undefined = undefined;
       let powerValue: number | undefined = undefined;
@@ -493,8 +515,7 @@ export async function handleMeterValues(
       }
 
       if (hasReadings) {
-        // Push aggregated meter value to background batch processor queue
-        await MeterValueService.addMeterValue({
+        let parsedPayload = {
           transactionId: String(transactionId),
           chargerId,
           connectorId,
@@ -504,7 +525,27 @@ export async function handleMeterValues(
           currentValue,
           voltageValue,
           timestamp,
-        });
+        };
+
+        parsedPayload = await normalizeMeterValues(chargerId, parsedPayload, rules);
+
+        const ignoreMeterStartKey = `tx_ignore_meter_start:${transactionId}`;
+        const shouldIgnoreMeterStart = await redisClient.get(ignoreMeterStartKey);
+        if (shouldIgnoreMeterStart) {
+          await prisma.transaction.updateMany({
+            where: { transactionId: String(transactionId) },
+            data: { initialMeterValue: parsedPayload.energyValue },
+          });
+          await prisma.rfidSession.updateMany({
+             where: { transactionId: String(transactionId) },
+             data: { initialMeterValue: parsedPayload.energyValue },
+          });
+          await redisClient.del(ignoreMeterStartKey);
+          logger.debug(`[Quirk] Retroactively updated initialMeterValue to ${parsedPayload.energyValue} for transaction ${transactionId}`);
+        }
+
+        // Push aggregated meter value to background batch processor queue
+        await MeterValueService.addMeterValue(parsedPayload);
       }
     }
 
