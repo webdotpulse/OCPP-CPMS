@@ -26,6 +26,7 @@ import usersRoutes from "./api/users/users.routes.js";
 import chargeGroupsRoutes from "./api/chargeGroups/chargeGroups.routes.js";
 import simulatorRoutes from "./api/simulator/simulator.routes.js";
 import configProfilesRoutes from "./api/config-profiles/config-profiles.routes.js";
+import quirkProfilesRoutes from "./api/quirk-profiles/quirk-profiles.routes.js";
 
 // Import OCPP servers
 import { ocppServer } from "./ocpp/ocppServer.js";
@@ -92,6 +93,7 @@ export function createApp(): Application {
   app.use("/api/oicp", oicpRoutes); // Removed auth for initial testing
   app.use("/api/simulator", authenticateToken, simulatorRoutes);
   app.use("/api/config-profiles", authenticateToken, configProfilesRoutes);
+  app.use("/api/quirk-profiles", authenticateToken, quirkProfilesRoutes);
 
   // Error handling
   app.use(notFoundHandler);
