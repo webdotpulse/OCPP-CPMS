@@ -452,46 +452,54 @@ export async function handleMeterValues(
     if (!transactionId) return;
 
     if (Array.isArray(meterValue)) {
+      let energyValue: number | undefined = undefined;
+      let powerValue: number | undefined = undefined;
+      let socValue: number | null = null;
+      let currentValue: number | null = null;
+      let voltageValue: number | null = null;
+      let timestamp = new Date();
+      let hasReadings = false;
+
       for (const mv of meterValue) {
-        let energyValue = 0;
-        let powerValue = 0;
-        let socValue: number | null = null;
-        let currentValue: number | null = null;
-        let voltageValue: number | null = null;
-
-        // Extract a timestamp from the meter value if available, or use current time
-        let timestamp = new Date();
-
         if (mv.timestamp) {
           timestamp = new Date(mv.timestamp);
         }
+
         if (mv.sampledValue && Array.isArray(mv.sampledValue)) {
           for (const sv of mv.sampledValue) {
             let rawMeasurand = sv.measurand || "Energy.Active.Import.Register";
             const measurand = validateAndCoerceEnum(rawMeasurand, ocpp16Measurands, 'Measurand');
             if (measurand === "Energy.Active.Import.Register" || measurand === "Energy") {
               energyValue = parseFloat(sv.value);
+              hasReadings = true;
             } else if (measurand === "Power.Active.Import" || measurand === "Power") {
               powerValue = parseFloat(sv.value);
+              hasReadings = true;
             } else if (measurand === "SoC") {
               socValue = parseFloat(sv.value);
+              hasReadings = true;
             } else if (measurand === "Current.Import" || measurand === "Current.Offered") {
               currentValue = parseFloat(sv.value);
+              hasReadings = true;
             } else if (measurand === "Voltage") {
               voltageValue = parseFloat(sv.value);
+              hasReadings = true;
             }
           }
         } else if (mv.value !== undefined) {
            energyValue = parseFloat(mv.value);
+           hasReadings = true;
         }
+      }
 
-        // Push meter value to background batch processor queue
+      if (hasReadings) {
+        // Push aggregated meter value to background batch processor queue
         await MeterValueService.addMeterValue({
           transactionId: String(transactionId),
           chargerId,
           connectorId,
-          energyValue,
-          powerValue,
+          energyValue: energyValue ?? 0,
+          powerValue: powerValue ?? 0,
           socValue,
           currentValue,
           voltageValue,
