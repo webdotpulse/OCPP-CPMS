@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Zap, Map as MapIcon, Settings, Bell } from "lucide-react";
+import { MobileAppShell } from "@/components/layout/MobileAppShell";
 
 export default function MobileLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -24,13 +25,15 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 pb-16">
+    <MobileAppShell>
       {/* Top Header */}
       <header className="sticky top-0 z-50 bg-white shadow-sm px-4 py-3 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-gray-900">{getPageTitle()}</h1>
         <button className="p-2 relative rounded-full hover:bg-gray-100 transition-colors">
           <Bell className="w-6 h-6 text-gray-600" />
+          {/* Example notification badge
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+          */}
         </button>
       </header>
 
@@ -40,7 +43,7 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50 pb-safe">
         <div className="flex justify-around items-center h-16">
           {navItems.map((item) => {
             const isActive = pathname?.startsWith(item.href);
@@ -60,6 +63,6 @@ export default function MobileLayout({ children }: { children: React.ReactNode }
           })}
         </div>
       </nav>
-    </div>
+    </MobileAppShell>
   );
 }

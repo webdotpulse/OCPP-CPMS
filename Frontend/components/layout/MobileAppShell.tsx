@@ -3,11 +3,9 @@
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { LogOut } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 export function MobileAppShell({ children }: { children: React.ReactNode }) {
-  const { user, isLoading, logout } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
@@ -34,20 +32,9 @@ export function MobileAppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
-      {/* Mobile Top Navigation */}
-      <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-background px-4">
-        <div className="font-bold text-lg">OCPP Mobile</div>
-        <Button variant="ghost" size="icon" onClick={() => logout()}>
-          <LogOut className="h-5 w-5" />
-          <span className="sr-only">Log out</span>
-        </Button>
-      </header>
-
+    <div className="flex flex-col min-h-screen bg-gray-50 text-foreground w-full max-w-full overflow-x-hidden relative pb-16">
       {/* Main Content Area */}
-      <main className="flex-1 p-4 overflow-y-auto">
-        {children}
-      </main>
+      {children}
     </div>
   );
 }

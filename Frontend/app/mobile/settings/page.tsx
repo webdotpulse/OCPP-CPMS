@@ -1,9 +1,36 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { User, Bell, LogOut, ChevronRight, Shield, HelpCircle } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
+import { api } from "@/lib/api";
+import { logger } from "@/lib/logger";
 
 export default function MobileSettings() {
+  const { user, logout } = useAuth();
+  const router = useRouter();
+  const [profileData, setProfileData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get('/auth/me');
+        setProfileData(response.data);
+      } catch (error) {
+        logger.error('Failed to fetch user profile', error);
+      }
+    };
+    if (user) {
+        fetchProfile();
+    }
+  }, [user]);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
+
   const settingsGroups = [
     {
       title: "Preferences",
@@ -23,6 +50,20 @@ export default function MobileSettings() {
 
   return (
     <div className="p-4 space-y-6">
+      {/* Profile Header */}
+      <section className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4">
+          <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xl">
+              {profileData?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+          </div>
+          <div>
+              <h2 className="font-bold text-gray-900 text-lg">{profileData?.name || 'User'}</h2>
+              <p className="text-sm text-gray-500">{profileData?.email || user?.email}</p>
+              <div className="mt-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 capitalize">
+                  {profileData?.role || user?.role || 'User'}
+              </div>
+          </div>
+      </section>
+
       {settingsGroups.map((group, groupIdx) => (
         <section key={groupIdx}>
           <h2 className="text-sm font-semibold text-gray-500 mb-2 uppercase tracking-wider pl-1">{group.title}</h2>
@@ -51,7 +92,10 @@ export default function MobileSettings() {
       ))}
 
       <section className="pt-4">
-        <button className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center justify-center space-x-2 text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors">
+        <button
+            onClick={handleLogout}
+            className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-4 flex items-center justify-center space-x-2 text-red-600 hover:bg-red-50 active:bg-red-100 transition-colors"
+        >
           <LogOut className="w-5 h-5" />
           <span className="font-semibold text-sm">Sign Out</span>
         </button>

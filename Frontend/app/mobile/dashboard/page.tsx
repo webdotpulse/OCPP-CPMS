@@ -1,21 +1,52 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Zap, BatteryCharging, AlertCircle, CheckCircle2 } from "lucide-react";
+import { useTelemetryStore } from "@/store/useTelemetryStore";
+import { api } from "@/lib/api";
+import { logger } from "@/lib/logger";
+
+interface OverviewMetrics {
+  totalChargers: number;
+  activeSessions: number;
+  energyToday: number;
+  revenueToday: number;
+}
 
 export default function MobileDashboard() {
-  const kpis = [
-    { label: "Active Sessions", value: "4", icon: BatteryCharging, color: "text-blue-500", bg: "bg-blue-50" },
-    { label: "Available Chargers", value: "12", icon: CheckCircle2, color: "text-green-500", bg: "bg-green-50" },
-    { label: "Energy Today", value: "245 kWh", icon: Zap, color: "text-yellow-500", bg: "bg-yellow-50" },
-    { label: "Alerts", value: "2", icon: AlertCircle, color: "text-red-500", bg: "bg-red-50" },
-  ];
+  const sessions = useTelemetryStore((state) => state.sessions);
+  const isSessionsLoading = useTelemetryStore((state) => state.isSessionsLoading);
+  const fetchSessions = useTelemetryStore((state) => state.fetchSessions);
 
-  const liveSessions = [
-    { id: "S-1042", charger: "Charger A1", progress: 45, power: "11 kW", duration: "1h 15m" },
-    { id: "S-1043", charger: "Charger B2", progress: 82, power: "22 kW", duration: "0h 45m" },
-    { id: "S-1044", charger: "Charger C1", progress: 12, power: "7.4 kW", duration: "2h 10m" },
-    { id: "S-1045", charger: "Charger A3", progress: 95, power: "50 kW", duration: "0h 20m" },
+  const [metrics, setMetrics] = useState<OverviewMetrics | null>(null);
+  const [isMetricsLoading, setIsMetricsLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSessions();
+    const fetchOverview = async () => {
+      try {
+        const response = await api.get('/dashboard/overview');
+        setMetrics(response.data);
+      } catch (error) {
+        logger.error('Failed to fetch overview metrics', error);
+      } finally {
+        setIsMetricsLoading(false);
+      }
+    };
+    fetchOverview();
+
+    const interval = setInterval(() => {
+      fetchSessions();
+      fetchOverview();
+    }, 10000); // refresh every 10s
+    return () => clearInterval(interval);
+  }, [fetchSessions]);
+
+  const kpis = [
+    { label: "Active Sessions", value: metrics?.activeSessions || 0, icon: BatteryCharging, color: "text-blue-500", bg: "bg-blue-50" },
+    { label: "Total Chargers", value: metrics?.totalChargers || 0, icon: CheckCircle2, color: "text-green-500", bg: "bg-green-50" },
+    { label: "Energy Today", value: `${((metrics?.energyToday || 0) / 1000).toFixed(2)} kWh`, icon: Zap, color: "text-yellow-500", bg: "bg-yellow-50" },
+    { label: "Revenue Today", value: `€${metrics?.revenueToday?.toFixed(2) || 0}`, icon: Zap, color: "text-purple-500", bg: "bg-purple-50" },
   ];
 
   return (
@@ -32,7 +63,7 @@ export default function MobileDashboard() {
                   <Icon className={`w-4 h-4 ${kpi.color}`} />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-gray-900">{kpi.value}</div>
+                  <div className="text-2xl font-bold text-gray-900">{isMetricsLoading ? '-' : kpi.value}</div>
                   <div className="text-xs text-gray-500 font-medium">{kpi.label}</div>
                 </div>
               </div>
@@ -45,36 +76,33 @@ export default function MobileDashboard() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Live Sessions</h2>
-          <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">{liveSessions.length} Active</span>
+          <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">{sessions.length} Active</span>
         </div>
-        <div className="space-y-3">
-          {liveSessions.map((session, idx) => (
-            <div key={idx} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col space-y-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <div className="font-semibold text-gray-900">{session.charger}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">Session {session.id}</div>
-                </div>
-                <div className="text-right">
-                  <div className="font-medium text-gray-900">{session.power}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">{session.duration}</div>
-                </div>
-              </div>
 
-              {/* Progress Bar */}
-              <div className="w-full bg-gray-100 rounded-full h-2.5 mt-2">
-                <div
-                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
-                  style={{ width: `${session.progress}%` }}
-                ></div>
-              </div>
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>Charging</span>
-                <span className="font-medium text-blue-600">{session.progress}%</span>
-              </div>
+        {isSessionsLoading ? (
+            <div className="flex justify-center p-8 text-muted-foreground">Loading...</div>
+        ) : sessions.length === 0 ? (
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center text-gray-500 text-sm">
+                No active sessions currently.
             </div>
-          ))}
-        </div>
+        ) : (
+            <div className="space-y-3">
+            {sessions.map((session, idx) => (
+                <div key={idx} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col space-y-3">
+                <div className="flex justify-between items-start">
+                    <div>
+                    <div className="font-semibold text-gray-900">{session.chargerName}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">Session #{session.transactionId} - {session.connectorName}</div>
+                    </div>
+                    <div className="text-right">
+                    <div className="font-medium text-blue-600">{session.currentPower > 0 ? `${(session.currentPower / 1000).toFixed(2)} kW` : '-'}</div>
+                    <div className="text-xs text-primary mt-0.5">{session.energyConsumed > 0 ? `${(session.energyConsumed / 1000).toFixed(2)} kWh` : 'Starting...'}</div>
+                    </div>
+                </div>
+                </div>
+            ))}
+            </div>
+        )}
       </section>
     </div>
   );
