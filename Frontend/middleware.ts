@@ -15,7 +15,10 @@ export function middleware(request: NextRequest) {
   const { device } = userAgent(request);
   const url = request.nextUrl.clone();
 
-  if (device.type === 'mobile') {
+  // Paths that should not be rewritten on mobile
+  const bypassMobilePaths = ['/login', '/forgot-password'];
+
+  if (device.type === 'mobile' && !bypassMobilePaths.includes(url.pathname)) {
     if (!url.pathname.startsWith('/mobile')) {
       if (url.pathname === '/') {
         url.pathname = '/mobile/dashboard';
