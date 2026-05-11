@@ -2,7 +2,7 @@ import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun, LogOut, User, HelpCircle, Languages } from 'lucide-react';
+import { Moon, Sun, LogOut, User, HelpCircle, Languages, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import {
@@ -80,6 +80,13 @@ export function Topbar() {
             <DropdownMenuLabel>{t('topbar.myAccount')}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem disabled>{t('topbar.role')}: {user?.role || 'Operator'}</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/settings" className="w-full cursor-pointer flex items-center">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>{t('nav.settings', 'Settings')}</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={logout} className="text-destructive focus:bg-destructive focus:text-destructive-foreground cursor-pointer">
               <LogOut className="mr-2 h-4 w-4" />
