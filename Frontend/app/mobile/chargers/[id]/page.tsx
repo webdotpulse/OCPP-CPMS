@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, MapPin, Zap, Info, Clock, CheckCircle } from "lucide-react";
+import { ChevronLeft, MapPin, Zap, Info, Clock, CheckCircle, RefreshCw, Send, Play, Square, Settings2 } from "lucide-react";
+import { MobileSpeedOverride } from "@/components/chargers/MobileSpeedOverride";
+import { ConnectorList } from "@/components/chargers/ConnectorList";
+import { toast } from "sonner";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { api } from "@/lib/api";
@@ -11,6 +14,40 @@ import { format, formatDistanceToNow } from 'date-fns';
 export default function MobileChargerDetails() {
   const { id } = useParams();
   const [charger, setCharger] = useState<any>(null);
+  const [isCommandLoading, setIsCommandLoading] = useState(false);
+  const [activeTxns, setActiveTxns] = useState<any[]>([]);
+
+  const fetchActiveTxns = useCallback(async () => {
+    if (!charger?.charger_id) return;
+    try {
+      const response = await api.get('/dashboard/live-sessions');
+      const sessions = response.data.filter((s: any) => s.chargerId === charger.charger_id);
+      setActiveTxns(sessions);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [charger?.charger_id]);
+
+  useEffect(() => {
+    fetchActiveTxns();
+    const interval = setInterval(fetchActiveTxns, 30000);
+    return () => clearInterval(interval);
+  }, [fetchActiveTxns]);
+
+  const sendCommand = async (command: string, extraData: any = {}) => {
+    setIsCommandLoading(true);
+    try {
+      await api.post(`/ocpp/${command}`, {
+        chargerId: charger.charger_id,
+        ...extraData
+      });
+      toast.success(`${command.replace('-', ' ')} command sent`);
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || `Failed to send ${command} command`);
+    } finally {
+      setIsCommandLoading(false);
+    }
+  };
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -101,67 +138,77 @@ export default function MobileChargerDetails() {
       </div>
 
       <div className="p-4 space-y-4 pb-24">
-        {/* Location Info */}
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+        {/* OCPP Remote Controls */}
+        {charger.status !== 'offline' && (
+          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
             <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-              <MapPin className="w-4 h-4 mr-1.5 text-gray-500" /> Location
+              <Zap className="w-4 h-4 mr-1.5 text-gray-500" /> OCPP Remote Controls
             </h3>
-            <p className="text-sm text-gray-700">
-               {charger.chargingStation?.station_name || 'Unassigned Station'}
-            </p>
-        </div>
-
-         {/* Hardware Details */}
-        <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-              <Zap className="w-4 h-4 mr-1.5 text-gray-500" /> Hardware Details
-            </h3>
-            <div className="grid grid-cols-2 gap-y-3 text-sm">
-                <div>
-                   <p className="text-xs text-gray-500 mb-0.5">Manufacturer</p>
-                   <p className="font-medium text-gray-900">{charger.manufacturer}</p>
-                </div>
-                 <div>
-                   <p className="text-xs text-gray-500 mb-0.5">Model</p>
-                   <p className="font-medium text-gray-900">{charger.model}</p>
-                </div>
-                 <div className="col-span-2">
-                   <p className="text-xs text-gray-500 mb-0.5">Power Capacity</p>
-                   <p className="font-medium text-gray-900">{charger.power_capacity} kW</p>
-                </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => sendCommand('reset', { type: 'Soft' })}
+                disabled={isCommandLoading}
+                className="flex items-center justify-center p-2 text-xs font-medium bg-gray-50 border rounded-lg active:bg-gray-100"
+              >
+                <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Soft Reset
+              </button>
+              <button
+                onClick={() => sendCommand('reset', { type: 'Hard' })}
+                disabled={isCommandLoading}
+                className="flex items-center justify-center p-2 text-xs font-medium bg-gray-50 border rounded-lg active:bg-gray-100"
+              >
+                <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Hard Reset
+              </button>
+              <button
+                onClick={() => sendCommand('trigger-message', { requestedMessage: 'MeterValues' })}
+                disabled={isCommandLoading}
+                className="flex items-center justify-center p-2 text-xs font-medium bg-gray-50 border rounded-lg active:bg-gray-100"
+              >
+                <Send className="mr-1.5 h-3.5 w-3.5" /> Trigger Msg
+              </button>
+              <button
+                onClick={() => sendCommand('remote-start', { connectorId: 1, idTag: '12345678' })}
+                disabled={isCommandLoading}
+                className="flex items-center justify-center p-2 text-xs font-medium bg-blue-50 text-blue-600 border border-blue-100 rounded-lg active:bg-blue-100"
+              >
+                <Play className="mr-1.5 h-3.5 w-3.5" /> Start
+              </button>
+              <button
+                onClick={() => {
+                   const txn = activeTxns[0];
+                   if (txn) {
+                     sendCommand('remote-stop', { transactionId: txn.transactionId });
+                   } else {
+                     toast.error('No active transaction found to stop');
+                   }
+                }}
+                disabled={isCommandLoading}
+                className="col-span-2 flex items-center justify-center p-2 text-xs font-medium bg-red-50 text-red-600 border border-red-100 rounded-lg active:bg-red-100"
+              >
+                <Square className="mr-1.5 h-3.5 w-3.5" /> Remote Stop
+              </button>
             </div>
-        </div>
+          </div>
+        )}
 
-        {/* Communications */}
+        {/* Manual Speed Override */}
+        {charger.status !== 'offline' && (
+          <MobileSpeedOverride chargerId={charger.charger_id} currentPower={activeTxns[0]?.currentPower || 0} />
+        )}
+
+        {/* Connectors */}
         <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-           <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-              <Info className="w-4 h-4 mr-1.5 text-gray-500" /> Communications
-            </h3>
-             <div className="space-y-3">
-                <div className="flex gap-3">
-                  <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="font-medium text-sm text-gray-900">WebSocket Status</p>
-                    <p className="text-xs text-gray-500">
-                      {charger.status !== 'offline' ? `Connected (${charger.protocol === 'ocpp2.1' ? 'OCPP 2.1' : charger.protocol === 'ocpp2.0.1' ? 'OCPP 2.0.1' : 'OCPP 1.6J'})` : 'Disconnected'}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <Clock className="h-4 w-4 text-gray-400 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="font-medium text-sm text-gray-900">Last Heartbeat</p>
-                    <p className="text-xs text-gray-500">
-                      {charger.last_heartbeat
-                        ? `${formatDistanceToNow(new Date(charger.last_heartbeat))} ago (${format(new Date(charger.last_heartbeat), 'HH:mm:ss')})`
-                        : 'No heartbeat recorded'
-                      }
-                    </p>
-                  </div>
-                </div>
-              </div>
+          <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+            <Settings2 className="w-4 h-4 mr-1.5 text-gray-500" /> Connectors
+          </h3>
+          <div className="overflow-x-auto -mx-4 px-4 pb-2">
+             <ConnectorList
+               connectors={charger.evses?.flatMap((e: any) => e.connectors) || []}
+               readOnly={true}
+               hideLogs={true}
+             />
+          </div>
         </div>
-
       </div>
     </div>
   );

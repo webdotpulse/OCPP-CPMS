@@ -15,6 +15,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import { RemoteControlPanel } from "@/components/chargers/RemoteControlPanel";
 import { ConnectorList } from "@/components/chargers/ConnectorList";
 import { ChargerConfigurationPanel } from "@/components/chargers/ChargerConfigurationPanel";
+import { ManualSpeedOverridePanel } from "@/components/chargers/ManualSpeedOverridePanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoadManagementOverview } from "@/components/dashboard/LoadManagementOverview";
 import { useMemo } from "react";
@@ -79,6 +80,24 @@ export default function ChargerDetailPage() {
       fetchCharger();
       fetchProfiles();
     }
+  }, [id]);
+
+  const [activeTxns, setActiveTxns] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchActiveTxns = async () => {
+      if (!id) return;
+      try {
+        const response = await api.get('/dashboard/live-sessions');
+        const sessions = response.data.filter((s: any) => s.chargerId === Number(id));
+        setActiveTxns(sessions);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchActiveTxns();
+    const interval = setInterval(fetchActiveTxns, 30000);
+    return () => clearInterval(interval);
   }, [id]);
 
   const allConnectors = useMemo(() => {
@@ -246,6 +265,12 @@ export default function ChargerDetailPage() {
                   </div>
                 </CardContent>
               </Card>
+            )}
+          </div>
+
+          <div className="mb-6">
+            {charger.status !== 'offline' && allConnectors.length > 0 && user?.role === "admin" && (
+              <ManualSpeedOverridePanel chargerId={charger.charger_id} connectors={allConnectors} activeTxns={activeTxns} />
             )}
           </div>
 

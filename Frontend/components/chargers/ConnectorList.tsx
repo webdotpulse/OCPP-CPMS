@@ -24,6 +24,7 @@ interface Connector {
 }
 
 interface ConnectorListProps {
+  hideLogs?: boolean;
   connectors: Connector[];
   readOnly?: boolean;
 }
@@ -46,7 +47,7 @@ function getStatusColor(status: string) {
   return 'bg-muted text-muted-foreground';
 }
 
-export function ConnectorList({ connectors: initialConnectors, readOnly = false }: ConnectorListProps) {
+export function ConnectorList({ connectors: initialConnectors, readOnly = false, hideLogs = false }: ConnectorListProps) {
   const [connectors, setConnectors] = useState(initialConnectors);
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [investigateDialogState, setInvestigateDialogState] = useState<{ open: boolean; chargerId: number; connectorId: number }>({ open: false, chargerId: 0, connectorId: 0 });
@@ -325,60 +326,11 @@ export function ConnectorList({ connectors: initialConnectors, readOnly = false 
               {expandedId === conn.connector_id && (
                 <TableRow>
                   <TableCell colSpan={!readOnly && user?.role === "admin" ? 9 : 8} className="p-0 border-b-0 bg-muted/10">
-                    <div className="p-4 pt-0 space-y-4">
-                      {!readOnly && user?.role === "admin" && conn.charger_id && (
-                        <div className="rounded-md border bg-card p-4 mt-4">
-                          <div className="flex items-center gap-2 mb-4">
-                            <Settings2 className="h-4 w-4 text-muted-foreground" />
-                            <h4 className="font-medium text-sm">Manual Speed Override</h4>
-                          </div>
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                            <div className="flex-1 w-full max-w-md space-y-3">
-                              <div className="flex justify-between items-center text-sm">
-                                <span className="text-muted-foreground">Limit</span>
-                                <span className="font-mono font-medium">{speedLimits[conn.connector_id] || 32} A</span>
-                              </div>
-                              <Slider
-                                disabled={isSettingProfile[conn.connector_id]}
-                                value={[speedLimits[conn.connector_id] || 32]}
-                                min={6}
-                                max={32}
-                                step={1}
-                                onValueChange={(val) => {
-                                  setSpeedLimits(prev => ({ ...prev, [conn.connector_id]: val[0] }));
-                                }}
-                                onValueCommit={(val) => {
-                                  if (conn.charger_id) {
-                                    handleSetSpeedLimit(conn.charger_id, conn.connector_id, val[0], activeTxn);
-                                  }
-                                }}
-                              />
-                              <div className="flex justify-between text-xs text-muted-foreground">
-                                <span>6A</span>
-                                <span>32A</span>
-                              </div>
-                            </div>
-                            <Button
-                              variant="outline"
-                              onClick={() => {
-                                if (conn.charger_id) {
-                                  handleClearSpeedLimit(conn.charger_id, conn.connector_id);
-                                }
-                              }}
-                              disabled={isSettingProfile[conn.connector_id]}
-                            >
-                              {isSettingProfile[conn.connector_id] ? "Applying..." : "Auto / Clear Limit"}
-                            </Button>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-4">
-                            Throttling the charging speed manually will temporarily override any smart load management configurations until cleared.
-                          </p>
-                        </div>
-                      )}
-                      <ChannelLogs
+                    <div className="p-4 space-y-4">
+                      {!hideLogs && <ChannelLogs
                         chargerId={conn.charger_id || 0}
                         connectorId={conn.connector_id}
-                      />
+                      />}
                     </div>
                   </TableCell>
                 </TableRow>

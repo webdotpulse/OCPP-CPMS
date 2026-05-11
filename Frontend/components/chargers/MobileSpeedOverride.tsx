@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
 interface MobileSpeedOverrideProps {
-  chargerId: string;
+  chargerId: number | string;
   currentPower: number;
 }
 
