@@ -4,12 +4,14 @@ import React from "react";
 import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Zap, CheckCircle2, XCircle, Clock, AlertTriangle, ChevronDown, ChevronRight, Search, Edit, Trash2 } from "lucide-react";
+import { Zap, CheckCircle2, XCircle, Clock, AlertTriangle, ChevronDown, ChevronRight, Search, Edit, Trash2, Settings2 } from "lucide-react";
 import { ChannelLogs } from "./ChannelLogs";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { InvestigateDialog } from "./InvestigateDialog";
 import Link from "next/link";
+import { Slider } from "@/components/ui/slider";
+import { toast } from "sonner";
 
 interface Connector {
   connector_id: number;
@@ -51,6 +53,8 @@ export function ConnectorList({ connectors: initialConnectors, readOnly = false 
   const { user } = useAuth();
   const [activeTxns, setActiveTxns] = useState<any[]>([]);
   const [now, setNow] = useState(Date.now());
+  const [speedLimits, setSpeedLimits] = useState<Record<number, number>>({});
+  const [isSettingProfile, setIsSettingProfile] = useState<Record<number, boolean>>({});
 
   React.useEffect(() => {
     setConnectors(initialConnectors);
@@ -134,6 +138,63 @@ export function ConnectorList({ connectors: initialConnectors, readOnly = false 
 
   const toggleExpand = (id: number) => {
     setExpandedId(prev => (prev === id ? null : id));
+  };
+
+  const handleSetSpeedLimit = async (chargerId: number, connectorId: number, limit: number, activeTxn: any) => {
+    try {
+      setIsSettingProfile(prev => ({ ...prev, [connectorId]: true }));
+      const { api } = await import('@/lib/api');
+
+      const payload = {
+        chargerId,
+        connectorId,
+        csChargingProfiles: {
+          chargingProfileId: Math.floor(Math.random() * 1000000),
+          stackLevel: 10,
+          chargingProfilePurpose: activeTxn ? "TxProfile" : "TxDefaultProfile",
+          chargingProfileKind: "Relative",
+          chargingSchedule: {
+            chargingRateUnit: "A",
+            chargingSchedulePeriod: [
+              {
+                startPeriod: 0,
+                limit: limit
+              }
+            ]
+          }
+        }
+      };
+
+      await api.post('/ocpp/set-charging-profile', payload);
+      toast.success(`Speed limit set to ${limit}A for connector ${connectorId}`);
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to set charging profile");
+    } finally {
+      setIsSettingProfile(prev => ({ ...prev, [connectorId]: false }));
+    }
+  };
+
+  const handleClearSpeedLimit = async (chargerId: number, connectorId: number) => {
+    try {
+      setIsSettingProfile(prev => ({ ...prev, [connectorId]: true }));
+      const { api } = await import('@/lib/api');
+
+      await api.post('/ocpp/clear-charging-profile', {
+        chargerId,
+        connectorId
+      });
+
+      setSpeedLimits(prev => {
+        const next = { ...prev };
+        delete next[connectorId];
+        return next;
+      });
+      toast.success(`Speed limit cleared for connector ${connectorId}`);
+    } catch (error: any) {
+      toast.error(error.response?.data?.error || "Failed to clear charging profile");
+    } finally {
+      setIsSettingProfile(prev => ({ ...prev, [connectorId]: false }));
+    }
   };
 
   return (
@@ -264,7 +325,56 @@ export function ConnectorList({ connectors: initialConnectors, readOnly = false 
               {expandedId === conn.connector_id && (
                 <TableRow>
                   <TableCell colSpan={!readOnly && user?.role === "admin" ? 9 : 8} className="p-0 border-b-0 bg-muted/10">
-                    <div className="p-4 pt-0">
+                    <div className="p-4 pt-0 space-y-4">
+                      {!readOnly && user?.role === "admin" && conn.charger_id && (
+                        <div className="rounded-md border bg-card p-4 mt-4">
+                          <div className="flex items-center gap-2 mb-4">
+                            <Settings2 className="h-4 w-4 text-muted-foreground" />
+                            <h4 className="font-medium text-sm">Manual Speed Override</h4>
+                          </div>
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                            <div className="flex-1 w-full max-w-md space-y-3">
+                              <div className="flex justify-between items-center text-sm">
+                                <span className="text-muted-foreground">Limit</span>
+                                <span className="font-mono font-medium">{speedLimits[conn.connector_id] || 32} A</span>
+                              </div>
+                              <Slider
+                                disabled={isSettingProfile[conn.connector_id]}
+                                value={[speedLimits[conn.connector_id] || 32]}
+                                min={6}
+                                max={32}
+                                step={1}
+                                onValueChange={(val) => {
+                                  setSpeedLimits(prev => ({ ...prev, [conn.connector_id]: val[0] }));
+                                }}
+                                onValueCommit={(val) => {
+                                  if (conn.charger_id) {
+                                    handleSetSpeedLimit(conn.charger_id, conn.connector_id, val[0], activeTxn);
+                                  }
+                                }}
+                              />
+                              <div className="flex justify-between text-xs text-muted-foreground">
+                                <span>6A</span>
+                                <span>32A</span>
+                              </div>
+                            </div>
+                            <Button
+                              variant="outline"
+                              onClick={() => {
+                                if (conn.charger_id) {
+                                  handleClearSpeedLimit(conn.charger_id, conn.connector_id);
+                                }
+                              }}
+                              disabled={isSettingProfile[conn.connector_id]}
+                            >
+                              {isSettingProfile[conn.connector_id] ? "Applying..." : "Auto / Clear Limit"}
+                            </Button>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-4">
+                            Throttling the charging speed manually will temporarily override any smart load management configurations until cleared.
+                          </p>
+                        </div>
+                      )}
                       <ChannelLogs
                         chargerId={conn.charger_id || 0}
                         connectorId={conn.connector_id}
