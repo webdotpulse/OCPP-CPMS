@@ -2,13 +2,35 @@
 
 import { useTranslation } from "react-i18next";
 import { AppShell } from '@/components/layout/AppShell';
+import { MobileAppShell } from '@/components/layout/MobileAppShell';
 import { KpiCards } from '@/components/dashboard/KpiCards';
 import { LiveSessionsTable } from '@/components/dashboard/LiveSessionsTable';
 import { ConnectorDistribution } from '@/components/dashboard/ConnectorDistribution';
 import { LocationsMap } from '@/components/dashboard/LocationsMap';
+import { MobileDashboard } from '@/components/mobile/MobileDashboard';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useEffect, useState } from 'react';
 
 export default function DashboardPage() {
   const { t } = useTranslation();
+  const isMobile = useIsMobile();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null; // Avoid hydration mismatch
+  }
+
+  if (isMobile) {
+    return (
+      <MobileAppShell>
+        <MobileDashboard />
+      </MobileAppShell>
+    );
+  }
 
   return (
     <AppShell>

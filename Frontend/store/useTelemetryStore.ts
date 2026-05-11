@@ -5,6 +5,7 @@ import { logger } from '@/lib/logger';
 
 interface ActiveSession {
   transactionId: number;
+  chargerId: string;
   chargerName: string;
   connectorName: string;
   startTime: string;
