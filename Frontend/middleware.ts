@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, userAgent } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
@@ -11,6 +11,20 @@ export function middleware(request: NextRequest) {
   // A better approach in Next 13+ app router is to use cookies for the auth token.
   // But given standard REST APIs, let's keep it simple: no strict middleware blocking, 
   // we'll block unauthenticated users at the RootLayout / AppShell level.
+
+  const { device } = userAgent(request);
+  const url = request.nextUrl.clone();
+
+  if (device.type === 'mobile') {
+    if (!url.pathname.startsWith('/mobile')) {
+      if (url.pathname === '/') {
+        url.pathname = '/mobile/dashboard';
+      } else {
+        url.pathname = `/mobile${url.pathname}`;
+      }
+      return NextResponse.rewrite(url);
+    }
+  }
 
   return NextResponse.next();
 }
