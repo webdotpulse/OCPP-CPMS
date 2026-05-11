@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Search, MapPin } from "lucide-react";
+import Link from "next/link";
 import { api } from "@/lib/api";
 import { logger } from "@/lib/logger";
 
@@ -93,28 +94,30 @@ export default function MobileChargers() {
         ) : filteredChargers.map((charger) => {
             const displayStatus = getDisplayStatus(charger);
             return (
-          <div key={charger.charger_id} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <h3 className="font-semibold text-gray-900 text-base">{charger.name}</h3>
-                <div className="text-xs text-gray-500 font-mono mt-0.5">{charger.charger_id}</div>
+          <Link href={`/mobile/chargers/${charger.charger_id}`} key={charger.charger_id} className="block">
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 active:bg-gray-50 transition-colors">
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-base">{charger.name}</h3>
+                  <div className="text-xs text-gray-500 font-mono mt-0.5">{charger.charger_id}</div>
+                </div>
+                <div className="flex items-center space-x-1.5 bg-gray-50 px-2.5 py-1 rounded-full border border-gray-100">
+                  <span className={`w-2 h-2 rounded-full ${getStatusColor(displayStatus)}`}></span>
+                  <span className="text-[10px] font-medium text-gray-700 uppercase tracking-wider">{displayStatus}</span>
+                </div>
               </div>
-              <div className="flex items-center space-x-1.5 bg-gray-50 px-2.5 py-1 rounded-full border border-gray-100">
-                <span className={`w-2 h-2 rounded-full ${getStatusColor(displayStatus)}`}></span>
-                <span className="text-[10px] font-medium text-gray-700 uppercase tracking-wider">{displayStatus}</span>
-              </div>
-            </div>
 
-            <div className="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs text-gray-500">
-              <div className="flex items-center space-x-1">
-                <MapPin className="w-3.5 h-3.5" />
-                <span>{charger.chargingStation?.station_name || 'Unassigned'}</span>
-              </div>
-              <div className="font-medium bg-gray-50 px-2 py-1 rounded text-gray-700">
-                {charger.manufacturer} / {charger.model}
+              <div className="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between text-xs text-gray-500">
+                <div className="flex items-center space-x-1">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>{charger.chargingStation?.station_name || 'Unassigned'}</span>
+                </div>
+                <div className="font-medium bg-gray-50 px-2 py-1 rounded text-gray-700">
+                  {charger.manufacturer} / {charger.model}
+                </div>
               </div>
             </div>
-          </div>
+          </Link>
         )})}
 
         {!isLoading && filteredChargers.length === 0 && (
