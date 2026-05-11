@@ -90,13 +90,31 @@ class OcppServer {
       if (!charger) {
         logger.error(`Charger ${chargerIdStr} not found in database`);
         // Log unrecognized connection
-        await prisma.unrecognizedConnection.create({
-          data: {
-            chargePointId: chargerIdStr,
-            ipAddress: request.socket.remoteAddress || "Unknown",
-            reason: "Charger not found in database",
-          },
-        }).catch((err: any) => logger.error(`Failed to log unrecognized connection: ${err}`));
+        try {
+          const existing = await prisma.unrecognizedConnection.findFirst({
+            where: { chargePointId: chargerIdStr },
+          });
+          if (existing) {
+            await prisma.unrecognizedConnection.update({
+              where: { id: existing.id },
+              data: {
+                ipAddress: request.socket.remoteAddress || "Unknown",
+                reason: "Charger not found in database",
+                timestamp: new Date(),
+              },
+            });
+          } else {
+            await prisma.unrecognizedConnection.create({
+              data: {
+                chargePointId: chargerIdStr,
+                ipAddress: request.socket.remoteAddress || "Unknown",
+                reason: "Charger not found in database",
+              },
+            });
+          }
+        } catch (err: any) {
+          logger.error(`Failed to log unrecognized connection: ${err}`);
+        }
 
         ws.close();
         return;
@@ -106,13 +124,31 @@ class OcppServer {
       if (charger.status === "disabled") {
         logger.error(`Charger ${chargerId} is disabled`);
         // Log unrecognized connection
-        await prisma.unrecognizedConnection.create({
-          data: {
-            chargePointId: chargerIdStr,
-            ipAddress: request.socket.remoteAddress || "Unknown",
-            reason: "Charger is disabled",
-          },
-        }).catch((err: any) => logger.error(`Failed to log unrecognized connection: ${err}`));
+        try {
+          const existing = await prisma.unrecognizedConnection.findFirst({
+            where: { chargePointId: chargerIdStr },
+          });
+          if (existing) {
+            await prisma.unrecognizedConnection.update({
+              where: { id: existing.id },
+              data: {
+                ipAddress: request.socket.remoteAddress || "Unknown",
+                reason: "Charger is disabled",
+                timestamp: new Date(),
+              },
+            });
+          } else {
+            await prisma.unrecognizedConnection.create({
+              data: {
+                chargePointId: chargerIdStr,
+                ipAddress: request.socket.remoteAddress || "Unknown",
+                reason: "Charger is disabled",
+              },
+            });
+          }
+        } catch (err: any) {
+          logger.error(`Failed to log unrecognized connection: ${err}`);
+        }
 
         ws.close();
         return;

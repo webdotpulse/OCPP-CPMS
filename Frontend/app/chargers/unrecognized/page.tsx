@@ -63,7 +63,6 @@ export default function UnrecognizedChargersPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Charge Point ID</TableHead>
-              <TableHead>IP Address</TableHead>
               <TableHead>Reason</TableHead>
               <TableHead>Last Attempt Time</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -72,11 +71,11 @@ export default function UnrecognizedChargersPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">Loading connections...</TableCell>
+                <TableCell colSpan={4} className="h-24 text-center">Loading connections...</TableCell>
               </TableRow>
             ) : connections.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">No unrecognized connections found.</TableCell>
+                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">No unrecognized connections found.</TableCell>
               </TableRow>
             ) : (
               connections.map((conn) => (
@@ -87,7 +86,6 @@ export default function UnrecognizedChargersPage() {
                       {conn.chargePointId}
                     </div>
                   </TableCell>
-                  <TableCell>{conn.ipAddress || 'Unknown'}</TableCell>
                   <TableCell>{conn.reason}</TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {conn.timestamp

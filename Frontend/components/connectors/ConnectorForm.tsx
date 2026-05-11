@@ -21,7 +21,6 @@ const connectorSchema = z.object({
   current_type: z.string().min(1, "Current type is required"),
   max_power: z.number().positive().optional(),
   max_current: z.number().positive().optional(),
-  mac_address: z.string().optional(),
 });
 
 type ConnectorFormValues = z.infer<typeof connectorSchema>;
@@ -36,7 +35,10 @@ export function ConnectorForm({ initialData }: { initialData?: any }) {
 
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<ConnectorFormValues>({
     resolver: zodResolver(connectorSchema),
-    defaultValues: initialData || {
+    defaultValues: initialData ? {
+      ...initialData,
+      charger_id: initialData.evse?.charger_id || initialData.evse?.charger?.charger_id || undefined,
+    } : {
       status: "Available",
       current_type: "AC",
       charger_id: defaultChargerId ? parseInt(defaultChargerId) : undefined,
@@ -159,11 +161,6 @@ export function ConnectorForm({ initialData }: { initialData?: any }) {
               <Label htmlFor="max_current">Max Current (A) (Optional)</Label>
               <Input id="max_current" type="number" step="any" {...register('max_current', { valueAsNumber: true })} />
               {errors.max_current && <p className="text-sm text-destructive">{errors.max_current.message}</p>}
-            </div>
-             <div className="space-y-2">
-              <Label htmlFor="mac_address">MAC Address (Optional)</Label>
-              <Input id="mac_address" {...register('mac_address')} placeholder="00:1B:44:11:3A:B7" />
-              {errors.mac_address && <p className="text-sm text-destructive">{errors.mac_address.message}</p>}
             </div>
           </div>
 

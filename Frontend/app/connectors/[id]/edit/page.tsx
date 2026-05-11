@@ -19,7 +19,7 @@ export default function EditConnectorPage() {
     const fetchConnector = async () => {
       try {
         const response = await api.get(`/connectors/${id}`);
-        setInitialData(response.data);
+        setInitialData(response.data?.data || response.data);
       } catch (error) {
         logger.error("Failed to fetch connector", error);
         alert("Failed to load connector.");
