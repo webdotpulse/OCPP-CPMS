@@ -12,10 +12,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface RemoteControlPanelProps {
+  hideTriggerMessage?: boolean;
   chargerId: number;
 }
 
-export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
+export function RemoteControlPanel({ chargerId, hideTriggerMessage }: RemoteControlPanelProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [tagId, setTagId] = useState("");
   const [connectorId, setConnectorId] = useState("1");
@@ -115,28 +116,30 @@ export function RemoteControlPanel({ chargerId }: RemoteControlPanelProps) {
             >
               <Unlock className="mr-2 h-4 w-4" /> Unlock Connector
             </Button>
-            <div className="flex items-center gap-2">
-              <Select value={triggerMessageTarget} onValueChange={setTriggerMessageTarget}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Select Message" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="BootNotification">BootNotification</SelectItem>
-                  <SelectItem value="DiagnosticsStatusNotification">DiagnosticsStatusNotification</SelectItem>
-                  <SelectItem value="FirmwareStatusNotification">FirmwareStatusNotification</SelectItem>
-                  <SelectItem value="Heartbeat">Heartbeat</SelectItem>
-                  <SelectItem value="MeterValues">MeterValues</SelectItem>
-                  <SelectItem value="StatusNotification">StatusNotification</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                onClick={() => sendCommand('trigger-message', { requestedMessage: triggerMessageTarget })}
-                disabled={isLoading || !triggerMessageTarget}
-              >
-                <Send className="mr-2 h-4 w-4" /> Trigger Message
-              </Button>
-            </div>
+            {!hideTriggerMessage && (
+              <div className="flex items-center gap-2">
+                <Select value={triggerMessageTarget} onValueChange={setTriggerMessageTarget}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="Select Message" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BootNotification">BootNotification</SelectItem>
+                    <SelectItem value="DiagnosticsStatusNotification">DiagnosticsStatusNotification</SelectItem>
+                    <SelectItem value="FirmwareStatusNotification">FirmwareStatusNotification</SelectItem>
+                    <SelectItem value="Heartbeat">Heartbeat</SelectItem>
+                    <SelectItem value="MeterValues">MeterValues</SelectItem>
+                    <SelectItem value="StatusNotification">StatusNotification</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  onClick={() => sendCommand('trigger-message', { requestedMessage: triggerMessageTarget })}
+                  disabled={isLoading || !triggerMessageTarget}
+                >
+                  <Send className="mr-2 h-4 w-4" /> Trigger Message
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2">
