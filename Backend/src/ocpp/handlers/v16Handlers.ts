@@ -385,12 +385,30 @@ export async function handleStopTransaction(
     // End transaction in registry memory/Redis
     await chargerRegistry.endTransaction(chargerId, transactionId);
 
-    // Update Transaction
+    // Calculate total cost from tariff
+    const tariff = await prisma.tariff.findFirst();
+    const tariffRate = tariff?.electricity_rate || tariff?.charge || 10; // Default rate
+
     const transaction = await prisma.transaction.findFirst({
       where: { transactionId: String(transactionId) },
     });
 
+    let totalCost = 0;
     if (transaction) {
+      const energyConsumedTx = meterStop - (transaction.initialMeterValue || 0);
+
+      if (tariff?.tariffType === "DYNAMIC_EPEX" && tariff.country) {
+        const { EpexSpotService } = await import("../../services/EpexSpotService.js");
+        const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, transaction.startTime);
+        const spotPriceKwh = spotPriceMwh ? (spotPriceMwh / 1000) : 0;
+        const markup = tariff.markupPerKwh || 0;
+        const taxRate = tariff.taxPercentage ? (tariff.taxPercentage / 100) : 0;
+        const hourlyCostKwh = (spotPriceKwh + markup) * (1 + taxRate);
+        totalCost = (energyConsumedTx / 1000) * hourlyCostKwh * 100;
+      } else {
+        totalCost = (energyConsumedTx / 1000) * tariffRate * 100;
+      }
+
       const updatedTransaction = await prisma.transaction.update({
         where: { id: transaction.id },
         data: {
@@ -398,7 +416,8 @@ export async function handleStopTransaction(
           endTime: new Date(timestamp),
           status: "completed",
           stopReason: reason || null,
-          energyConsumed: meterStop - (transaction.initialMeterValue || 0),
+          energyConsumed: energyConsumedTx,
+          totalCost: totalCost,
         },
         include: { charger: true }
       });
@@ -421,10 +440,6 @@ export async function handleStopTransaction(
     });
 
     if (rfidSession) {
-      // Get tariff rate (simplified - get first tariff or use default)
-      const tariff = await prisma.tariff.findFirst();
-      const tariffRate = tariff?.electricity_rate || tariff?.charge || 10; // Default Rs 10/kWh
-
       const energyConsumed = meterStop - (rfidSession.initialMeterValue || 0);
       let amountDue = 0;
 

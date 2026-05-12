@@ -145,6 +145,12 @@ export default function TransactionDetailPage() {
                 </p>
               </div>
               <div>
+                <p className="text-xs text-muted-foreground">Total Cost</p>
+                <p className="font-mono font-bold text-lg text-primary">
+                  {txn.totalCost !== undefined && txn.totalCost !== null ? `€${(txn.totalCost / 100).toFixed(2)}` : (txn.amountDue !== undefined && txn.amountDue !== null ? `€${(txn.amountDue / 100).toFixed(2)}` : '€0.00')}
+                </p>
+              </div>
+              <div>
                 <p className="text-xs text-muted-foreground">Local DB Record ID</p>
                 <p className="font-mono text-sm">{txn.id}</p>
               </div>

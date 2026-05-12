@@ -134,17 +134,18 @@ export default function TransactionsPage() {
               <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('status')}>
                 <div className="flex items-center gap-1">Status <ArrowUpDown className="h-3 w-3" /></div>
               </TableHead>
+              <TableHead className="text-right">Total Cost</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && transactions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">Loading transactions...</TableCell>
+                <TableCell colSpan={8} className="h-24 text-center">Loading transactions...</TableCell>
               </TableRow>
             ) : sortedTransactions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">No transactions recorded.</TableCell>
+                <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">No transactions recorded.</TableCell>
               </TableRow>
             ) : (
               sortedTransactions.map((txn) => (
@@ -172,6 +173,9 @@ export default function TransactionsPage() {
                     {(txn.energyConsumed / 1000).toFixed(2)} kWh
                   </TableCell>
                   <TableCell>{getStatusBadge(txn.status)}</TableCell>
+                  <TableCell className="text-right font-mono">
+                    {txn.totalCost !== undefined && txn.totalCost !== null ? `€${(txn.totalCost / 100).toFixed(2)}` : (txn.amountDue !== undefined && txn.amountDue !== null ? `€${(txn.amountDue / 100).toFixed(2)}` : '-')}
+                  </TableCell>
                   <TableCell className="text-right">
                     <Link href={`/transactions/${txn.id}`}>
                        <Button variant="ghost" size="sm">

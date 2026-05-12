@@ -480,6 +480,9 @@ export async function handleTransactionEvent(
 
       await chargerRegistry.endTransaction(chargerId, transactionId);
 
+      const tariff = await prisma.tariff.findFirst();
+      const tariffRate = tariff?.electricity_rate || tariff?.charge || 10;
+
       const transaction = await prisma.transaction.findFirst({
         where: { transactionId: String(transactionId) },
       });
@@ -491,6 +494,19 @@ export async function handleTransactionEvent(
             energyConsumed = -energyConsumed;
         }
 
+        let totalCost = 0;
+        if (tariff?.tariffType === "DYNAMIC_EPEX" && tariff.country) {
+          const { EpexSpotService } = await import("../../services/EpexSpotService.js");
+          const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, transaction.startTime);
+          const spotPriceKwh = spotPriceMwh ? (spotPriceMwh / 1000) : 0;
+          const markup = tariff.markupPerKwh || 0;
+          const taxRate = tariff.taxPercentage ? (tariff.taxPercentage / 100) : 0;
+          const hourlyCostKwh = (spotPriceKwh + markup) * (1 + taxRate);
+          totalCost = (energyConsumed / 1000) * hourlyCostKwh * 100;
+        } else {
+          totalCost = (energyConsumed / 1000) * tariffRate * 100;
+        }
+
         const updatedTransaction = await prisma.transaction.update({
           where: { id: transaction.id },
           data: {
@@ -498,6 +514,7 @@ export async function handleTransactionEvent(
             endTime: new Date(timestamp),
             status: "completed",
             energyConsumed: energyConsumed,
+            totalCost: totalCost,
           },
           include: { charger: true }
         });
@@ -518,9 +535,6 @@ export async function handleTransactionEvent(
       });
 
       if (rfidSession) {
-        const tariff = await prisma.tariff.findFirst();
-        const tariffRate = tariff?.electricity_rate || tariff?.charge || 10;
-
         let energyConsumed = meterStop - (rfidSession.initialMeterValue || 0);
         if (isV2GDischarging && energyConsumed > 0) {
             energyConsumed = -energyConsumed;

@@ -155,17 +155,18 @@ export function ChargerTransactionsTable({ chargerId }: ChargerTransactionsTable
               <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('status')}>
                 <div className="flex items-center gap-1">Status <ArrowUpDown className="h-3 w-3" /></div>
               </TableHead>
+              <TableHead className="text-right">Total Cost</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">Loading transactions...</TableCell>
+                <TableCell colSpan={8} className="h-24 text-center">Loading transactions...</TableCell>
               </TableRow>
             ) : sortedTransactions.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                <TableCell colSpan={8} className="h-24 text-center text-muted-foreground">
                   {searchQuery ? "No transactions match your search." : "No transactions recorded for this charger."}
                 </TableCell>
               </TableRow>
@@ -173,7 +174,7 @@ export function ChargerTransactionsTable({ chargerId }: ChargerTransactionsTable
               <>
                 {virtualItems.length > 0 && virtualItems[0].start > 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} style={{ height: `${virtualItems[0].start}px`, padding: 0 }} />
+                    <TableCell colSpan={8} style={{ height: `${virtualItems[0].start}px`, padding: 0 }} />
                   </TableRow>
                 )}
                 {virtualItems.map((virtualRow) => {
@@ -200,6 +201,9 @@ export function ChargerTransactionsTable({ chargerId }: ChargerTransactionsTable
                         {(txn.energyConsumed / 1000).toFixed(2)} kWh
                       </TableCell>
                       <TableCell>{getStatusBadge(txn.status)}</TableCell>
+                      <TableCell className="text-right font-mono">
+                        {txn.totalCost !== undefined && txn.totalCost !== null ? `€${(txn.totalCost / 100).toFixed(2)}` : (txn.amountDue !== undefined && txn.amountDue !== null ? `€${(txn.amountDue / 100).toFixed(2)}` : '-')}
+                      </TableCell>
                       <TableCell className="text-right">
                         <Link href={`/transactions/${txn.id}`}>
                            <Button variant="ghost" size="sm">
@@ -212,7 +216,7 @@ export function ChargerTransactionsTable({ chargerId }: ChargerTransactionsTable
                 })}
                 {virtualItems.length > 0 && virtualItems[virtualItems.length - 1].end < rowVirtualizer.getTotalSize() && (
                   <TableRow>
-                    <TableCell colSpan={7} style={{ height: `${rowVirtualizer.getTotalSize() - virtualItems[virtualItems.length - 1].end}px`, padding: 0 }} />
+                    <TableCell colSpan={8} style={{ height: `${rowVirtualizer.getTotalSize() - virtualItems[virtualItems.length - 1].end}px`, padding: 0 }} />
                   </TableRow>
                 )}
               </>
