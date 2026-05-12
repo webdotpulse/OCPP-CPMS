@@ -33,6 +33,8 @@ import { ocppServer } from "./ocpp/ocppServer.js";
 import { ocppLogsServer } from "./ocpp/logsWebSocket.js";
 import { setupRealtimeSocket } from "./ocpp/realtime.socket.js";
 
+import { initCronJobs } from "./cron/epexCron.js";
+
 /**
  * Create and configure Express application
  */
@@ -123,6 +125,9 @@ export function startServers(): void {
 
   // Setup Socket.IO realtime server
   setupRealtimeSocket(server);
+
+  // Initialize background jobs
+  initCronJobs();
 
   // Graceful shutdown
   const shutdown = (signal: string) => {

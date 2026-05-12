@@ -226,17 +226,43 @@ model OcppLog {
   @@index([chargerId])
 }
 
+enum TariffType {
+  FIXED
+  DYNAMIC_EPEX
+}
+
+enum CountryCode {
+  BE
+  NL
+}
+
 // Optional: Tariff for pricing
 model Tariff {
-  tariff_id        Int      @id @default(autoincrement())
-  tariff_name      String   @unique
-  charge           Float
-  electricity_rate Float
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  tariff_id        Int          @id @default(autoincrement())
+  tariff_name      String       @unique
+  tariffType       TariffType   @default(FIXED)
+  country          CountryCode?
+  charge           Float?
+  electricity_rate Float?
+  markupPerKwh     Float?
+  fixedFeePerMonth Float?
+  taxPercentage    Float?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
 
   chargers         Charger[]
   chargeGroupUsers ChargeGroupUser[]
+}
+
+model EpexSpotPrice {
+  id          Int         @id @default(autoincrement())
+  timestamp   DateTime
+  country     CountryCode
+  pricePerMwh Float
+  createdAt   DateTime    @default(now())
+
+  @@unique([timestamp, country])
+  @@index([timestamp])
 }
 
 // Payment Transactions (for Stripe, Mollie, etc.)
