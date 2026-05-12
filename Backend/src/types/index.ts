@@ -193,22 +193,12 @@ export interface ClearChargingProfileRequest {
 // Tariff DTOs
 export interface CreateTariffDto {
   tariff_name: string;
-  tariffType?: "FIXED" | "DYNAMIC_EPEX";
-  country?: "BE" | "NL";
-  charge?: number;
-  electricity_rate?: number;
-  markupPerKwh?: number;
-  fixedFeePerMonth?: number;
-  taxPercentage?: number;
+  charge: number;
+  electricity_rate: number;
 }
 
 export interface UpdateTariffDto {
   tariff_name?: string;
-  tariffType?: "FIXED" | "DYNAMIC_EPEX";
-  country?: "BE" | "NL";
   charge?: number;
   electricity_rate?: number;
-  markupPerKwh?: number;
-  fixedFeePerMonth?: number;
-  taxPercentage?: number;
 }

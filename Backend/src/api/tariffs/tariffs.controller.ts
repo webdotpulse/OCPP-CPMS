@@ -134,23 +134,12 @@ export const createTariff = async (req: Request, res: Response) => {
   try {
     const data = req.body as CreateTariffDto;
 
-    // Validate required fields based on type
-    if (!data.tariff_name) {
-      return res.status(400).json({ success: false, error: "Missing required field: tariff_name" });
-    }
-
-    if (data.tariffType === "DYNAMIC_EPEX") {
-        if (!data.country) {
-            return res.status(400).json({ success: false, error: "Country is required for Dynamic EPEX tariffs" });
-        }
-    } else {
-        // Default FIXED
-        if (data.charge === undefined || data.electricity_rate === undefined) {
-          return res.status(400).json({
-            success: false,
-            error: "Missing required fields for FIXED tariff: charge, electricity_rate",
-          });
-        }
+    // Validate required fields
+    if (!data.tariff_name || data.charge === undefined || data.electricity_rate === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required fields: tariff_name, charge, electricity_rate",
+      });
     }
 
     // Check if tariff name already exists
@@ -168,13 +157,8 @@ export const createTariff = async (req: Request, res: Response) => {
     const tariff = await prisma.tariff.create({
       data: {
         tariff_name: data.tariff_name,
-        tariffType: data.tariffType || "FIXED",
-        country: data.country,
         charge: data.charge,
         electricity_rate: data.electricity_rate,
-        markupPerKwh: data.markupPerKwh,
-        fixedFeePerMonth: data.fixedFeePerMonth,
-        taxPercentage: data.taxPercentage,
       },
     });
 
@@ -235,13 +219,8 @@ export const updateTariff = async (req: Request, res: Response) => {
       where: { tariff_id: tariffId },
       data: {
         ...(data.tariff_name !== undefined && { tariff_name: data.tariff_name }),
-        ...(data.tariffType !== undefined && { tariffType: data.tariffType }),
-        ...(data.country !== undefined && { country: data.country }),
         ...(data.charge !== undefined && { charge: data.charge }),
         ...(data.electricity_rate !== undefined && { electricity_rate: data.electricity_rate }),
-        ...(data.markupPerKwh !== undefined && { markupPerKwh: data.markupPerKwh }),
-        ...(data.fixedFeePerMonth !== undefined && { fixedFeePerMonth: data.fixedFeePerMonth }),
-        ...(data.taxPercentage !== undefined && { taxPercentage: data.taxPercentage }),
       },
     });
 
