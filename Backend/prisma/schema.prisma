@@ -464,3 +464,28 @@ model ChargerAlert {
 
   createdAt DateTime @default(now())
 }
+
+// Mail Configuration for SMTP
+model MailConfig {
+  id          Int      @id @default(autoincrement())
+  host        String
+  port        Int
+  username    String
+  password    String
+  fromAddress String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Mail Templates for different types of emails
+model MailTemplate {
+  id        Int      @id @default(autoincrement())
+  name      String
+  type      String   @unique
+  subject   String
+  bodyHtml  String
+  bodyText  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

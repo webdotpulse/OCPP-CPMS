@@ -51,7 +51,10 @@ export const register = async (req: Request, res: Response) => {
       await sendEmail(
         user.email,
         "Welcome to OCPP CMS",
-        "Your account has been successfully registered."
+        "Your account has been successfully registered.",
+        "<p>Your account has been successfully registered.</p>",
+        "registration",
+        { userEmail: user.email }
       );
     } catch (emailError) {
       logger.error(`Error sending registration email to ${user.email}: ${emailError}`);
@@ -248,7 +251,9 @@ export const login = async (req: Request, res: Response) => {
             user.email,
             "Your 2FA Login Code",
             `Your two-factor authentication code is: ${twoFactorCode}`,
-            `<p>Your two-factor authentication code is: <strong>${twoFactorCode}</strong></p><p>This code will expire in 10 minutes.</p>`
+            `<p>Your two-factor authentication code is: <strong>${twoFactorCode}</strong></p><p>This code will expire in 10 minutes.</p>`,
+            "2fa_login",
+            { twoFactorCode }
           );
         } catch (emailError) {
           logger.error(`Error sending 2FA email to ${user.email}: ${emailError}`);
@@ -531,7 +536,9 @@ export const send2FAEmailCode = async (req: AuthRequest, res: Response) => {
         user.email,
         "Your 2FA Setup Code",
         `Your two-factor authentication setup code is: ${twoFactorCode}`,
-        `<p>Your two-factor authentication setup code is: <strong>${twoFactorCode}</strong></p><p>This code will expire in 10 minutes.</p>`
+        `<p>Your two-factor authentication setup code is: <strong>${twoFactorCode}</strong></p><p>This code will expire in 10 minutes.</p>`,
+        "2fa_setup",
+        { twoFactorCode }
       );
     } catch (emailError) {
       logger.error(`Error sending 2FA setup email to ${user.email}: ${emailError}`);
@@ -580,7 +587,9 @@ export const forgotPassword = async (req: Request, res: Response) => {
         user.email,
         "Password Reset Request",
         `You requested a password reset. Click this link to reset your password: ${resetUrl}`,
-        `<p>You requested a password reset.</p><p><a href="${resetUrl}">Click here to reset your password</a></p><p>If you did not request this, please ignore this email.</p>`
+        `<p>You requested a password reset.</p><p><a href="${resetUrl}">Click here to reset your password</a></p><p>If you did not request this, please ignore this email.</p>`,
+        "password_reset",
+        { resetUrl }
       );
     } catch (emailError) {
       logger.error(`Error sending password reset email to ${user.email}: ${emailError}`);

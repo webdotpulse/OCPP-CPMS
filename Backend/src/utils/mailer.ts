@@ -1,51 +1,83 @@
 import nodemailer from 'nodemailer';
 import { logger } from './logger.js';
+import { prisma } from '../config/database.js';
 
-export const sendEmail = async (to: string, subject: string, text: string, html?: string) => {
+/**
+ * Replace placeholders like {{var}} in string with values from variables object.
+ */
+const parseTemplate = (template: string, variables: Record<string, string>): string => {
+  let parsed = template;
+  for (const [key, value] of Object.entries(variables)) {
+    const regex = new RegExp(`{{${key}}}`, 'g');
+    parsed = parsed.replace(regex, value);
+  }
+  return parsed;
+};
+
+/**
+ * Send email based on template type or fallback strings.
+ */
+export const sendEmail = async (
+  to: string,
+  subjectFallback: string,
+  textFallback: string,
+  htmlFallback?: string,
+  templateType?: string,
+  variables?: Record<string, string>
+) => {
   try {
-    let transporter: nodemailer.Transporter;
+    let finalSubject = subjectFallback;
+    let finalText = textFallback;
+    let finalHtml = htmlFallback || textFallback;
 
-    if (process.env.SMTP_HOST && process.env.SMTP_PORT && process.env.SMTP_USER && process.env.SMTP_PASS) {
-      transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: parseInt(process.env.SMTP_PORT, 10),
-        secure: process.env.SMTP_PORT === '465', // true for 465, false for other ports
-        auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
-        },
+    // If templateType provided, try to find and parse template
+    if (templateType) {
+      const template = await prisma.mailTemplate.findUnique({
+        where: { type: templateType }
       });
-    } else {
-      logger.info('SMTP credentials not provided, creating Ethereal test account');
-      const testAccount = await nodemailer.createTestAccount();
-
-      transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false,
-        auth: {
-          user: testAccount.user,
-          pass: testAccount.pass,
-        },
-      });
+      if (template) {
+        finalSubject = variables ? parseTemplate(template.subject, variables) : template.subject;
+        finalText = variables ? parseTemplate(template.bodyText, variables) : template.bodyText;
+        finalHtml = variables ? parseTemplate(template.bodyHtml, variables) : template.bodyHtml;
+      }
     }
 
+    const mailConfig = await prisma.mailConfig.findFirst({
+      orderBy: { id: "desc" },
+    });
+
+    if (!mailConfig || !mailConfig.isActive) {
+      logger.info('No active mail configuration found. Gracefully logging email to console.');
+      logger.info(`--- EMAIL START ---`);
+      logger.info(`To: ${to}`);
+      logger.info(`Subject: ${finalSubject}`);
+      logger.info(`Text Body:\n${finalText}`);
+      logger.info(`--- EMAIL END ---`);
+      return null;
+    }
+
+    const transporter = nodemailer.createTransport({
+      host: mailConfig.host,
+      port: mailConfig.port,
+      secure: mailConfig.port === 465, // true for 465, false for other ports
+      auth: {
+        user: mailConfig.username,
+        pass: mailConfig.password,
+      },
+    });
+
     const mailOptions = {
-      from: process.env.SMTP_FROM || '"OCPP CMS" <noreply@ocpp-cms.local>',
+      from: mailConfig.fromAddress,
       to,
-      subject,
-      text,
-      html: html || text,
+      subject: finalSubject,
+      text: finalText,
+      html: finalHtml,
     };
 
     const info = await transporter.sendMail(mailOptions);
     logger.info(`Message sent: ${info.messageId}`);
-
-    if (info.messageId && !process.env.SMTP_HOST) {
-      logger.info(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
-    }
-
     return info;
+
   } catch (error) {
     logger.error('Error sending email:', error);
     throw error;

@@ -27,6 +27,7 @@ import chargeGroupsRoutes from "./api/chargeGroups/chargeGroups.routes.js";
 import simulatorRoutes from "./api/simulator/simulator.routes.js";
 import configProfilesRoutes from "./api/config-profiles/config-profiles.routes.js";
 import quirkProfilesRoutes from "./api/quirk-profiles/quirk-profiles.routes.js";
+import mailRoutes from "./api/mail/mail.routes.js";
 
 // Import OCPP servers
 import { ocppServer } from "./ocpp/ocppServer.js";
@@ -94,6 +95,7 @@ export function createApp(): Application {
   app.use("/api/simulator", authenticateToken, simulatorRoutes);
   app.use("/api/config-profiles", authenticateToken, configProfilesRoutes);
   app.use("/api/quirk-profiles", authenticateToken, quirkProfilesRoutes);
+  app.use("/api/mail", authenticateToken, mailRoutes);
 
   // Error handling
   app.use(notFoundHandler);
