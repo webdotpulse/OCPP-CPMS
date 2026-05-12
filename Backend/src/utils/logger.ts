@@ -2,7 +2,7 @@ import winston from "winston";
 import { config } from "../config/index.js";
 
 const logFormat = winston.format.combine(
-  winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+  winston.format.timestamp({ format: () => new Date().toLocaleString('sv-SE', { timeZone: process.env.TZ || 'Europe/Brussels' }).replace('T', ' ') }),
   winston.format.errors({ stack: true }),
   winston.format.printf(({ level, message, timestamp, stack }) => {
     return stack
