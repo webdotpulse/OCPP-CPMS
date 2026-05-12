@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, MapPin, Zap, Info, Clock, CheckCircle, RefreshCw, Send, Play, Square, Settings2 } from "lucide-react";
 import { MobileSpeedOverride } from "@/components/chargers/MobileSpeedOverride";
 import { ConnectorList } from "@/components/chargers/ConnectorList";
+import { RemoteControlPanel } from "@/components/chargers/RemoteControlPanel";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -140,54 +141,8 @@ export default function MobileChargerDetails() {
       <div className="p-4 space-y-4 pb-24">
         {/* OCPP Remote Controls */}
         {charger.status !== 'offline' && (
-          <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
-              <Zap className="w-4 h-4 mr-1.5 text-gray-500" /> OCPP Remote Controls
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                onClick={() => sendCommand('reset', { type: 'Soft' })}
-                disabled={isCommandLoading}
-                className="flex items-center justify-center p-2 text-xs font-medium bg-gray-50 border rounded-lg active:bg-gray-100"
-              >
-                <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Soft Reset
-              </button>
-              <button
-                onClick={() => sendCommand('reset', { type: 'Hard' })}
-                disabled={isCommandLoading}
-                className="flex items-center justify-center p-2 text-xs font-medium bg-gray-50 border rounded-lg active:bg-gray-100"
-              >
-                <RefreshCw className="mr-1.5 h-3.5 w-3.5" /> Hard Reset
-              </button>
-              <button
-                onClick={() => sendCommand('trigger-message', { requestedMessage: 'MeterValues' })}
-                disabled={isCommandLoading}
-                className="flex items-center justify-center p-2 text-xs font-medium bg-gray-50 border rounded-lg active:bg-gray-100"
-              >
-                <Send className="mr-1.5 h-3.5 w-3.5" /> Trigger Msg
-              </button>
-              <button
-                onClick={() => sendCommand('remote-start', { connectorId: 1, idTag: '12345678' })}
-                disabled={isCommandLoading}
-                className="flex items-center justify-center p-2 text-xs font-medium bg-blue-50 text-blue-600 border border-blue-100 rounded-lg active:bg-blue-100"
-              >
-                <Play className="mr-1.5 h-3.5 w-3.5" /> Start
-              </button>
-              <button
-                onClick={() => {
-                   const txn = activeTxns[0];
-                   if (txn) {
-                     sendCommand('remote-stop', { transactionId: txn.transactionId });
-                   } else {
-                     toast.error('No active transaction found to stop');
-                   }
-                }}
-                disabled={isCommandLoading}
-                className="col-span-2 flex items-center justify-center p-2 text-xs font-medium bg-red-50 text-red-600 border border-red-100 rounded-lg active:bg-red-100"
-              >
-                <Square className="mr-1.5 h-3.5 w-3.5" /> Remote Stop
-              </button>
-            </div>
+          <div className="mb-6">
+            <RemoteControlPanel chargerId={charger.charger_id} hideTriggerMessage={true} />
           </div>
         )}
 
@@ -203,9 +158,8 @@ export default function MobileChargerDetails() {
           </h3>
           <div className="overflow-x-auto -mx-4 px-4 pb-2">
              <ConnectorList
-               connectors={charger.evses?.flatMap((e: any) => e.connectors) || []}
+               connectors={charger.evses?.flatMap((e: any) => e.connectors?.map((c: any) => ({ ...c, charger_id: charger.charger_id }))) || []}
                readOnly={true}
-               hideLogs={true}
              />
           </div>
         </div>
