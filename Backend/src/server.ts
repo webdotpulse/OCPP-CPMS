@@ -9,6 +9,8 @@ startServers();
 // Start background workers
 MeterValueService.startWorker();
 
+import { EpexSpotService } from "./services/EpexSpotService.js";
+EpexSpotService.startEpexWorker();
 
 import { loadManagementService } from "./services/LoadManagementService.js";
 

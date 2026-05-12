@@ -232,11 +232,25 @@ model Tariff {
   tariff_name      String   @unique
   charge           Float
   electricity_rate Float
+  tariffType       String   @default("FIXED") // "FIXED" or "DYNAMIC_EPEX"
+  country          String?  // "BE" or "NL"
+  markupPerKwh     Float?
+  taxPercentage    Float?
+  fixedFeePerMonth Float?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   chargers         Charger[]
   chargeGroupUsers ChargeGroupUser[]
+}
+
+model EpexSpotPrice {
+  id          Int      @id @default(autoincrement())
+  timestamp   DateTime
+  country     String
+  pricePerMwh Float
+
+  @@unique([timestamp, country])
 }
 
 // Payment Transactions (for Stripe, Mollie, etc.)

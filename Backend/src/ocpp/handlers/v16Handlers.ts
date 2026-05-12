@@ -423,10 +423,28 @@ export async function handleStopTransaction(
     if (rfidSession) {
       // Get tariff rate (simplified - get first tariff or use default)
       const tariff = await prisma.tariff.findFirst();
-      const tariffRate = tariff?.charge || 10; // Default Rs 10/kWh
+      const tariffRate = tariff?.electricity_rate || tariff?.charge || 10; // Default Rs 10/kWh
 
       const energyConsumed = meterStop - (rfidSession.initialMeterValue || 0);
-      const amountDue = (energyConsumed / 1000) * tariffRate * 100; // Convert to paise
+      let amountDue = 0;
+
+      if (tariff?.tariffType === "DYNAMIC_EPEX" && tariff.country) {
+        const { EpexSpotService } = await import("../../services/EpexSpotService.js");
+        const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, rfidSession.startTime);
+
+        // Convert MWh to kWh
+        const spotPriceKwh = spotPriceMwh ? (spotPriceMwh / 1000) : 0;
+
+        // Formula: Hourly Cost = (EPEX_Spot_Price_Per_kWh + markupPerKwh) * (1 + taxPercentage)
+        const markup = tariff.markupPerKwh || 0;
+        const taxRate = tariff.taxPercentage ? (tariff.taxPercentage / 100) : 0;
+
+        const hourlyCostKwh = (spotPriceKwh + markup) * (1 + taxRate);
+
+        amountDue = (energyConsumed / 1000) * hourlyCostKwh * 100; // Convert to paise/cents
+      } else {
+        amountDue = (energyConsumed / 1000) * tariffRate * 100; // Convert to paise
+      }
 
       await prisma.rfidSession.update({
         where: { id: rfidSession.id },

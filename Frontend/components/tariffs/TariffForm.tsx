@@ -10,13 +10,31 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
 const tariffSchema = z.object({
   tariff_name: z.string().min(2, "Tariff name is required"),
-  charge: z.number().min(0, "Fixed charge cannot be negative"),
-  electricity_rate: z.number().min(0, "Rate cannot be negative"),
+  tariffType: z.enum(["FIXED", "DYNAMIC_EPEX"]).default("FIXED"),
+
+  // FIXED fields
+  charge: z.number().min(0, "Fixed charge cannot be negative").optional(),
+  electricity_rate: z.number().min(0, "Rate cannot be negative").optional(),
+
+  // DYNAMIC_EPEX fields
+  country: z.enum(["BE", "NL"]).optional(),
+  markupPerKwh: z.number().min(0, "Markup cannot be negative").optional(),
+  taxPercentage: z.number().min(0, "Tax cannot be negative").optional(),
+  fixedFeePerMonth: z.number().min(0, "Fixed fee cannot be negative").optional(),
+}).refine(data => {
+  if (data.tariffType === "DYNAMIC_EPEX") {
+    return !!data.country && data.markupPerKwh !== undefined && data.taxPercentage !== undefined && data.fixedFeePerMonth !== undefined;
+  }
+  return data.charge !== undefined && data.electricity_rate !== undefined;
+}, {
+  message: "Please fill in all required fields for the selected pricing model",
+  path: ["tariffType"]
 });
 
 type TariffFormValues = z.infer<typeof tariffSchema>;
@@ -25,13 +43,20 @@ export function TariffForm({ initialData }: { initialData?: any }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<TariffFormValues>({
-    resolver: zodResolver(tariffSchema),
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<TariffFormValues>({
+    resolver: zodResolver(tariffSchema) as any,
     defaultValues: initialData || {
+      tariffType: "FIXED",
       charge: 0,
       electricity_rate: 0,
+      country: "BE",
+      markupPerKwh: 0,
+      taxPercentage: 21,
+      fixedFeePerMonth: 0,
     },
   });
+
+  const selectedTariffType = watch("tariffType");
 
   const onSubmit = async (data: TariffFormValues) => {
     setIsLoading(true);
@@ -61,26 +86,88 @@ export function TariffForm({ initialData }: { initialData?: any }) {
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-5">
-          <div className="space-y-2">
-            <Label htmlFor="tariff_name">Tariff Plan Name</Label>
-            <Input id="tariff_name" {...register('tariff_name')} placeholder="e.g. Standard rate, Fast Charging Peak" />
-            {errors.tariff_name && <p className="text-sm text-destructive">{errors.tariff_name.message}</p>}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="tariff_name">Tariff Plan Name</Label>
+              <Input id="tariff_name" {...register('tariff_name')} placeholder="e.g. Standard rate, Fast Charging Peak" />
+              {errors.tariff_name && <p className="text-sm text-destructive">{errors.tariff_name.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tariffType">Pricing Model</Label>
+              <Select
+                defaultValue={selectedTariffType}
+                onValueChange={(value) => setValue("tariffType", value as "FIXED" | "DYNAMIC_EPEX")}
+              >
+                <SelectTrigger id="tariffType">
+                  <SelectValue placeholder="Select Pricing Model" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="FIXED">Fixed Rate</SelectItem>
+                  <SelectItem value="DYNAMIC_EPEX">Dynamic EPEX Spot</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
-            <div className="space-y-2">
-              <Label htmlFor="charge">Fixed Connection Charge (€)</Label>
-              <Input id="charge" type="number" step="any" {...register('charge', { valueAsNumber: true })} />
-              <p className="text-xs text-muted-foreground">Applied once per session.</p>
-              {errors.charge && <p className="text-sm text-destructive">{errors.charge.message}</p>}
+          {errors.tariffType && <p className="text-sm text-destructive">{errors.tariffType.message}</p>}
+
+          {selectedTariffType === "FIXED" ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+              <div className="space-y-2">
+                <Label htmlFor="charge">Fixed Connection Charge (€)</Label>
+                <Input id="charge" type="number" step="any" {...register('charge', { valueAsNumber: true })} />
+                <p className="text-xs text-muted-foreground">Applied once per session.</p>
+                {errors.charge && <p className="text-sm text-destructive">{errors.charge.message}</p>}
+              </div>
+               <div className="space-y-2">
+                <Label htmlFor="electricity_rate">Electricity Rate (€ per kWh)</Label>
+                <Input id="electricity_rate" type="number" step="any" {...register('electricity_rate', { valueAsNumber: true })} />
+                <p className="text-xs text-muted-foreground">Applied per kWh consumed.</p>
+                {errors.electricity_rate && <p className="text-sm text-destructive">{errors.electricity_rate.message}</p>}
+              </div>
             </div>
-             <div className="space-y-2">
-              <Label htmlFor="electricity_rate">Electricity Rate (€ per kWh)</Label>
-              <Input id="electricity_rate" type="number" step="any" {...register('electricity_rate', { valueAsNumber: true })} />
-              <p className="text-xs text-muted-foreground">Applied per kWh consumed.</p>
-              {errors.electricity_rate && <p className="text-sm text-destructive">{errors.electricity_rate.message}</p>}
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+              <div className="space-y-2">
+                <Label htmlFor="country">Country (EPEX Zone)</Label>
+                <Select
+                  defaultValue={watch("country")}
+                  onValueChange={(value) => setValue("country", value as "BE" | "NL")}
+                >
+                  <SelectTrigger id="country">
+                    <SelectValue placeholder="Select Country" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BE">Belgium (BE)</SelectItem>
+                    <SelectItem value="NL">Netherlands (NL)</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.country && <p className="text-sm text-destructive">{errors.country.message}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="markupPerKwh">Markup (€ per kWh)</Label>
+                <Input id="markupPerKwh" type="number" step="any" {...register('markupPerKwh', { valueAsNumber: true })} />
+                <p className="text-xs text-muted-foreground">Added to the EPEX Spot rate.</p>
+                {errors.markupPerKwh && <p className="text-sm text-destructive">{errors.markupPerKwh.message}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="taxPercentage">Tax Rate (%)</Label>
+                <Input id="taxPercentage" type="number" step="any" {...register('taxPercentage', { valueAsNumber: true })} />
+                <p className="text-xs text-muted-foreground">e.g. 21 for 21% VAT.</p>
+                {errors.taxPercentage && <p className="text-sm text-destructive">{errors.taxPercentage.message}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="fixedFeePerMonth">Fixed Monthly Fee (€)</Label>
+                <Input id="fixedFeePerMonth" type="number" step="any" {...register('fixedFeePerMonth', { valueAsNumber: true })} />
+                <p className="text-xs text-muted-foreground">Information only, not automatically billed.</p>
+                {errors.fixedFeePerMonth && <p className="text-sm text-destructive">{errors.fixedFeePerMonth.message}</p>}
+              </div>
             </div>
-          </div>
+          )}
         </CardContent>
         <CardFooter className="flex flex-col-reverse gap-3 border-t pt-4 sm:flex-row sm:justify-between">
           <Button variant="outline" type="button" onClick={() => router.back()}>Cancel</Button>

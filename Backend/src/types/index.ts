@@ -195,10 +195,20 @@ export interface CreateTariffDto {
   tariff_name: string;
   charge: number;
   electricity_rate: number;
+  tariffType?: string;
+  country?: string;
+  markupPerKwh?: number;
+  taxPercentage?: number;
+  fixedFeePerMonth?: number;
 }
 
 export interface UpdateTariffDto {
   tariff_name?: string;
   charge?: number;
   electricity_rate?: number;
+  tariffType?: string;
+  country?: string;
+  markupPerKwh?: number;
+  taxPercentage?: number;
+  fixedFeePerMonth?: number;
 }

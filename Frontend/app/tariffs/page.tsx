@@ -122,11 +122,12 @@ export default function TariffsPage() {
               <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('tariff_name')}>
                 <div className="flex items-center gap-1">Plan Name <ArrowUpDown className="h-3 w-3" /></div>
               </TableHead>
+              <TableHead>Type</TableHead>
               <TableHead className="text-right cursor-pointer hover:bg-muted/50" onClick={() => handleSort('charge')}>
-                <div className="flex items-center justify-end gap-1">Fixed Charge <ArrowUpDown className="h-3 w-3" /></div>
+                <div className="flex items-center justify-end gap-1">Fixed Charge / Monthly Fee <ArrowUpDown className="h-3 w-3" /></div>
               </TableHead>
               <TableHead className="text-right cursor-pointer hover:bg-muted/50" onClick={() => handleSort('electricity_rate')}>
-                <div className="flex items-center justify-end gap-1">Energy Rate <ArrowUpDown className="h-3 w-3" /></div>
+                <div className="flex items-center justify-end gap-1">Energy Rate / Markup <ArrowUpDown className="h-3 w-3" /></div>
               </TableHead>
               {user?.role === "admin" && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
@@ -145,12 +146,27 @@ export default function TariffsPage() {
             ) : (
               sortedTariffs.map((tariff) => (
                 <TableRow key={tariff.tariff_id}>
-                  <TableCell className="font-medium flex items-center gap-2">
-                    <WalletCards className="h-4 w-4 text-muted-foreground" />
-                    {tariff.tariff_name}
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-2">
+                      <WalletCards className="h-4 w-4 text-muted-foreground" />
+                      {tariff.tariff_name}
+                    </div>
                   </TableCell>
-                  <TableCell className="text-right font-mono">€{Number(tariff.charge).toFixed(2)}</TableCell>
-                  <TableCell className="text-right font-mono">€{Number(tariff.electricity_rate).toFixed(3)} / kWh</TableCell>
+                  <TableCell>
+                    {tariff.tariffType === "DYNAMIC_EPEX" ? `Dynamic (${tariff.country})` : "Fixed"}
+                  </TableCell>
+                  <TableCell className="text-right font-mono">
+                    {tariff.tariffType === "DYNAMIC_EPEX"
+                      ? `€${Number(tariff.fixedFeePerMonth || 0).toFixed(2)} / mo`
+                      : `€${Number(tariff.charge || 0).toFixed(2)}`
+                    }
+                  </TableCell>
+                  <TableCell className="text-right font-mono">
+                    {tariff.tariffType === "DYNAMIC_EPEX"
+                      ? `EPEX + €${Number(tariff.markupPerKwh || 0).toFixed(3)} / kWh`
+                      : `€${Number(tariff.electricity_rate || 0).toFixed(3)} / kWh`
+                    }
+                  </TableCell>
                   {user?.role === "admin" && (
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
