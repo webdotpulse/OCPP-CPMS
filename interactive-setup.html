@@ -285,6 +285,7 @@ OCPP_PORT=9220
 OCPP_LOG_WS_PORT=3001
 JWT_SECRET="generate_a_very_secure_random_string_here"
 REDIS_URL="redis://localhost:6379"
+TZ="Europe/Brussels"
 EOT
 
 # Generate and migrate DB
@@ -304,6 +305,7 @@ npm install
 # Create environment file for Frontend
 cat <<EOT >> .env
 NEXT_PUBLIC_API_URL="https://ocpp.mobilitypulse.com/api"
+TZ="Europe/Brussels"
 EOT
 
 # Build Next.js application
