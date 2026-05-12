@@ -518,14 +518,53 @@ export async function handleTransactionEvent(
       });
 
       if (rfidSession) {
-        const tariff = await prisma.tariff.findFirst();
-        const tariffRate = tariff?.charge || 10;
+        // Get the correct tariff associated with this user/charge group or fallback to a default
+        let tariff = await prisma.tariff.findFirst({
+           where: { chargeGroupUsers: { some: { userId: rfidSession.rfidUser.owner_id } } }
+        });
+        if (!tariff) {
+          tariff = await prisma.tariff.findFirst();
+        }
 
         let energyConsumed = meterStop - (rfidSession.initialMeterValue || 0);
         if (isV2GDischarging && energyConsumed > 0) {
             energyConsumed = -energyConsumed;
         }
-        const amountDue = (energyConsumed / 1000) * tariffRate * 100;
+
+        let tariffRate = tariff?.electricity_rate || tariff?.charge || 10; // Default fallback
+        let amountDue = 0;
+
+        if (tariff?.tariffType === "DYNAMIC_EPEX" && tariff.country) {
+            // Dynamic pricing calculation
+            const endTime = new Date(timestamp);
+            const spotPrice = await prisma.epexSpotPrice.findFirst({
+                where: {
+                    country: tariff.country,
+                    timestamp: { lte: endTime }
+                },
+                orderBy: { timestamp: 'desc' }
+            });
+
+            if (spotPrice) {
+               const pricePerKwh = spotPrice.pricePerMwh / 1000;
+               const markup = tariff.markupPerKwh || 0;
+               const baseCost = pricePerKwh + markup;
+               const taxMultiplier = 1 + ((tariff.taxPercentage || 0) / 100);
+               const finalRate = baseCost * taxMultiplier;
+               tariffRate = finalRate;
+               amountDue = (Math.abs(energyConsumed) / 1000) * finalRate * 100; // Convert to cents/paise
+            } else {
+               // Fallback if no spot price available
+               amountDue = (Math.abs(energyConsumed) / 1000) * tariffRate * 100;
+               logger.warn(`No EPEX spot price found for ${tariff.country} at ${endTime.toISOString()}`);
+            }
+        } else {
+            // Fixed pricing calculation
+            amountDue = (Math.abs(energyConsumed) / 1000) * tariffRate * 100; // Convert to cents/paise
+        }
+
+        // Retain sign for V2G
+        if (isV2GDischarging && amountDue > 0) amountDue = -amountDue;
 
         await prisma.rfidSession.update({
           where: { id: rfidSession.id },
