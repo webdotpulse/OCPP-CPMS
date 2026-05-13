@@ -33,26 +33,17 @@ export class LoadManagementService {
    * Calculate the total current power draw for a specific site
    */
   async calculateSiteLoad(stationId: number): Promise<number> {
-    const transactions = await prisma.transaction.findMany({
+    const aggregateLoad = await prisma.transaction.aggregate({
       where: {
-        status: "charging", // Need to make sure the status represents active drawing, e.g. "initiated" or "charging"
-        charger: {
-          charging_station_id: stationId
-        }
+        status: { in: ["initiated", "charging"] },
+        charger: { charging_station_id: stationId }
       },
-      include: { charger: true }
+      _sum: {
+        currentPower: true
+      }
     });
 
-    // In a real scenario, this would aggregate current active power draws from recent MeterValues.
-    // For this example, we'll assume a baseline draw or use the charger's max capacity if actively charging.
-    // Assuming each active transaction draws maximum power if not specifically limited.
-    let totalLoad = 0;
-    for (const tx of transactions) {
-      // Simplified: Add power capacity of active chargers
-      totalLoad += tx.charger.power_capacity || 0;
-    }
-
-    return totalLoad;
+    return (aggregateLoad._sum.currentPower || 0) / 1000;
   }
 
   /**
@@ -96,14 +87,6 @@ export class LoadManagementService {
       });
 
       let totalActiveLoadKw = (aggregateLoad._sum.currentPower || 0) / 1000;
-
-      // Fallback: If no currentPower is reported, fallback to theoretical capacity
-      if (totalActiveLoadKw === 0) {
-        totalActiveLoadKw = activeTransactions.reduce(
-          (sum, tx) => sum + (tx.charger.power_capacity || 0),
-          0
-        );
-      }
 
       // 2) Find THEORETICAL max load (what the chargers COULD draw if unbounded).
       // We use theoretical load to decide when it's safe to CLEAR limits.
@@ -219,12 +202,6 @@ export class LoadManagementService {
         });
 
         let totalActiveCurrent = aggregateCurrent._sum.current || 0;
-        if (totalActiveCurrent === 0) {
-          totalActiveCurrent = activeTransactions.reduce(
-            (sum, tx) => sum + (tx.current || 0),
-            0
-          );
-        }
 
         const safeLimitAmps = group.maxAmperage * 0.95;
 
@@ -307,14 +284,6 @@ export class LoadManagementService {
       });
 
       let totalActiveLoadKw = (aggregateLoad._sum.currentPower || 0) / 1000;
-
-      // Fallback
-      if (totalActiveLoadKw === 0) {
-        totalActiveLoadKw = activeTransactions.reduce(
-          (sum, tx) => sum + (tx.charger.power_capacity || 0),
-          0
-        );
-      }
 
       // CLEAR limits based on THEORETICAL max load to prevent oscillation
       if (theoreticalMaxLoadKw <= safeLimitKw) {

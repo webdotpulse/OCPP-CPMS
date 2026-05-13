@@ -1,7 +1,7 @@
-import { loadManagementService } from "../../services/LoadManagementService";
+import { jest } from '@jest/globals';
 
 // Mock prisma and redisClient and logger
-jest.mock("../../config/database", () => ({
+jest.unstable_mockModule("../../config/database", () => ({
   prisma: {
     transaction: {
       aggregate: jest.fn(),
@@ -20,7 +20,7 @@ jest.mock("../../config/database", () => ({
   }
 }));
 
-jest.mock("../../utils/logger", () => ({
+jest.unstable_mockModule("../../utils/logger", () => ({
   logger: {
     info: jest.fn(),
     error: jest.fn(),
@@ -29,12 +29,19 @@ jest.mock("../../utils/logger", () => ({
   }
 }));
 
-jest.mock("../../ocpp/remoteControl", () => ({
+jest.unstable_mockModule("../../ocpp/remoteControl", () => ({
   setChargingProfile: jest.fn(),
   clearChargingProfile: jest.fn(),
 }));
 
 describe("LoadManagementService", () => {
+  let loadManagementService: any;
+
+  beforeAll(async () => {
+    const mod = await import("../../services/LoadManagementService");
+    loadManagementService = mod.loadManagementService;
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
   });

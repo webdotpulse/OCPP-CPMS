@@ -381,8 +381,8 @@ export async function handleTransactionEvent(
 
 } else if (eventType === "Updated") {
       if (meterValue && meterValue.length > 0) {
-        let energyValue = 0;
-        let powerValue = 0;
+        let energyValue: number | undefined = undefined;
+        let powerValue: number | undefined = undefined;
         let socValue: number | null = null;
         let currentValue: number | null = null;
         let voltageValue: number | null = null;

@@ -11,8 +11,8 @@ export interface MeterValuePayload {
   transactionId: string;
   chargerId: number;
   connectorId?: number;
-  energyValue: number;
-  powerValue: number;
+  energyValue?: number;
+  powerValue?: number;
   socValue: number | null;
   currentValue: number | null;
   voltageValue: number | null;
@@ -114,8 +114,8 @@ export class MeterValueService {
             transactionId: p.transactionId,
             chargerId: p.chargerId,
             connectorId: p.connectorId,
-            energy: p.energyValue,
-            power: p.powerValue,
+            energy: p.energyValue ?? null,
+            power: p.powerValue ?? null,
             soc: p.socValue,
             current: p.currentValue,
             voltage: p.voltageValue,
@@ -142,8 +142,8 @@ export class MeterValueService {
                 ...existing,
                 ...p,
                 // Ensure partial metrics are not lost if a subsequent payload omits them
-                energyValue: p.energyValue || existing.energyValue,
-                powerValue: p.powerValue || existing.powerValue,
+                energyValue: p.energyValue !== undefined && p.energyValue !== null ? p.energyValue : existing.energyValue,
+                powerValue: p.powerValue !== undefined && p.powerValue !== null ? p.powerValue : existing.powerValue,
                 socValue: p.socValue !== null ? p.socValue : existing.socValue,
                 currentValue: p.currentValue !== null ? p.currentValue : existing.currentValue,
                 voltageValue: p.voltageValue !== null ? p.voltageValue : existing.voltageValue,
@@ -163,8 +163,8 @@ export class MeterValueService {
           // Update Transactions and RfidSessions
           for (const [transactionId, latest] of latestValuesByTx.entries()) {
             const txUpdateData = {
-              energyConsumed: latest.energyValue,
-              currentPower: latest.powerValue,
+              ...(latest.energyValue !== undefined && { energyConsumed: latest.energyValue }),
+              ...(latest.powerValue !== undefined && { currentPower: latest.powerValue }),
               ...(latest.socValue !== null && { soc: latest.socValue }),
               ...(latest.currentValue !== null && { current: latest.currentValue }),
               ...(latest.voltageValue !== null && { voltage: latest.voltageValue }),
