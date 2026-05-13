@@ -48,13 +48,14 @@ export const register = async (req: Request, res: Response) => {
 
     // Send confirmation email
     try {
+      const loginUrl = process.env.FRONTEND_URL || "http://localhost:3000";
       await sendEmail(
         user.email,
         "Welcome to OCPP CMS",
         "Your account has been successfully registered.",
         "<p>Your account has been successfully registered.</p>",
         "registration",
-        { userEmail: user.email }
+        { userEmail: user.email, loginUrl }
       );
     } catch (emailError) {
       logger.error(`Error sending registration email to ${user.email}: ${emailError}`);

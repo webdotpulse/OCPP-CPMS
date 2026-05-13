@@ -23,7 +23,7 @@ export default function MailSettingsPage() {
     try {
       const response = await api.get("/mail/config");
       if (response.data) {
-        setConfig(response.data);
+        setConfig(response.data.data);
       }
     } catch (error) {
       console.error("Failed to load mail config", error);

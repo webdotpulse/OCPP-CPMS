@@ -3,6 +3,7 @@ import { prisma } from "../../config/database.js";
 import { logger } from "../../utils/logger.js";
 import { parsePagination, parseId } from "../../utils/validation.js";
 import { AuthRequest } from "../../middleware/auth.js";
+import { sendEmail } from "../../utils/mailer.js";
 import bcrypt from "bcrypt";
 
 /**
@@ -237,6 +238,25 @@ export const createUser = async (req: AuthRequest, res: Response) => {
       },
       select: { id: true, name: true, email: true, role: true, userType: true, companyName: true }
     });
+
+    try {
+      const loginUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+      await sendEmail(
+        user.email,
+        "Welcome to OCPP CMS",
+        `Welcome ${name || "User"}! Your account has been created by an admin. You can log in at ${loginUrl} using your email and the password provided.`,
+        `<p>Welcome ${name || "User"}!</p><p>Your account has been created by an admin.</p><p>You can log in at <a href="${loginUrl}">${loginUrl}</a> using your email and the password provided.</p>`,
+        "admin_welcome",
+        {
+          userEmail: user.email,
+          name: name || "User",
+          password,
+          loginUrl
+        }
+      );
+    } catch (emailError) {
+      logger.error(`Error sending welcome email to ${user.email}: ${emailError}`);
+    }
 
     res.status(201).json({ success: true, data: user });
   } catch (error) {
