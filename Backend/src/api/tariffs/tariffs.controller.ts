@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../../config/database.js";
 import { logger } from "../../utils/logger.js";
 import { parseId, parsePagination } from "../../utils/validation.js";
+import { EpexSpotService } from "../../services/EpexSpotService.js";
 import type { CreateTariffDto, UpdateTariffDto } from "../../types/index.js";
 
 /**
@@ -427,6 +428,50 @@ export const removeTariffFromCharger = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       error: "Failed to remove tariff from charger",
+    });
+  }
+};
+
+/**
+ * POST /api/tariffs/preview-epex - Preview EPEX dynamic tariff prices
+ */
+export const previewEpexTariff = async (req: Request, res: Response) => {
+  try {
+    const { country, markupPerKwh, taxPercentage } = req.body;
+
+    if (!country || markupPerKwh === undefined || taxPercentage === undefined) {
+      return res.status(400).json({
+        success: false,
+        error: "Missing required fields: country, markupPerKwh, taxPercentage",
+      });
+    }
+
+    const now = new Date();
+    now.setMinutes(0, 0, 0);
+
+    const previewData = [];
+
+    for (let i = 0; i < 24; i++) {
+      const timestamp = new Date(now.getTime() + i * 60 * 60 * 1000);
+      const pricePerMwh = await EpexSpotService.getPriceForTimestamp(country, timestamp);
+
+      if (pricePerMwh !== null) {
+        const baseKwhPrice = pricePerMwh / 1000;
+        const finalPrice = (baseKwhPrice + Number(markupPerKwh)) * (1 + Number(taxPercentage) / 100);
+
+        previewData.push({
+          timestamp,
+          price: Number(finalPrice.toFixed(4)),
+        });
+      }
+    }
+
+    res.json({ success: true, data: previewData });
+  } catch (error) {
+    logger.error(`Error previewing EPEX tariff: ${error}`);
+    res.status(500).json({
+      success: false,
+      error: "Failed to preview EPEX tariff",
     });
   }
 };

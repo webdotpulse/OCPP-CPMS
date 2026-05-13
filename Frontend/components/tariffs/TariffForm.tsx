@@ -12,7 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 const tariffSchema = z.object({
   tariff_name: z.string().min(2, "Tariff name is required"),
@@ -42,6 +43,8 @@ type TariffFormValues = z.infer<typeof tariffSchema>;
 export function TariffForm({ initialData }: { initialData?: any }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [previewData, setPreviewData] = useState<{ time: string; price: number }[]>([]);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<TariffFormValues>({
     resolver: zodResolver(tariffSchema) as any,
@@ -57,6 +60,47 @@ export function TariffForm({ initialData }: { initialData?: any }) {
   });
 
   const selectedTariffType = watch("tariffType");
+  const watchCountry = watch("country");
+  const watchMarkup = watch("markupPerKwh");
+  const watchTax = watch("taxPercentage");
+
+  useEffect(() => {
+    if (selectedTariffType !== "DYNAMIC_EPEX") return;
+
+    const fetchPreview = async () => {
+      setIsPreviewLoading(true);
+      try {
+        const res = await api.post("/tariffs/preview-epex", {
+          country: watchCountry,
+          markupPerKwh: watchMarkup,
+          taxPercentage: watchTax,
+        });
+
+        if (res.data?.data) {
+          const formattedData = res.data.data.map((item: any) => {
+            const d = new Date(item.timestamp);
+            return {
+              time: `${d.getHours().toString().padStart(2, "0")}:00`,
+              price: item.price,
+            };
+          });
+          setPreviewData(formattedData);
+        }
+      } catch (error) {
+        logger.error("Failed to fetch EPEX preview", error);
+      } finally {
+        setIsPreviewLoading(false);
+      }
+    };
+
+    const timeoutId = setTimeout(() => {
+      if (watchCountry && watchMarkup !== undefined && watchTax !== undefined) {
+        fetchPreview();
+      }
+    }, 500); // 500ms debounce
+
+    return () => clearTimeout(timeoutId);
+  }, [selectedTariffType, watchCountry, watchMarkup, watchTax]);
 
   const onSubmit = async (data: TariffFormValues) => {
     setIsLoading(true);
@@ -165,6 +209,59 @@ export function TariffForm({ initialData }: { initialData?: any }) {
                 <Input id="fixedFeePerMonth" type="number" step="any" {...register('fixedFeePerMonth', { valueAsNumber: true })} />
                 <p className="text-xs text-muted-foreground">Information only, not automatically billed.</p>
                 {errors.fixedFeePerMonth && <p className="text-sm text-destructive">{errors.fixedFeePerMonth.message}</p>}
+              </div>
+            </div>
+          )}
+
+          {selectedTariffType === "DYNAMIC_EPEX" && (
+            <div className="border-t pt-4 space-y-4">
+              <Label>24-Hour Price Preview (€ per kWh)</Label>
+              <div className="h-[250px] w-full bg-slate-50/50 dark:bg-slate-900/50 rounded-md p-4 border">
+                {isPreviewLoading ? (
+                  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                    <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                    Loading preview...
+                  </div>
+                ) : previewData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={previewData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+                      <XAxis
+                        dataKey="time"
+                        tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                        tickLine={false}
+                        axisLine={{ stroke: "hsl(var(--border))" }}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+                        tickLine={false}
+                        axisLine={{ stroke: "hsl(var(--border))" }}
+                        tickFormatter={(value) => `€${value.toFixed(2)}`}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: "hsl(var(--background))",
+                          borderColor: "hsl(var(--border))",
+                          borderRadius: "var(--radius)"
+                        }}
+                        formatter={(value: any) => [`€${Number(value).toFixed(4)}`, "Price per kWh"]}
+                        labelStyle={{ color: "hsl(var(--foreground))", fontWeight: "bold", marginBottom: "4px" }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="price"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth={2}
+                        dot={{ r: 3, fill: "hsl(var(--background))", stroke: "hsl(var(--primary))", strokeWidth: 2 }}
+                        activeDot={{ r: 5, fill: "hsl(var(--primary))", stroke: "hsl(var(--background))", strokeWidth: 2 }}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                    Preview data unavailable. Check parameters or backend connection.
+                  </div>
+                )}
               </div>
             </div>
           )}

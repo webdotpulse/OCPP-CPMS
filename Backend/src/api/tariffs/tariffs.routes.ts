@@ -8,12 +8,14 @@ import {
   assignTariffToCharger,
   removeTariffFromCharger,
   getTariffChargers,
+  previewEpexTariff,
 } from "./tariffs.controller.js";
 import { requireAdmin } from "../../middleware/auth.js";
 
 const router = Router();
 
 router.get("/", getAllTariffs);
+router.post("/preview-epex", requireAdmin, previewEpexTariff);
 router.get("/:id", getTariffById);
 router.post("/", requireAdmin, createTariff);
 router.put("/:id", requireAdmin, updateTariff);
