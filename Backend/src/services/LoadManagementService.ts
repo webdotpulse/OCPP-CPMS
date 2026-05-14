@@ -5,11 +5,19 @@ import type { SetChargingProfileRequest } from "../types/index.js";
 
 export class LoadManagementService {
   private isEngineRunning = false;
+  private timeoutId?: NodeJS.Timeout;
 
   public startSmartChargingEngine() {
     if (this.isEngineRunning) return;
     this.isEngineRunning = true;
     this.runSmartChargingLoop();
+  }
+
+  public stopSmartChargingEngine() {
+    this.isEngineRunning = false;
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
   }
 
   private async runSmartChargingLoop() {
@@ -26,7 +34,9 @@ export class LoadManagementService {
       logger.error(`Smart Charging engine global error: ${error}`);
     } finally {
       // Recursive algorithm: schedule next run after 60 seconds
-      setTimeout(() => this.runSmartChargingLoop(), 60 * 1000);
+      if (this.isEngineRunning) {
+        this.timeoutId = setTimeout(() => this.runSmartChargingLoop(), 60 * 1000);
+      }
     }
   }
   /**
