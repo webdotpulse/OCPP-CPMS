@@ -1,0 +1,3564 @@
+
+> Frontend@0.0.1 dev
+> next dev -p 3002 --turbopack
+
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3002
+- Network:       http://192.168.0.2:3002
+✓ Ready in 531ms
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+
+○ Compiling /login ...
+ GET /login 200 in 6.9s (next.js: 5.9s, proxy.ts: 138ms, application-code: 846ms)
+ GET /admin/tariffs 404 in 683ms (next.js: 580ms, proxy.ts: 20ms, application-code: 82ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u36e0ier AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u370ytb6 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u39ad180 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u3d76m6q AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u3h2ipd3 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u3ky1vzg AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u3otcn8c AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u3son1f1 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /admin/tariffs/new 404 in 79ms (next.js: 11ms, proxy.ts: 6ms, application-code: 61ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u4ld4iku AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u4m263w5 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u4nghqf6 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u4qurssp AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u4uq2k8w AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u4yldxnw AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u52gn8k8 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u56bxta2 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /admin/tariffs/new 404 in 63ms (next.js: 7ms, proxy.ts: 7ms, application-code: 49ms)
+○ Compiling /tariffs/new ...
+ GET /tariffs/new 200 in 3.5s (next.js: 3.2s, proxy.ts: 7ms, application-code: 300ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u7e0nxrx AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /login 200 in 57ms (next.js: 4ms, proxy.ts: 8ms, application-code: 44ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u7eihd5c AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u7fj8uw3 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u7jehnx0 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u7mwbjvf AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u7qs0ew4 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u7undkhv AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u7yipkgt AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u82e4ihe AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /login 200 in 102ms (next.js: 4ms, proxy.ts: 6ms, application-code: 92ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u8kxhlmj AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u8m3pqqq AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u8nb4dha AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u8r6ep71 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u8v206xn AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u8yxb61o AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u92sl6q3 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u96nwae1 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /login 200 in 81ms (next.js: 5ms, proxy.ts: 5ms, application-code: 71ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=u9pvah9z AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /login 200 in 88ms (next.js: 7ms, proxy.ts: 7ms, application-code: 74ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ua8sfa9u AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ua9l2v48 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uaaywzh9 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /tariffs/new 200 in 122ms (next.js: 4ms, proxy.ts: 5ms, application-code: 113ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uabh82em AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /login 200 in 60ms (next.js: 13ms, proxy.ts: 12ms, application-code: 35ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uacmik7e AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uadjprf4 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uaheye5i AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uala831e AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uap5kgqw AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uat0t2e0 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uaww5hrc AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /login 200 in 74ms (next.js: 4ms, proxy.ts: 5ms, application-code: 66ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ubjbcoly AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ubk9p2am AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ublaouhl AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /tariffs 200 in 1014ms (next.js: 906ms, proxy.ts: 4ms, application-code: 104ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ubnevv5r AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /login 200 in 46ms (next.js: 5ms, proxy.ts: 8ms, application-code: 33ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ubo4dm5t AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ubp6fnss AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ubt1pmln AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ubwwy2oq AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uc0sb6s7 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uc4nnvdd AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uc8iwwh4 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /login 200 in 84ms (next.js: 3ms, proxy.ts: 5ms, application-code: 76ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ucweijj3 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ucww5cov AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ucyezok3 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /login 200 in 74ms (next.js: 4ms, proxy.ts: 4ms, application-code: 66ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=udxj4hbo AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/auth/login AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Login error AxiosError: Request failed with status code 500
+    at async onSubmit (components/auth/LoginForm.tsx:44:24)
+  42 |     setError(null);
+  43 |     try {
+> 44 |       const response = await api.post('/auth/login', data);
+     |                        ^
+  45 |       const resData = response.data?.data || response.data;
+  46 |
+  47 |       if (resData.requires2FA) { (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=udyk0mus AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=udzgbvaq AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /tariffs/new 200 in 152ms (next.js: 9ms, proxy.ts: 9ms, application-code: 134ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ue16m62f AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /login 200 in 223ms (next.js: 29ms, proxy.ts: 32ms, application-code: 162ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ue1x9z3v AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ue49usz1 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ue6xvk55 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ueat6j6m AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ueeof4zq AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ueijqh70 AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uemf1z9f AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /login 200 in 85ms (next.js: 4ms, proxy.ts: 6ms, application-code: 76ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=uff21w6k AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/auth/login AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Login error AxiosError: Request failed with status code 500
+    at async onSubmit (components/auth/LoginForm.tsx:44:24)
+  42 |     setError(null);
+  43 |     try {
+> 44 |       const response = await api.post('/auth/login', data);
+     |                        ^
+  45 |       const resData = response.data?.data || response.data;
+  46 |
+  47 |       if (resData.requires2FA) { (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ufg17o4o AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ufgy6hfh AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /tariffs/new 200 in 72ms (next.js: 4ms, proxy.ts: 4ms, application-code: 64ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ufihogjs AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+ GET /login 200 in 65ms (next.js: 15ms, proxy.ts: 9ms, application-code: 41ms)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ufj4v4bx AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)
+Failed to proxy http://localhost:3000/api/realtime?EIO=4&transport=polling&t=ufktpvwc AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+AggregateError:
+    at ignore-listed frames {
+  code: 'ECONNREFUSED',
+  [errors]: [
+    Error: connect ECONNREFUSED ::1:3000
+        at <unknown> (Error: connect ECONNREFUSED ::1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '::1',
+      port: 3000
+    },
+    Error: connect ECONNREFUSED 127.0.0.1:3000
+        at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:3000) {
+      errno: -111,
+      code: 'ECONNREFUSED',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 3000
+    }
+  ]
+}
+[browser] Realtime WebSocket connection error: Error: xhr poll error (lib/logger.ts:6:13)

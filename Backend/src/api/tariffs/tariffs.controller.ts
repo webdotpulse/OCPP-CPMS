@@ -181,6 +181,8 @@ export const createTariff = async (req: Request, res: Response) => {
         markupPerKwh: data.markupPerKwh,
         taxPercentage: data.taxPercentage,
         fixedFeePerMonth: data.fixedFeePerMonth,
+        time_fee: data.time_fee ?? 0,
+        idle_fee: data.idle_fee ?? 0,
       },
     });
 
@@ -248,6 +250,8 @@ export const updateTariff = async (req: Request, res: Response) => {
         ...(data.markupPerKwh !== undefined && { markupPerKwh: data.markupPerKwh }),
         ...(data.taxPercentage !== undefined && { taxPercentage: data.taxPercentage }),
         ...(data.fixedFeePerMonth !== undefined && { fixedFeePerMonth: data.fixedFeePerMonth }),
+        ...(data.time_fee !== undefined && { time_fee: data.time_fee }),
+        ...(data.idle_fee !== undefined && { idle_fee: data.idle_fee }),
       },
     });
 

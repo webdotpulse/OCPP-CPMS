@@ -200,6 +200,8 @@ export interface CreateTariffDto {
   markupPerKwh?: number;
   taxPercentage?: number;
   fixedFeePerMonth?: number;
+  time_fee?: number;
+  idle_fee?: number;
 }
 
 export interface UpdateTariffDto {
@@ -211,4 +213,6 @@ export interface UpdateTariffDto {
   markupPerKwh?: number;
   taxPercentage?: number;
   fixedFeePerMonth?: number;
+  time_fee?: number;
+  idle_fee?: number;
 }

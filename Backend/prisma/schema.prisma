@@ -238,6 +238,8 @@ model Tariff {
   markupPerKwh     Float?
   taxPercentage    Float?
   fixedFeePerMonth Float?
+  time_fee         Float?   @default(0)
+  idle_fee         Float?   @default(0)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

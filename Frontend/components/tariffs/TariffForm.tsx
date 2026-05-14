@@ -28,6 +28,10 @@ const tariffSchema = z.object({
   markupPerKwh: z.number().min(0, "Markup cannot be negative").optional(),
   taxPercentage: z.number().min(0, "Tax cannot be negative").optional(),
   fixedFeePerMonth: z.number().min(0, "Fixed fee cannot be negative").optional(),
+
+  // TIME & IDLE fields
+  time_fee: z.number().min(0, "Time fee cannot be negative").optional().default(0),
+  idle_fee: z.number().min(0, "Idle fee cannot be negative").optional().default(0),
 }).refine(data => {
   if (data.tariffType === "DYNAMIC_EPEX") {
     return !!data.country && data.markupPerKwh !== undefined && data.taxPercentage !== undefined && data.fixedFeePerMonth !== undefined;
@@ -56,6 +60,8 @@ export function TariffForm({ initialData }: { initialData?: any }) {
       markupPerKwh: 0,
       taxPercentage: 21,
       fixedFeePerMonth: 0,
+      time_fee: 0,
+      idle_fee: 0,
     },
   });
 
@@ -265,6 +271,21 @@ export function TariffForm({ initialData }: { initialData?: any }) {
               </div>
             </div>
           )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="time_fee">Time-Based Fee (€ per min)</Label>
+              <Input id="time_fee" type="number" step="any" {...register('time_fee', { valueAsNumber: true })} />
+              <p className="text-xs text-muted-foreground">Applied per minute of the entire session.</p>
+              {errors.time_fee && <p className="text-sm text-destructive">{errors.time_fee.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="idle_fee">Idle/Blocking Fee (€ per min)</Label>
+              <Input id="idle_fee" type="number" step="any" {...register('idle_fee', { valueAsNumber: true })} />
+              <p className="text-xs text-muted-foreground">Applied per minute when the vehicle is not charging.</p>
+              {errors.idle_fee && <p className="text-sm text-destructive">{errors.idle_fee.message}</p>}
+            </div>
+          </div>
         </CardContent>
         <CardFooter className="flex flex-col-reverse gap-3 border-t pt-4 sm:flex-row sm:justify-between">
           <Button variant="outline" type="button" onClick={() => router.back()}>Cancel</Button>
