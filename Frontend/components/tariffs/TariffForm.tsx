@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { DynamicTariffGraph } from "./DynamicTariffGraph";
 
 const tariffSchema = z.object({
   tariff_name: z.string().min(2, "Tariff name is required"),
@@ -47,7 +47,7 @@ type TariffFormValues = z.infer<typeof tariffSchema>;
 export function TariffForm({ initialData }: { initialData?: any }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [previewData, setPreviewData] = useState<{ time: string; price: number }[]>([]);
+  const [previewData, setPreviewData] = useState<{ timestamp: string; price: number }[]>([]);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<TariffFormValues>({
@@ -229,40 +229,7 @@ export function TariffForm({ initialData }: { initialData?: any }) {
                     Loading preview...
                   </div>
                 ) : previewData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={previewData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
-                      <XAxis
-                        dataKey="time"
-                        tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
-                        tickLine={false}
-                        axisLine={{ stroke: "hsl(var(--border))" }}
-                      />
-                      <YAxis
-                        tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
-                        tickLine={false}
-                        axisLine={{ stroke: "hsl(var(--border))" }}
-                        tickFormatter={(value) => `€${value.toFixed(2)}`}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: "hsl(var(--background))",
-                          borderColor: "hsl(var(--border))",
-                          borderRadius: "var(--radius)"
-                        }}
-                        formatter={(value: any) => [`€${Number(value).toFixed(4)}`, "Price per kWh"]}
-                        labelStyle={{ color: "hsl(var(--foreground))", fontWeight: "bold", marginBottom: "4px" }}
-                      />
-                      <Line
-                        type="monotone"
-                        dataKey="price"
-                        stroke="hsl(var(--primary))"
-                        strokeWidth={2}
-                        dot={{ r: 3, fill: "hsl(var(--background))", stroke: "hsl(var(--primary))", strokeWidth: 2 }}
-                        activeDot={{ r: 5, fill: "hsl(var(--primary))", stroke: "hsl(var(--background))", strokeWidth: 2 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <DynamicTariffGraph data={previewData as any} country={watchCountry as "BE" | "NL"} />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                     Preview data unavailable. Check parameters or backend connection.

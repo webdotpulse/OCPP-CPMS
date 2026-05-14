@@ -11,8 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/useAuth";
+import Link from "next/link";
 import { useState, useEffect } from "react";
-import { Loader2, User, KeyRound, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Loader2, User, KeyRound, ShieldAlert, ShieldCheck, Settings, WalletCards } from "lucide-react";
 import Image from "next/image";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
@@ -430,8 +431,40 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
         </div>
+
+        {/* Admin Settings */}
+        {user?.role === 'admin' && (
+          <Card className="shadow-sm md:col-span-2">
+            <CardHeader className="border-b pb-4">
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5 text-primary" /> System Configuration
+              </CardTitle>
+              <CardDescription>
+                Manage global settings and integrations for the platform.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2 border rounded-lg p-4 bg-muted/30">
+                  <h3 className="font-medium flex items-center gap-2">
+                    <WalletCards className="h-4 w-4" /> Dynamic Tariffs
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Configure API keys for EPEX Spot day-ahead pricing integrations (e.g., ENTSO-E).
+                  </p>
+                  <Link href="/settings/tariffs">
+                    <Button variant="outline" size="sm" className="w-full">
+                      Configure Tariffs Integration
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </AppShell>
   );
+
 }
 

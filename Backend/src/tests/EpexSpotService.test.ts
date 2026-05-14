@@ -1,10 +1,10 @@
 import { jest } from '@jest/globals';
 
 // Create mocked instances FIRST, before importing the service that uses them
-const mockRedisGet = jest.fn();
-const mockRedisSet = jest.fn();
-const mockPrismaFindUnique = jest.fn();
-const mockPrismaFindFirst = jest.fn();
+const mockRedisGet = jest.fn() as any;
+const mockRedisSet = jest.fn() as any;
+const mockPrismaFindUnique = jest.fn() as any;
+const mockPrismaFindFirst = jest.fn() as any;
 
 jest.unstable_mockModule('../config/redis.js', () => ({
   redisClient: {

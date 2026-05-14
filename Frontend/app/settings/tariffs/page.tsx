@@ -1,0 +1,127 @@
+"use client";
+
+import { useAuth } from "@/hooks/useAuth";
+import { AppShell } from "@/components/layout/AppShell";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState, useEffect } from "react";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
+import { Loader2, KeyRound } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+export default function TariffsSettingsPage() {
+  const { user } = useAuth();
+  const [entsoeKey, setEntsoeKey] = useState("");
+  const [hasKey, setHasKey] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (user?.role !== "admin") return;
+
+    const fetchKeys = async () => {
+      try {
+        const response = await api.get("/settings/tariffs/entsoe-key");
+        if (response.data?.success) {
+          setHasKey(response.data.data.hasKey);
+          setEntsoeKey(response.data.data.key);
+        }
+      } catch (error) {
+        console.error("Failed to fetch API key:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchKeys();
+  }, [user]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await api.post("/settings/tariffs/entsoe-key", { key: entsoeKey });
+      toast.success("ENTSO-E API Key updated successfully");
+      setHasKey(true);
+    } catch (error) {
+      console.error("Failed to update API key:", error);
+      toast.error("Failed to update API key");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (user?.role !== "admin") {
+    return (
+      <AppShell>
+        <div className="flex h-full items-center justify-center">
+          <p className="text-muted-foreground">You do not have permission to view this page.</p>
+        </div>
+      </AppShell>
+    );
+  }
+
+  return (
+    <AppShell>
+      <div className="mb-6 space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight">Tariffs Configuration</h1>
+        <p className="text-muted-foreground">
+          Configure API keys and settings for dynamic tariffs (e.g. EPEX Spot, ENTSO-E).
+        </p>
+      </div>
+
+      <div className="grid gap-6">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <KeyRound className="h-5 w-5 text-primary" />
+              <CardTitle>ENTSO-E API Integration</CardTitle>
+            </div>
+            <CardDescription>
+              Provide your ENTSO-E RESTful API Security Token to fetch day-ahead pricing data for dynamic tariffs.
+              This token will be used by the backend to fetch prices for supported regions.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {isLoading ? (
+              <div className="flex items-center space-x-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm text-muted-foreground">Loading settings...</span>
+              </div>
+            ) : (
+              <>
+                {hasKey && !entsoeKey && (
+                  <Alert className="bg-muted">
+                    <AlertDescription>
+                      An API key is currently saved. Entering a new key below will overwrite it.
+                    </AlertDescription>
+                  </Alert>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="entsoe-key">Security Token (API Key)</Label>
+                  <Input
+                    id="entsoe-key"
+                    type="password"
+                    placeholder="Enter ENTSO-E API Key"
+                    value={entsoeKey}
+                    onChange={(e) => setEntsoeKey(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    You can obtain a security token by registering on the ENTSO-E Transparency Platform and requesting API access.
+                  </p>
+                </div>
+              </>
+            )}
+          </CardContent>
+          <CardFooter>
+            <Button onClick={handleSave} disabled={isLoading || isSaving || !entsoeKey}>
+              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save API Key
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
+    </AppShell>
+  );
+}
