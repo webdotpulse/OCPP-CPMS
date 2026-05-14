@@ -103,7 +103,7 @@ export function DynamicTariffGraph({ data, country, isLoading }: DynamicTariffGr
                   borderColor: "hsl(var(--border))",
                   borderRadius: "var(--radius)",
                 }}
-                formatter={(value: number) => [`€${value.toFixed(4)}`, "Price per kWh"]}
+                formatter={(value: any) => [`€${value.toFixed(4)}`, "Price per kWh"]}
                 labelStyle={{ color: "hsl(var(--foreground))", fontWeight: "bold", marginBottom: "4px" }}
               />
               {/* Highlight zero line if there are negative prices */}

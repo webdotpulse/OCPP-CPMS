@@ -315,6 +315,10 @@ npm run build
 pm2 start npm --name "ocpp-frontend" -- start
 \`\`\`
 
+<div style="background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; border-left: 4px solid #ffeeba; margin-top: 10px; margin-bottom: 20px;">
+    <strong>Warning:</strong> During the Next.js build, you may see a deprecation message stating: <code>The "middleware" file convention is deprecated. Please use "proxy" instead.</code> You <strong>must ignore this warning</strong>. Next.js strictly requires the middleware file to be named <code>middleware.ts</code>. Do not rename it to <code>proxy.ts</code>, as this will disable the middleware execution and break mobile routing.
+</div>
+
 Save the PM2 process list so it restarts on reboot. We also install the PM2 log rotation module to prevent log files from taking up all disk space over time.
 \`\`\`bash
 pm2 save
