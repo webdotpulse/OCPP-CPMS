@@ -29,7 +29,6 @@ const routes = [
   { key: 'nav.transactions', path: '/transactions', icon: ReceiptText },
   { key: 'nav.tariffs', path: '/tariffs', icon: WalletCards },
   { key: 'nav.roaming', path: '/roaming', icon: Globe, adminOnly: true },
-  { key: 'nav.simulator', path: '/simulator', icon: Activity, adminOnly: true },
   { key: 'nav.configProfiles', path: '/config-profiles', icon: Settings, adminOnly: true },
   { key: 'nav.quirkProfiles', path: '/quirk-profiles', icon: Settings, adminOnly: true },
   { key: 'nav.ocppConsole', path: '/ocpp', icon: TerminalSquare },

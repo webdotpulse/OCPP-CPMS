@@ -284,7 +284,7 @@ For a step-by-step guide covering local environment configuration, as well as a 
 
 ## Connecting a Charger
 
-Once the backend is running, connect any OCPP 1.6 & 2.1/2.0.1 compliant charger or simulator to:
+Once the backend is running, connect any OCPP 1.6 & 2.1/2.0.1 compliant charger to:
 
 ```
 ws://<your-host>:9220/OCPP/[1.6|2.1]/<charger-id>

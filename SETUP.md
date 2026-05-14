@@ -275,7 +275,7 @@ npm run create-admin -- "admin_email" "admin_password"
 *(This command automatically runs `npx prisma db push` before creating the admin user).*
 
 ### Connecting a Charger in Production
-Once deployed and SSL is configured, point your OCPP 1.6 or OCPP 2.1/2.0.1 charger (or simulator) to your secure WebSocket endpoint:
+Once deployed and SSL is configured, point your OCPP 1.6 or OCPP 2.1/2.0.1 charger to your secure WebSocket endpoint:
 ```
 wss://ocpp.mobilitypulse.com/OCPP/1.6/{chargerId}
 ```

@@ -51,14 +51,6 @@ The following backend API controllers contain unfinished placeholder routes that
 Please implement the actual business logic for these endpoints. If integration is not currently feasible, ensure they return a standardized error response object matching the API's standard format (e.g., using a custom error class) rather than hardcoded 501 responses.
 ```
 
-### Issue 5: Empty Catch Blocks in ChargePointSimulator (Unfinished Code)
-**Status: PENDING**
-**Description:** `Backend/src/simulator/ChargePointSimulator.ts` contains empty catch blocks that swallow errors silently.
-**Actionable Prompt:**
-```
-In `Backend/src/simulator/ChargePointSimulator.ts`, there are empty `catch (e) {}` and `catch (err) {}` blocks (around line 159 and 302). Please fix these empty catch blocks by adding proper error logging using the Winston `logger` utility. Ensure no errors are swallowed silently.
-```
-
 ## Database
 
 ### Issue 6: Unoptimized Database Queries / Prisma in Loops (Architectural Flaws & Anti-patterns)

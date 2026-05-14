@@ -207,7 +207,7 @@ npm run dev
 ## Next Steps
 
 1. Review [TEST_CASES.md](./TEST_CASES.md) to verify functionality
-2. Connect an OCPP simulator or real charger to `ws://localhost:9220/OCPP/1.6/{chargerId}`
+2. Connect a real charger to `ws://localhost:9220/OCPP/1.6/{chargerId}`
 3. Test the API endpoints using the provided examples
 4. Build a frontend for the CMS
 

@@ -24,7 +24,6 @@ import ocpiRoutes from "./api/ocpi/ocpi.routes.js";
 import oicpRoutes from "./api/oicp/oicp.routes.js";
 import usersRoutes from "./api/users/users.routes.js";
 import chargeGroupsRoutes from "./api/chargeGroups/chargeGroups.routes.js";
-import simulatorRoutes from "./api/simulator/simulator.routes.js";
 import configProfilesRoutes from "./api/config-profiles/config-profiles.routes.js";
 import quirkProfilesRoutes from "./api/quirk-profiles/quirk-profiles.routes.js";
 import mailRoutes from "./api/mail/mail.routes.js";
@@ -92,7 +91,6 @@ export function createApp(): Application {
   app.use("/api/payments", paymentsRoutes); // Removed auth for webhook/initial testing
   app.use("/api/ocpi", ocpiRoutes); // Removed auth for initial testing
   app.use("/api/oicp", oicpRoutes); // Removed auth for initial testing
-  app.use("/api/simulator", authenticateToken, simulatorRoutes);
   app.use("/api/config-profiles", authenticateToken, configProfilesRoutes);
   app.use("/api/quirk-profiles", authenticateToken, quirkProfilesRoutes);
   app.use("/api/mail", authenticateToken, mailRoutes);
