@@ -7,7 +7,7 @@
 <h1 align="center">OCPP Charge Management System</h1>
 
 <p align="center">
-  A production-ready, full-stack <strong>OCPP 1.6 & 2.1/2.0.1 Charge Point Management System (CPMS)</strong> EV charging platform.
+  A full-stack <strong>OCPP 1.6 & 2.1/2.0.1 Charge Point Management System (CPMS)</strong> EV charging platform.
 </p>
 
 <p align="center">
@@ -29,12 +29,9 @@
 - [Key Features](#key-features)
 - [Technology Stack](#technology-stack)
 - [Quick Start](#quick-start)
-- [Detailed Setup](#detailed-setup)
 - [Configuration](#configuration)
 - [Connecting a Charger](#connecting-a-charger)
-- [Contributing](#contributing)
-- [About MobilityPulse](#about-mobilitypulse)
-- [License](#license)
+- [Testing](#testing)
 
 ---
 
@@ -112,15 +109,7 @@ open-source-csms/
 ├── Backend/                  # Node.js + TypeScript OCPP & API server
 │   ├── src/
 │   │   ├── ocpp/             # OCPP 1.6 & 2.1/2.0.1 WebSocket handler & message processors
-│   │   ├── api/              # REST API routes (auth, stations, chargers, rfid, etc.)
-│   │   │   ├── auth/
-│   │   │   ├── stations/
-│   │   │   ├── chargers/
-│   │   │   ├── connectors/
-│   │   │   ├── transactions/
-│   │   │   ├── rfid/
-│   │   │   ├── tariffs/
-│   │   │   └── dashboard/
+│   │   ├── api/              # REST API routes (auth, stations, chargers, connectors, etc.)
 │   │   ├── middleware/       # Auth & error handling middleware
 │   │   ├── config/           # App configuration
 │   │   └── utils/            # Shared utilities
@@ -134,7 +123,6 @@ open-source-csms/
 │   ├── lib/                  # API client & utility functions
 │   └── package.json
 │
-├── SETUP.md                  # Detailed setup guide
 └── README.md                 # This file
 ```
 
@@ -143,49 +131,31 @@ open-source-csms/
 ## Key Features
 
 ### ⚡ OCPP 1.6 & 2.1/2.0.1 Protocol
-- Full support for core OCPP 1.6 & 2.1/2.0.1 JSON messages: `BootNotification`, `Heartbeat`, `Authorize`, `StartTransaction`, `StopTransaction`, `MeterValues`, `StatusNotification`, `ChangeAvailability`, `Reset`, `UnlockConnector`, `TriggerMessage`, and more.
+- Full support for core OCPP 1.6 & 2.1/2.0.1 JSON messages.
 
 ### 🖥️ Real-Time Dashboard
-- Live charger status monitoring (Available, Charging, Faulted, Offline)
-- Active session tracking with live energy and duration counters
-- Real-time OCPP message log viewer for debugging
+- Live charger status monitoring.
+- Active session tracking with live energy and duration counters.
+- Real-time OCPP message log viewer.
 
 ### 🎛️ Remote Control
-- Start/stop charging sessions remotely
-- Reset chargers (Soft/Hard)
-- Unlock connectors
-- Change charger availability
+- Start/stop charging sessions remotely, reset chargers, unlock connectors.
 
 ### 🔑 RFID Management
-- Full whitelist management for RFID-authorized sessions
-- Add, remove, and manage authorized tags from the dashboard
-
-### 📊 Analytics & Reporting
-- Transaction history with filtering
-- Energy usage statistics per station and charger
-- Status distribution and availability metrics
+- Full whitelist management for RFID-authorized sessions.
 
 ### 🏢 Multi-Station & Multi-Charger
-- Manage multiple charging stations across different locations
-- Each station supports multiple chargers with multiple connectors
+- Manage multiple charging stations across different locations.
 
 ### 💰 Tariff Management
-- Define and manage tariffs per station
-- Associate pricing with charging sessions
+- Define and manage tariffs per station. Associate pricing with charging sessions.
 
 ### ⚡ Smart Charging & Load Management
 - Intelligent power distribution via `LoadManagementService`.
-- Dynamically recalculates and dispatches `SetChargingProfile` commands based on active sessions and `maxPower` capacity at the Station and Charge Group level.
 
-### 🔗 OCPI & OICP Roaming Integration (Partial)
-- Foundational database schema (`OcpiEndpoint`, `OicpEndpoint`), routing (`/api/ocpi`, `/api/oicp`), and a dedicated `/roaming` admin page configured for EV roaming and CDR exchange integrations.
-
-### 💳 Payments Integration (Placeholder)
-- Placeholder models and routes added to enable future Stripe/Mollie integration for automated transaction billing.
-
-### 🔒 Authentication & Security
-- JWT-based authentication for the admin dashboard with role-based access control.
-- Explicit Postgres 15+ schema privilege management via Prisma.
+### ⚠️ Note on Roaming & Payments
+- **OCPI & OICP Roaming**: Currently only partially implemented with foundational database schemas (`OcpiEndpoint`, `OicpEndpoint`) and placeholder API routes. Further implementation is required.
+- **Payments**: The `/api/payments` endpoints and UI components are currently mock implementations/placeholders (ready for Stripe/Mollie integration but not functional yet).
 
 ---
 
@@ -206,28 +176,21 @@ open-source-csms/
 ### Frontend
 | Layer | Technology |
 |-------|-----------|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16+ (App Router) |
 | Language | TypeScript |
 | Styling | Tailwind CSS |
 | UI Components | shadcn/ui |
-| State Management | React Hooks & Context API |
-| Icons | Lucide React |
 
 ---
 
 ## Quick Start
 
 ### Prerequisites
-- **Node.js** 20 or higher — [Download](https://nodejs.org/)
-- **PostgreSQL** 15+ — [Download](https://www.postgresql.org/download/) or use a cloud provider
+- **Node.js** 24.15.0 or higher
+- **PostgreSQL** 15+
+- **Redis** 7+
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/savekar-ev/open-source-csms.git
-cd open-source-csms
-```
-
-### 2. Backend Setup
+### 1. Backend Setup
 ```bash
 cd Backend
 cp .env.example .env
@@ -238,7 +201,7 @@ npm run prisma:migrate
 npm run dev
 ```
 
-### 3. Frontend Setup (new terminal)
+### 2. Frontend Setup (new terminal)
 ```bash
 cd Frontend
 npm install
@@ -256,20 +219,9 @@ npm run dev
 
 ---
 
-## Detailed Setup & Production Deployment
-
-For a step-by-step guide covering local environment configuration, as well as a complete manual for **Production Deployment on Google Cloud (Ubuntu VM)** — see **[SETUP.md](./SETUP.md)**.
-
-## Documentation
-
-- **[User Manual](./USER_MANUAL.md)**: A comprehensive guide on how to navigate the CMS dashboard, manage stations/chargers, RFID tags, and use remote operations.
-- **[Improvements & Prompts](./IMPROVEMENTS_PROMPTS.md)**: An outline of architectural enhancements and advanced features (e.g., Docker, Redis, OCPI) recommended for production scaling, including prompts for AI assistants.
-
----
-
 ## Configuration
 
-### Backend Environment Variables (`.env`)
+### Backend Environment Variables (`Backend/.env`)
 
 | Variable | Description | Example |
 |----------|-------------|---------|
@@ -278,6 +230,7 @@ For a step-by-step guide covering local environment configuration, as well as a 
 | `OCPP_PORT` | OCPP WebSocket port | `9220` |
 | `OCPP_LOG_WS_PORT` | Live log WebSocket port | `3001` |
 | `JWT_SECRET` | Secret for JWT signing | `your-strong-secret-key` |
+| `TZ` | Timezone | `Europe/Brussels` |
 
 ---
 
@@ -289,13 +242,17 @@ Once the backend is running, connect any OCPP 1.6 & 2.1/2.0.1 compliant charger 
 ws://<your-host>:9220/OCPP/[1.6|2.1]/<charger-id>
 ```
 
-> **Note:** `<charger-id>` must match the `charger_id` of a charger registered in the system (via the dashboard or database seeding).
+> **Note:** `<charger-id>` must match the `charger_id` of a charger registered in the system.
 
 ## Testing
 
-The Backend uses `jest` for unit testing. You can run the tests using:
+The Backend uses `jest` for unit testing with ESM support. You can run the tests using:
 ```bash
 cd Backend
-npm run test
+NODE_OPTIONS=--experimental-vm-modules npm run test
 ```
-The Frontend does not currently have an automated test suite configured. Rely on `npm run lint` for code correctness.
+The Frontend uses ESLint.
+```bash
+cd Frontend
+npm run lint
+```
