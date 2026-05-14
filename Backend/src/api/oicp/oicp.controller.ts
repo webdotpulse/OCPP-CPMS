@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../config/database.js";
+import axios from "axios";
+import { logger } from "../../utils/logger.js";
 
 /**
  * Retrieve all OICP endpoints
@@ -62,6 +64,31 @@ export const deleteEndpoint = async (req: Request, res: Response) => {
  * Test an OICP endpoint connection
  */
 export const testEndpoint = async (req: Request, res: Response) => {
-  // Dummy implementation for testing connection
-  res.json({ success: true, message: "Connection successful." });
+  try {
+    const id = parseInt(req.params.id as string);
+    const endpoint = await prisma.oicpEndpoint.findUnique({
+      where: { id },
+    });
+
+    if (!endpoint) {
+      res.status(404).json({ success: false, message: "OICP endpoint not found." });
+      return;
+    }
+
+    const response = await axios.get(endpoint.url, {
+      headers: {
+        Authorization: `Bearer ${endpoint.token}`,
+      },
+      timeout: 5000,
+    });
+
+    res.json({ success: true, message: "Connection successful.", data: response.data });
+  } catch (error: any) {
+    logger.error(`OICP Test Endpoint Connection failed: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: "Connection failed.",
+      error: error.message || "Unknown error occurred"
+    });
+  }
 };
