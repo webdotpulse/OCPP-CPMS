@@ -107,9 +107,15 @@ export default function TariffsSettingsPage() {
                     value={entsoeKey}
                     onChange={(e) => setEntsoeKey(e.target.value)}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    You can obtain a security token by registering on the ENTSO-E Transparency Platform and requesting API access.
-                  </p>
+                  <div className="text-xs text-muted-foreground space-y-1 mt-2 bg-muted p-3 rounded-md">
+                    <p className="font-semibold text-foreground">How to obtain a security token:</p>
+                    <ol className="list-decimal list-inside space-y-1">
+                      <li>Register an account on the <a href="https://transparency.entsoe.eu/" target="_blank" rel="noreferrer" className="text-primary hover:underline">ENTSO-E Transparency Platform</a>.</li>
+                      <li>Send an email to <a href="mailto:transparency@entsoe.eu" className="text-primary hover:underline">transparency@entsoe.eu</a> with "Restful API access" in the subject line.</li>
+                      <li>Indicate your registered email address in the email body.</li>
+                      <li>Once access is granted, generate your Security Token in your account settings under "Web API Security Token".</li>
+                    </ol>
+                  </div>
                 </div>
               </>
             )}
