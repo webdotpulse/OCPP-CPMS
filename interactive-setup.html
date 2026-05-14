@@ -241,7 +241,7 @@ sudo -u postgres psql -c "CREATE DATABASE ocpp_cms;"
 sudo -u postgres psql -c "CREATE USER cms_user WITH PASSWORD 'your_secure_password';"
 sudo -u postgres psql -c "ALTER ROLE cms_user SET client_encoding TO 'utf8';"
 sudo -u postgres psql -c "ALTER ROLE cms_user SET default_transaction_isolation TO 'read committed';"
-sudo -u postgres psql -c "ALTER ROLE cms_user SET timezone TO 'UTC';"
+sudo -u postgres psql -c "ALTER ROLE cms_user SET timezone TO 'Europe/Brussels';"
 sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ocpp_cms TO cms_user;"
 # Explicitly grant schema privileges (Required for PostgreSQL 15+)
 sudo -u postgres psql -d ocpp_cms -c "GRANT ALL ON SCHEMA public TO cms_user;"
