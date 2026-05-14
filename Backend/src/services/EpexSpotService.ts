@@ -1,5 +1,6 @@
 import { prisma } from "../config/database.js";
 import { logger } from "../utils/logger.js";
+import axios from "axios";
 
 export class EpexSpotService {
   private static workerIntervalId: NodeJS.Timeout | null = null;
@@ -8,49 +9,73 @@ export class EpexSpotService {
     try {
       logger.info("Fetching day-ahead EPEX spot prices...");
 
-      const now = new Date();
-      now.setMinutes(0, 0, 0); // Start at current hour
-
       const countries = ["BE", "NL"];
 
+      const baseUrl = process.env.EPEX_SPOT_API_URL || "https://api.energy-charts.info/price";
+
       for (const country of countries) {
-        // Generate mock prices for the next 24 hours
-        for (let i = 0; i < 24; i++) {
-          const timestamp = new Date(now.getTime() + i * 60 * 60 * 1000);
+        try {
+          const url = `${baseUrl}?bzn=${country}`;
+          logger.info(`Fetching prices from ${url}`);
 
-          // Generate a semi-realistic spot price between 20 and 150 EUR/MWh
-          // Randomness seeded simply for mocking purposes
-          const basePrice = 50;
-          const randomVariation = Math.random() * 100 - 20;
+          const response = await axios.get(url, { timeout: 10000 });
+          const data = response.data;
 
-          // Add diurnal curve (higher in morning and evening)
-          const hour = timestamp.getHours();
-          const timeMultiplier = (hour >= 7 && hour <= 10) || (hour >= 17 && hour <= 21) ? 1.5 : 0.8;
+          if (!data || !Array.isArray(data.unix_seconds) || !Array.isArray(data.price)) {
+            throw new Error(`Invalid data format received for ${country}`);
+          }
 
-          const pricePerMwh = Math.max(0, (basePrice + randomVariation) * timeMultiplier);
+          const { unix_seconds, price } = data;
 
-          await prisma.epexSpotPrice.upsert({
-            where: {
-              timestamp_country: {
-                timestamp,
-                country,
-              },
-            },
-            update: {
-              pricePerMwh,
-            },
-            create: {
-              timestamp,
-              country,
-              pricePerMwh,
-            },
-          });
+          if (unix_seconds.length !== price.length) {
+             throw new Error(`Mismatch between timestamps and prices arrays for ${country}`);
+          }
+
+          const operations = [];
+          for (let i = 0; i < unix_seconds.length; i++) {
+            const timestamp = new Date(unix_seconds[i] * 1000);
+            const pricePerMwh = price[i];
+
+            // Validate price format
+            if (typeof pricePerMwh !== 'number') continue;
+
+            operations.push(
+              prisma.epexSpotPrice.upsert({
+                where: {
+                  timestamp_country: {
+                    timestamp,
+                    country,
+                  },
+                },
+                update: {
+                  pricePerMwh,
+                },
+                create: {
+                  timestamp,
+                  country,
+                  pricePerMwh,
+                },
+              })
+            );
+          }
+
+          // Execute in transactions/batches to avoid locking issues
+          // Using smaller chunks
+          const chunkSize = 50;
+          for (let i = 0; i < operations.length; i += chunkSize) {
+            const chunk = operations.slice(i, i + chunkSize);
+            await prisma.$transaction(chunk);
+          }
+
+          logger.info(`Successfully processed ${operations.length} prices for ${country}`);
+        } catch (countryError) {
+          logger.error(`Error fetching/processing EPEX prices for country ${country}: ${countryError}`);
         }
       }
 
       logger.info("Successfully fetched and stored day-ahead EPEX spot prices.");
     } catch (error) {
-      logger.error(`Error fetching EPEX spot prices: ${error}`);
+      logger.error(`Error in EPEX spot price fetch worker: ${error}`);
     }
   }
 
