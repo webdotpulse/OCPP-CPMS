@@ -494,7 +494,26 @@ export async function handleTransactionEvent(
             energyConsumed = -energyConsumed;
         }
 
-        let totalCost = 0;
+        const stopTime = new Date(timestamp);
+        const startTimeMs = transaction.startTime.getTime();
+        const endTimeMs = stopTime.getTime();
+        const totalDurationMinutes = Math.max(0, (endTimeMs - startTimeMs) / (1000 * 60));
+
+        const lastActiveMeterValue = await prisma.meterValue.findFirst({
+          where: { transactionId: String(transactionId), power: { gt: 0 } },
+          orderBy: { timestamp: 'desc' },
+        });
+
+        const idleDurationMinutes = lastActiveMeterValue
+          ? Math.max(0, (endTimeMs - lastActiveMeterValue.timestamp.getTime()) / (1000 * 60))
+          : 0;
+
+        const connectionFee = (tariff?.charge || 0) * 100; // in cents
+        const timeFee = (tariff?.time_fee || 0) * totalDurationMinutes * 100; // in cents
+        const idleFee = (tariff?.idle_fee || 0) * idleDurationMinutes * 100; // in cents
+
+        let energyFee = 0;
+
         if (tariff?.tariffType === "DYNAMIC_EPEX" && tariff.country) {
           const { EpexSpotService } = await import("../../services/EpexSpotService.js");
           const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, transaction.startTime);
@@ -502,10 +521,12 @@ export async function handleTransactionEvent(
           const markup = tariff.markupPerKwh || 0;
           const taxRate = tariff.taxPercentage ? (tariff.taxPercentage / 100) : 0;
           const hourlyCostKwh = (spotPriceKwh + markup) * (1 + taxRate);
-          totalCost = (energyConsumed / 1000) * hourlyCostKwh * 100;
+          energyFee = (energyConsumed / 1000) * hourlyCostKwh * 100;
         } else {
-          totalCost = (energyConsumed / 1000) * tariffRate * 100;
+          energyFee = (energyConsumed / 1000) * tariffRate * 100;
         }
+
+        const totalCost = connectionFee + timeFee + idleFee + energyFee;
 
         const updatedTransaction = await prisma.transaction.update({
           where: { id: transaction.id },
