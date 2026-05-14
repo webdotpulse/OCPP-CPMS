@@ -38,22 +38,42 @@ Files to check:
 In `Backend/src/services/EpexSpotService.ts`, the `fetchAndStoreDayAheadPrices` method is currently generating mock data using a random number generator and hardcoded math (e.g., `const basePrice = 50; const randomVariation = Math.random() * 100 - 20;`). Please refactor this method to integrate with a real, external EPEX spot price API (or a robust mock API structure configured via environment variables). Ensure proper error handling and logging for external API failures.
 ```
 
-### Issue 4: Unfinished API Endpoints (Unfinished Code)
+### Issue 4: Unfinished Payments API Endpoints (Unfinished Code)
 **Status: PENDING**
-**Description:** Several API controllers contain placeholder logic returning `501 Not Implemented` with static messages.
+**Description:** The payments API controller contains placeholder logic returning `501 Not Implemented` with static messages.
 **Actionable Prompt:**
 ```
-The following backend API controllers contain unfinished placeholder routes that return a `501 Not Implemented` status:
+The following backend API controller contains unfinished placeholder routes that return a `501 Not Implemented` status:
 - `Backend/src/api/payments/payments.controller.ts`: `createPaymentIntent` and `handleWebhook`
+
+Please implement the actual business logic for these endpoints using the Mollie payment gateway. If integration is not currently feasible, ensure they return a standardized error response object matching the API's standard format (e.g., using a custom error class) rather than hardcoded 501 responses.
+```
+
+### Issue 5: Unfinished OCPI API Endpoints (Unfinished Code)
+**Status: PENDING**
+**Description:** The OCPI API controller contains placeholder logic returning `501 Not Implemented` with static messages.
+**Actionable Prompt:**
+```
+The following backend API controller contains unfinished placeholder routes that return a `501 Not Implemented` status:
 - `Backend/src/api/ocpi/ocpi.controller.ts`: `getLocations` and `getTariffs`
-- `Backend/src/api/oicp/oicp.controller.ts`: `testEndpoint` returns a dummy "Connection successful" message.
 
 Please implement the actual business logic for these endpoints. If integration is not currently feasible, ensure they return a standardized error response object matching the API's standard format (e.g., using a custom error class) rather than hardcoded 501 responses.
 ```
 
+### Issue 6: Unfinished OICP API Endpoints (Unfinished Code)
+**Status: PENDING**
+**Description:** The OICP API controller contains placeholder logic. `testEndpoint` returns a dummy message.
+**Actionable Prompt:**
+```
+The following backend API controller contains unfinished placeholder routes:
+- `Backend/src/api/oicp/oicp.controller.ts`: `testEndpoint` returns a dummy "Connection successful" message.
+
+Please implement the actual business logic for these endpoints. If integration is not currently feasible, ensure they return a standardized error response object matching the API's standard format (e.g., using a custom error class) rather than hardcoded dummy responses.
+```
+
 ## Database
 
-### Issue 6: Unoptimized Database Queries / Prisma in Loops (Architectural Flaws & Anti-patterns)
+### Issue 7: Unoptimized Database Queries / Prisma in Loops (Architectural Flaws & Anti-patterns)
 **Status: PENDING**
 **Description:** `Backend/src/services/LoadManagementService.ts` is making Prisma queries inside `for...of` loops, which is an N+1 query problem and an anti-pattern that can severely degrade database performance.
 **Actionable Prompt:**
