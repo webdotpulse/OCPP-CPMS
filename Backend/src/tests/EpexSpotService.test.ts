@@ -1,16 +1,57 @@
 import { jest } from '@jest/globals';
-import { EpexSpotService } from "../services/EpexSpotService.js";
-import { prisma } from "../config/database.js";
 
-// We use jest.spyOn instead of module mocking to avoid ESM issues
+// Create mocked instances FIRST, before importing the service that uses them
+const mockRedisGet = jest.fn();
+const mockRedisSet = jest.fn();
+const mockPrismaFindUnique = jest.fn();
+const mockPrismaFindFirst = jest.fn();
+
+jest.unstable_mockModule('../config/redis.js', () => ({
+  redisClient: {
+    get: mockRedisGet,
+    set: mockRedisSet,
+  }
+}));
+
+jest.unstable_mockModule('../config/database.js', () => ({
+  prisma: {
+    epexSpotPrice: {
+      findUnique: mockPrismaFindUnique,
+      findFirst: mockPrismaFindFirst
+    }
+  }
+}));
+
+// Mock axios just to prevent actual HTTP calls if any other test accidentally triggers them
+jest.unstable_mockModule('axios', () => ({
+  default: {
+    get: jest.fn()
+  }
+}));
+
+// Now dynamically import the service so it gets the mocked versions
+const { EpexSpotService } = await import('../services/EpexSpotService.js');
+
 describe("EpexSpotService", () => {
   beforeEach(() => {
-    // Clear all mocks before each test
     jest.clearAllMocks();
   });
 
   describe("getPriceForTimestamp", () => {
-    it("should return the exact spot price from the database", async () => {
+    it("should return the exact spot price from Redis cache if available", async () => {
+      const mockTimestamp = new Date("2025-01-01T14:30:00.000Z");
+      const targetTime = new Date(mockTimestamp);
+      targetTime.setMinutes(0, 0, 0);
+
+      mockRedisGet.mockResolvedValue("85.5");
+
+      const price = await EpexSpotService.getPriceForTimestamp("BE", mockTimestamp);
+
+      expect(mockRedisGet).toHaveBeenCalledWith(`epex_price:BE:${targetTime.toISOString()}`);
+      expect(price).toBe(85.5);
+    });
+
+    it("should return the exact spot price from the database and cache it", async () => {
       const mockTimestamp = new Date("2025-01-01T14:30:00.000Z");
       const targetTime = new Date(mockTimestamp);
       targetTime.setMinutes(0, 0, 0);
@@ -22,11 +63,13 @@ describe("EpexSpotService", () => {
         pricePerMwh: 85.5,
       };
 
-      const findUniqueSpy = jest.spyOn(prisma.epexSpotPrice, 'findUnique').mockResolvedValue(mockPriceRecord as any);
+      mockRedisGet.mockResolvedValue(null);
+      mockRedisSet.mockResolvedValue("OK");
+      mockPrismaFindUnique.mockResolvedValue(mockPriceRecord);
 
       const price = await EpexSpotService.getPriceForTimestamp("BE", mockTimestamp);
 
-      expect(findUniqueSpy).toHaveBeenCalledWith({
+      expect(mockPrismaFindUnique).toHaveBeenCalledWith({
         where: {
           timestamp_country: {
             timestamp: targetTime,
@@ -34,12 +77,14 @@ describe("EpexSpotService", () => {
           },
         },
       });
+      expect(mockRedisSet).toHaveBeenCalledWith(`epex_price:BE:${targetTime.toISOString()}`, "85.5", "EX", 86400);
       expect(price).toBe(85.5);
     });
 
     it("should return null if no exact or fallback price is found", async () => {
-      jest.spyOn(prisma.epexSpotPrice, 'findUnique').mockResolvedValue(null as any);
-      jest.spyOn(prisma.epexSpotPrice, 'findFirst').mockResolvedValue(null as any);
+      mockRedisGet.mockResolvedValue(null);
+      mockPrismaFindUnique.mockResolvedValue(null);
+      mockPrismaFindFirst.mockResolvedValue(null);
 
       const price = await EpexSpotService.getPriceForTimestamp("BE", new Date());
 

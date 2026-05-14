@@ -1,102 +1,151 @@
 import { prisma } from "../config/database.js";
 import { logger } from "../utils/logger.js";
 import axios from "axios";
+import { redisClient } from "../config/redis.js";
 
 export class EpexSpotService {
   private static workerIntervalId: NodeJS.Timeout | null = null;
 
   public static async fetchAndStoreDayAheadPrices() {
     try {
-      logger.info("Fetching day-ahead EPEX spot prices...");
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
 
-      const countries = ["BE", "NL"];
+      const countTodayNL = await prisma.epexSpotPrice.count({
+        where: { timestamp: { gte: startOfToday }, country: "NL" }
+      });
+      const countTodayBE = await prisma.epexSpotPrice.count({
+        where: { timestamp: { gte: startOfToday }, country: "BE" }
+      });
 
-      const baseUrl = process.env.EPEX_SPOT_API_URL || "https://api.energy-charts.info/price";
+      const cetHour = (now.getUTCHours() + 1) % 24;
+      const isPastPublishTime = cetHour >= 14 || (cetHour === 13 && now.getUTCMinutes() >= 30);
 
-      for (const country of countries) {
+      const tomorrowEnd = new Date(startOfToday);
+      tomorrowEnd.setDate(tomorrowEnd.getDate() + 1);
+      tomorrowEnd.setHours(23, 0, 0, 0);
+
+      const countTomorrowNL = await prisma.epexSpotPrice.count({
+        where: { timestamp: tomorrowEnd, country: "NL" }
+      });
+      const countTomorrowBE = await prisma.epexSpotPrice.count({
+        where: { timestamp: tomorrowEnd, country: "BE" }
+      });
+
+      const needsFetchNL = countTodayNL === 0 || (isPastPublishTime && countTomorrowNL === 0);
+      const needsFetchBE = countTodayBE === 0 || (isPastPublishTime && countTomorrowBE === 0);
+
+      if (!needsFetchNL && !needsFetchBE) {
+        return;
+      }
+
+      const endOfTomorrow = new Date(startOfToday);
+      endOfTomorrow.setDate(endOfTomorrow.getDate() + 2);
+      endOfTomorrow.setMilliseconds(-1);
+      const chunkSize = 50;
+
+      // 1. Fetch NL prices via EnergyZero
+      if (needsFetchNL) {
         try {
-          const url = `${baseUrl}?bzn=${country}`;
-          logger.info(`Fetching prices from ${url}`);
+          logger.info("Fetching day-ahead EPEX spot prices for NL from EnergyZero...");
+          const url = `https://api.energyzero.nl/v1/energyprices?fromDate=${startOfToday.toISOString()}&tillDate=${endOfTomorrow.toISOString()}&interval=4&usageType=1&inclBtw=false`;
 
           const response = await axios.get(url, { timeout: 10000 });
           const data = response.data;
 
-          if (!data || !Array.isArray(data.unix_seconds) || !Array.isArray(data.price)) {
-            throw new Error(`Invalid data format received for ${country}`);
+          if (data && Array.isArray(data.Prices)) {
+            const nlOperations = [];
+            for (const pricePoint of data.Prices) {
+              const timestamp = new Date(pricePoint.readingDate);
+              const pricePerKwh = pricePoint.price;
+              if (typeof pricePerKwh !== 'number') continue;
+              const pricePerMwh = pricePerKwh * 1000;
+
+              nlOperations.push(
+                prisma.epexSpotPrice.upsert({
+                  where: { timestamp_country: { timestamp, country: "NL" } },
+                  update: { pricePerMwh },
+                  create: { timestamp, country: "NL", pricePerMwh },
+                })
+              );
+            }
+
+            for (let i = 0; i < nlOperations.length; i += chunkSize) {
+              await prisma.$transaction(nlOperations.slice(i, i + chunkSize));
+            }
+            logger.info(`Successfully fetched and stored ${nlOperations.length} day-ahead EPEX spot prices for NL.`);
           }
-
-          const { unix_seconds, price } = data;
-
-          if (unix_seconds.length !== price.length) {
-             throw new Error(`Mismatch between timestamps and prices arrays for ${country}`);
-          }
-
-          const operations = [];
-          for (let i = 0; i < unix_seconds.length; i++) {
-            const timestamp = new Date(unix_seconds[i] * 1000);
-            const pricePerMwh = price[i];
-
-            // Validate price format
-            if (typeof pricePerMwh !== 'number') continue;
-
-            operations.push(
-              prisma.epexSpotPrice.upsert({
-                where: {
-                  timestamp_country: {
-                    timestamp,
-                    country,
-                  },
-                },
-                update: {
-                  pricePerMwh,
-                },
-                create: {
-                  timestamp,
-                  country,
-                  pricePerMwh,
-                },
-              })
-            );
-          }
-
-          // Execute in transactions/batches to avoid locking issues
-          // Using smaller chunks
-          const chunkSize = 50;
-          for (let i = 0; i < operations.length; i += chunkSize) {
-            const chunk = operations.slice(i, i + chunkSize);
-            await prisma.$transaction(chunk);
-          }
-
-          logger.info(`Successfully processed ${operations.length} prices for ${country}`);
-        } catch (countryError) {
-          logger.error(`Error fetching/processing EPEX prices for country ${country}: ${countryError}`);
+        } catch (nlError) {
+          logger.error(`Error fetching/processing EPEX prices for NL: ${nlError}`);
         }
       }
 
-      logger.info("Successfully fetched and stored day-ahead EPEX spot prices.");
+      // 2. Fetch BE prices via energy-charts
+      if (needsFetchBE) {
+        try {
+          logger.info("Fetching day-ahead EPEX spot prices for BE from energy-charts...");
+          const beUrl = "https://api.energy-charts.info/price?bzn=BE";
+          const beResponse = await axios.get(beUrl, { timeout: 10000 });
+          const beData = beResponse.data;
+
+          if (beData && Array.isArray(beData.unix_seconds) && Array.isArray(beData.price) && beData.unix_seconds.length === beData.price.length) {
+            const beOperations = [];
+            for (let i = 0; i < beData.unix_seconds.length; i++) {
+              const timestamp = new Date(beData.unix_seconds[i] * 1000);
+              const pricePerMwh = beData.price[i];
+
+              if (typeof pricePerMwh !== 'number') continue;
+
+              // Only insert if it's within our target range
+              if (timestamp >= startOfToday && timestamp <= endOfTomorrow) {
+                beOperations.push(
+                  prisma.epexSpotPrice.upsert({
+                    where: { timestamp_country: { timestamp, country: "BE" } },
+                    update: { pricePerMwh },
+                    create: { timestamp, country: "BE", pricePerMwh },
+                  })
+                );
+              }
+            }
+
+            for (let i = 0; i < beOperations.length; i += chunkSize) {
+              await prisma.$transaction(beOperations.slice(i, i + chunkSize));
+            }
+            logger.info(`Successfully processed ${beOperations.length} prices for BE.`);
+          }
+        } catch (beError) {
+          logger.error(`Error fetching/processing EPEX prices for BE: ${beError}`);
+        }
+      }
+
     } catch (error) {
       logger.error(`Error in EPEX spot price fetch worker: ${error}`);
     }
   }
 
   public static startEpexWorker() {
-    // Run immediately on startup
     this.fetchAndStoreDayAheadPrices();
 
-    // Schedule to run daily (e.g., every 24 hours)
-    const twentyFourHours = 24 * 60 * 60 * 1000;
+    // Schedule to run every 5 minutes
+    const fiveMinutes = 5 * 60 * 1000;
     this.workerIntervalId = setInterval(() => {
       this.fetchAndStoreDayAheadPrices();
-    }, twentyFourHours);
+    }, fiveMinutes);
 
     logger.info("Started EPEX Spot Service worker");
   }
 
   public static async getPriceForTimestamp(country: string, timestamp: Date): Promise<number | null> {
     try {
-      // Find the specific hour for the timestamp
       const targetTime = new Date(timestamp);
       targetTime.setMinutes(0, 0, 0);
+
+      const cacheKey = `epex_price:${country}:${targetTime.toISOString()}`;
+      const cachedPrice = await redisClient.get(cacheKey);
+
+      if (cachedPrice) {
+        return parseFloat(cachedPrice);
+      }
 
       const priceRecord = await prisma.epexSpotPrice.findUnique({
         where: {
@@ -108,6 +157,7 @@ export class EpexSpotService {
       });
 
       if (priceRecord) {
+        await redisClient.set(cacheKey, priceRecord.pricePerMwh.toString(), "EX", 86400); // 24h
         return priceRecord.pricePerMwh;
       }
 
@@ -119,6 +169,7 @@ export class EpexSpotService {
 
       if (latestPrice) {
         logger.warn(`Exact EPEX price not found for ${country} at ${targetTime.toISOString()}. Using latest available price.`);
+        await redisClient.set(cacheKey, latestPrice.pricePerMwh.toString(), "EX", 3600); // 1h
         return latestPrice.pricePerMwh;
       }
 
