@@ -28,8 +28,7 @@ export class EmsGatewayService {
     });
   }
 
-  static async processTelemetry(authToken: string, telemetryData: { solar_kw: number; battery_kw: number; grid_kw: number; house_kw: number }) {
-    // 1. Authenticate gateway
+  static async validateGatewayToken(authToken: string) {
     const gateway = await prisma.emsGateway.findUnique({
       where: { auth_token: authToken },
     });
@@ -37,6 +36,13 @@ export class EmsGatewayService {
     if (!gateway) {
       throw new Error("Unauthorized: Invalid EMS gateway token.");
     }
+
+    return gateway;
+  }
+
+  static async processTelemetry(authToken: string, telemetryData: { solar_kw: number; battery_kw: number; grid_kw: number; house_kw: number }) {
+    // 1. Authenticate gateway
+    const gateway = await EmsGatewayService.validateGatewayToken(authToken);
 
     // 2. Update heartbeat and status in DB (async, non-blocking for performance ideally, but await here for simplicity)
     await prisma.emsGateway.update({

@@ -1,5 +1,8 @@
 import { Request, Response } from "express";
 import { EmsGatewayService } from "../../services/EmsGatewayService.js";
+import { setChargingProfile } from "../../ocpp/remoteControl.js";
+import { logger } from "../../utils/logger.js";
+import type { SetChargingProfileRequest } from "../../types/index.js";
 
 export const createGateway = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -83,6 +86,53 @@ export const pushTelemetry = async (req: Request, res: Response): Promise<void> 
       res.status(401).json({ success: false, error: error.message });
     } else {
       res.status(500).json({ success: false, error: error.message });
+    }
+  }
+};
+
+export const setChargingProfileFromEms = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    let token = "";
+
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    } else {
+      res.status(401).json({ success: false, error: "Missing Bearer token" });
+      return;
+    }
+
+    // Authenticate the EMS gateway using its hardware token
+    await EmsGatewayService.validateGatewayToken(token);
+
+    const { chargerId, connectorId, csChargingProfiles } = req.body as SetChargingProfileRequest;
+
+    if (chargerId === undefined || connectorId === undefined || !csChargingProfiles) {
+      res.status(400).json({
+        success: false,
+        error: "Missing required fields: chargerId, connectorId, csChargingProfiles",
+      });
+      return;
+    }
+
+    // Forward the SetChargingProfile command to the target charger via OCPP
+    const result = await setChargingProfile({ chargerId, connectorId, csChargingProfiles });
+
+    if (result.status === "Rejected") {
+      res.status(400).json({
+        success: false,
+        error: result.error || "Set charging profile rejected",
+      });
+      return;
+    }
+
+    res.json({ success: true, ...result });
+  } catch (error: any) {
+    if (error.message.includes("Unauthorized")) {
+      res.status(401).json({ success: false, error: error.message });
+    } else {
+      logger.error(`Error setting charging profile from EMS: ${error.message}`);
+      res.status(500).json({ success: false, error: "Failed to set charging profile" });
     }
   }
 };
