@@ -90,6 +90,78 @@ export const pushTelemetry = async (req: Request, res: Response): Promise<void> 
   }
 };
 
+export const throttleChargerFromEms = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    let token = "";
+
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    } else {
+      res.status(401).json({ success: false, error: "Missing Bearer token" });
+      return;
+    }
+
+    // Authenticate the EMS gateway using its hardware token
+    const gateway = await EmsGatewayService.validateGatewayToken(token);
+
+    const { id } = req.params;
+    if (gateway.gateway_id !== id) {
+      res.status(403).json({ success: false, error: "Gateway ID mismatch" });
+      return;
+    }
+
+    const { charger_id, connector_id, max_amperage } = req.body;
+
+    if (charger_id === undefined || connector_id === undefined || max_amperage === undefined) {
+      res.status(400).json({
+        success: false,
+        error: "Missing required fields: charger_id, connector_id, max_amperage",
+      });
+      return;
+    }
+
+    const csChargingProfiles: SetChargingProfileRequest["csChargingProfiles"] = {
+      chargingProfileId: Math.floor(Math.random() * 1000000),
+      stackLevel: 0,
+      chargingProfilePurpose: "TxDefaultProfile",
+      chargingProfileKind: "Relative",
+      chargingSchedule: {
+        chargingRateUnit: "A",
+        chargingSchedulePeriod: [
+          {
+            startPeriod: 0,
+            limit: Number(max_amperage),
+          },
+        ],
+      },
+    };
+
+    const result = await setChargingProfile({
+      chargerId: Number(charger_id),
+      connectorId: Number(connector_id),
+      csChargingProfiles,
+    });
+
+    if (result.status === "Rejected") {
+      res.status(400).json({
+        success: false,
+        error: result.error || "Throttle command rejected",
+      });
+      return;
+    }
+
+    res.json({ success: true, ...result });
+  } catch (error: any) {
+    if (error.message.includes("Unauthorized")) {
+      res.status(401).json({ success: false, error: error.message });
+    } else {
+      logger.error(`Error throttling charger from EMS: ${error.message}`);
+      res.status(500).json({ success: false, error: "Failed to throttle charger" });
+    }
+  }
+};
+
 export const setChargingProfileFromEms = async (req: Request, res: Response): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
