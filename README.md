@@ -151,11 +151,25 @@ open-source-csms/
 - Define and manage tariffs per station. Associate pricing with charging sessions.
 
 ### ⚡ Smart Charging & Load Management
-- Intelligent power distribution via `LoadManagementService`.
+- Intelligent power distribution via `LoadManagementService` to prevent grid overloads.
+- Energy Management System (EMS) gateway integration with Redis telemetry caching and hardware token authentication for external load constraints.
 
-### ⚠️ Note on Roaming & Payments
-- **OCPI & OICP Roaming**: Currently only partially implemented with foundational database schemas (`OcpiEndpoint`, `OicpEndpoint`) and placeholder API routes. Further implementation is required.
-- **Payments**: The `/api/payments` endpoints and UI components are currently mock implementations/placeholders (ready for Stripe/Mollie integration but not functional yet).
+### 🌍 OCPI Roaming
+- Supports OCPI endpoint mapping for locations and tariffs to integrate with external roaming partners.
+
+### ⚠️ Note on OICP & Payments
+- **OICP Roaming**: Foundational database schema (`OicpEndpoint`) and connectivity testing implemented. Full feature integration is pending.
+- **Payments**: The `/api/payments` endpoints and UI components are currently mock implementations/placeholders (ready for Mollie integration but not functional yet).
+
+---
+
+## Documentation & Manuals
+
+Comprehensive guides for users, administrators, and EMS integrators are available in the `Manual/` directory:
+
+- 📖 **[User Manual](Manual/user_manual.md)**: Guide for CPOs and Station Managers on using the Next.js admin dashboard (managing chargers, users, tariffs, remote control).
+- 🛠️ **[Admin Manual](Manual/admin_manual.md)**: Deployment and operations guide for system administrators (PM2, PostgreSQL/Redis, Nginx, Certbot). Includes local and Google Cloud VM deployment details.
+- ⚡ **[EMS Manual](Manual/ems_manual.md)**: Extended technical guide for integrating external Energy Management Systems with the CMS.
 
 ---
 
