@@ -79,7 +79,7 @@ export default function SettingsPage() {
     if (user) {
       api.get(`/auth/me`)
         .then(res => {
-          const fetchedUser = res.data?.data || res.data;
+          const fetchedUser = res.data || res.data;
 
           profileForm.reset({
             name: fetchedUser.name || user.name || "",
@@ -146,8 +146,8 @@ export default function SettingsPage() {
     try {
       if (method === 'authenticator') {
         const res = await api.get('/auth/2fa/generate');
-        setQrCodeUrl(res.data.qrCodeUrl || res.data.data?.qrCodeUrl);
-        setSetupSecret(res.data.secret || res.data.data?.secret);
+        setQrCodeUrl(res.data.qrCodeUrl || res.data?.qrCodeUrl);
+        setSetupSecret(res.data.secret || res.data?.secret);
       } else if (method === 'email') {
         await api.post('/auth/2fa/send-email-code');
         toast.success('Setup code sent to your email.');
@@ -167,8 +167,8 @@ export default function SettingsPage() {
       const fetchMailConfig = async () => {
         try {
           const res = await api.get('/settings/mail');
-          if (res.data.success && res.data.data) {
-            setMailConfig(res.data.data);
+          if (res.data !== undefined && res.data) {
+            setMailConfig(res.data);
           }
         } catch (err) {
           console.error("Failed to fetch mail config:", err);

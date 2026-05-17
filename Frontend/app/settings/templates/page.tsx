@@ -38,7 +38,7 @@ export default function MailTemplatesPage() {
     try {
       const response = await api.get("/mail/templates");
       if (response.data) {
-        setTemplates(response.data.data);
+        setTemplates(response.data);
       }
     } catch (error) {
       toast.error("Failed to load mail templates");

@@ -21,8 +21,8 @@ export function EnergyFlow({ telemetry }: EnergyFlowProps) {
     const fetchLoad = async () => {
       try {
         const res = await api.get('/dashboard/load');
-        if (res.data.success && res.data.data) {
-          const load = res.data.data.reduce((sum: number, item: any) => sum + (item.currentLoad || 0), 0);
+        if (res.data !== undefined && res.data) {
+          const load = res.data.reduce((sum: number, item: any) => sum + (item.currentLoad || 0), 0);
           setChargersPower(load);
         }
       } catch (err) {

@@ -25,9 +25,9 @@ export default function TariffsSettingsPage() {
     const fetchKeys = async () => {
       try {
         const response = await api.get("/settings/tariffs/entsoe-key");
-        if (response.data?.success) {
-          setHasKey(response.data.data.hasKey);
-          setEntsoeKey(response.data.data.key);
+        if ((response.data !== undefined && response.data !== null)) {
+          setHasKey(response.data.hasKey);
+          setEntsoeKey(response.data.key);
         }
       } catch (error) {
         console.error("Failed to fetch API key:", error);

@@ -14,9 +14,9 @@ export function EnergyHistoryChart({ gatewayId }: EnergyHistoryChartProps) {
     const fetchHistory = async () => {
       try {
         const res = await api.get(`/dashboard/ems-telemetry/history?hours=24`);
-        if (res.data.success && res.data.data) {
+        if (res.data !== undefined && res.data) {
           // Filter data for the active gateway and format it for recharts
-          const filtered = res.data.data.filter((item: any) => item.gateway_id === gatewayId);
+          const filtered = res.data.filter((item: any) => item.gateway_id === gatewayId);
           const formatted = filtered.map((item: any) => ({
             time: format(new Date(item.timestamp), 'HH:mm'),
             solar: item.solar_kw,

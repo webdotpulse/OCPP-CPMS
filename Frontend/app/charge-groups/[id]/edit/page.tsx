@@ -49,7 +49,7 @@ export default function EditChargeGroupPage() {
 
         setAllTariffs(tariffsRes.data?.data || tariffsRes.data);
 
-        const groupData = groupRes.data.data || groupRes.data;
+        const groupData = groupRes.data;
         setName(groupData.name);
         setDescription(groupData.description || "");
         setMaxPower(groupData.maxPower !== null ? groupData.maxPower : "");
@@ -78,7 +78,7 @@ export default function EditChargeGroupPage() {
     }
     const delayDebounceFn = setTimeout(() => {
       api.get(`/chargers?search=${chargerSearch}`).then(res => {
-        setSearchedChargers(res.data.data || res.data);
+        setSearchedChargers(res.data );
       });
     }, 300);
     return () => clearTimeout(delayDebounceFn);
@@ -91,7 +91,7 @@ export default function EditChargeGroupPage() {
     }
     const delayDebounceFn = setTimeout(() => {
       api.get(`/users?search=${userSearch}`).then(res => {
-        setSearchedUsers(res.data.data || res.data);
+        setSearchedUsers(res.data );
       });
     }, 300);
     return () => clearTimeout(delayDebounceFn);

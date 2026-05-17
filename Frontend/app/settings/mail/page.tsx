@@ -54,10 +54,10 @@ export default function MailSettingsPage() {
     const fetchConfig = async () => {
       try {
         const res = await api.get("/settings/mail");
-        if (res.data.success && res.data.data) {
+        if (res.data !== undefined && res.data) {
           form.reset({
-            ...res.data.data,
-            port: String(res.data.data.port),
+            ...res.data,
+            port: String(res.data.port),
           });
         }
       } catch (error) {
@@ -83,10 +83,10 @@ export default function MailSettingsPage() {
 
       const res = await api.put("/settings/mail", payload);
 
-      if (res.data.success) {
+      if (res.data !== undefined) {
         toast.success("Mail configuration saved successfully");
       } else {
-        toast.error(res.data.error || "Failed to save mail configuration");
+        toast.error("Failed to save mail configuration");
       }
     } catch (error) {
       console.error("Error saving mail config:", error);

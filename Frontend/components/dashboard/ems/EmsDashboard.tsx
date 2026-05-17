@@ -25,10 +25,10 @@ export function EmsDashboard() {
   const fetchTelemetry = async () => {
     try {
       const response = await api.get('/dashboard/ems-telemetry');
-      if (response.data.success && response.data.data.length > 0) {
-        setTelemetry(response.data.data);
+      if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+        setTelemetry(response.data);
         if (!activeGatewayId) {
-          setActiveGatewayId(response.data.data[0].gateway_id);
+          setActiveGatewayId(response.data[0].gateway_id);
         }
       }
     } catch (error) {

@@ -51,7 +51,7 @@ export default function CreateChargeGroupPage() {
     }
     const delayDebounceFn = setTimeout(() => {
       api.get(`/chargers?search=${chargerSearch}`).then(res => {
-        setSearchedChargers(res.data.data || res.data);
+        setSearchedChargers(res.data );
       });
     }, 300);
     return () => clearTimeout(delayDebounceFn);
@@ -64,7 +64,7 @@ export default function CreateChargeGroupPage() {
     }
     const delayDebounceFn = setTimeout(() => {
       api.get(`/users?search=${userSearch}`).then(res => {
-        setSearchedUsers(res.data.data || res.data);
+        setSearchedUsers(res.data );
       });
     }, 300);
     return () => clearTimeout(delayDebounceFn);

@@ -82,8 +82,8 @@ export function TariffForm({ initialData }: { initialData?: any }) {
           taxPercentage: watchTax,
         });
 
-        if (res.data?.data) {
-          const formattedData = res.data.data.map((item: any) => {
+        if (res.data) {
+          const formattedData = res.data.map((item: any) => {
             const d = new Date(item.timestamp);
             return {
               time: `${d.getHours().toString().padStart(2, "0")}:00`,
