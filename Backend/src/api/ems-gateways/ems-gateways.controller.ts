@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
+import { AuthRequest } from "../../middleware/auth.js";
 import { EmsGatewayService } from "../../services/EmsGatewayService.js";
 import { setChargingProfile } from "../../ocpp/remoteControl.js";
 import { logger } from "../../utils/logger.js";
 import type { SetChargingProfileRequest } from "../../types/index.js";
 
-export const createGateway = async (req: Request, res: Response): Promise<void> => {
+export const createGateway = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // @ts-expect-error userId is attached by authenticateToken middleware
-    const userId = req.user?.id;
+    const userId = req.userId;
 
     if (!userId) {
       res.status(401).json({ success: false, error: "Unauthorized" });
@@ -25,19 +25,17 @@ export const createGateway = async (req: Request, res: Response): Promise<void> 
   }
 };
 
-export const getGateways = async (req: Request, res: Response): Promise<void> => {
+export const getGateways = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    // @ts-expect-error user properties are attached by authenticateToken middleware
-    const userId = req.user?.id;
-    // @ts-expect-error user properties are attached by authenticateToken middleware
-    const userRole = req.user?.role;
+    const userId = req.userId;
+    const userRole = req.userRole;
 
     if (!userId) {
       res.status(401).json({ success: false, error: "Unauthorized" });
       return;
     }
 
-    const gateways = await EmsGatewayService.getGateways(userId, userRole);
+    const gateways = await EmsGatewayService.getGateways(userId, userRole || "");
 
     res.json({ success: true, data: gateways });
   } catch (error: any) {
