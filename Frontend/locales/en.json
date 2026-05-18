@@ -2,6 +2,7 @@
   "translation": {
     "nav": {
       "dashboard": "Dashboard",
+      "energyDashboard": "Energy",
       "customers": "Customers",
       "locations": "Locations",
       "chargers": "Chargers",
@@ -27,6 +28,7 @@
       "logout": "Log out"
     },
     "dashboard": {
+      "energyOverviewDesc": "Monitor site energy telemetry and real-time power flows.",
       "systemOverview": "System Overview",
       "systemOverviewDesc": "Monitor real-time metrics and charger status across your network.",
       "totalChargers": "Total Chargers",
