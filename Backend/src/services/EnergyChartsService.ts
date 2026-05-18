@@ -36,7 +36,7 @@ export class EnergyChartsService {
         if (needsFetch) {
           try {
             logger.info(`Fetching day-ahead EPEX spot prices for ${country} from energy-charts...`);
-            const url = `https://api.energy-charts.info/price?bzn=${country}`;
+            const url = `https://api.energy-charts.info/price?bzn=${country}&start=${startOfToday.toISOString()}&end=${endOfTomorrow.toISOString()}`;
             const response = await axios.get(url, { timeout: 10000 });
             const data = response.data;
 
