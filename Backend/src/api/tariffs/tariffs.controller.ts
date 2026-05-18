@@ -178,6 +178,7 @@ export const createTariff = async (req: Request, res: Response) => {
         electricity_rate: data.electricity_rate ?? 0,
         tariffType: data.tariffType || "FIXED",
         country: data.country,
+        dynamicProvider: data.dynamicProvider || "EnergyZero",
         markupPerKwh: data.markupPerKwh,
         taxPercentage: data.taxPercentage,
         fixedFeePerMonth: data.fixedFeePerMonth,
@@ -247,6 +248,7 @@ export const updateTariff = async (req: Request, res: Response) => {
         ...(data.electricity_rate !== undefined && { electricity_rate: data.electricity_rate }),
         ...(data.tariffType !== undefined && { tariffType: data.tariffType }),
         ...(data.country !== undefined && { country: data.country }),
+        ...(data.dynamicProvider !== undefined && { dynamicProvider: data.dynamicProvider }),
         ...(data.markupPerKwh !== undefined && { markupPerKwh: data.markupPerKwh }),
         ...(data.taxPercentage !== undefined && { taxPercentage: data.taxPercentage }),
         ...(data.fixedFeePerMonth !== undefined && { fixedFeePerMonth: data.fixedFeePerMonth }),
@@ -441,7 +443,7 @@ export const removeTariffFromCharger = async (req: Request, res: Response) => {
  */
 export const previewEpexTariff = async (req: Request, res: Response) => {
   try {
-    const { country, markupPerKwh, taxPercentage } = req.body;
+    const { country, markupPerKwh, taxPercentage, dynamicProvider } = req.body;
 
     if (!country || markupPerKwh === undefined || taxPercentage === undefined) {
       return res.status(400).json({
@@ -454,10 +456,11 @@ export const previewEpexTariff = async (req: Request, res: Response) => {
     now.setMinutes(0, 0, 0);
 
     const previewData = [];
+    const provider = dynamicProvider || "EnergyZero";
 
     for (let i = 0; i < 24; i++) {
       const timestamp = new Date(now.getTime() + i * 60 * 60 * 1000);
-      const pricePerMwh = await EpexSpotService.getPriceForTimestamp(country, timestamp);
+      const pricePerMwh = await EpexSpotService.getPriceForTimestamp(country, timestamp, provider);
 
       if (pricePerMwh !== null) {
         const baseKwhPrice = pricePerMwh / 1000;

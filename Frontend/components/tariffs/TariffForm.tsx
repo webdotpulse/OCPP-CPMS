@@ -25,6 +25,7 @@ const tariffSchema = z.object({
 
   // DYNAMIC_EPEX fields
   country: z.enum(["BE", "NL"]).optional(),
+  dynamicProvider: z.enum(["EnergyZero", "Energy-Charts"]).optional(),
   markupPerKwh: z.number().min(0, "Markup cannot be negative").optional(),
   taxPercentage: z.number().min(0, "Tax cannot be negative").optional(),
   fixedFeePerMonth: z.number().min(0, "Fixed fee cannot be negative").optional(),
@@ -34,7 +35,7 @@ const tariffSchema = z.object({
   idle_fee: z.number().min(0, "Idle fee cannot be negative").optional().default(0),
 }).refine(data => {
   if (data.tariffType === "DYNAMIC_EPEX") {
-    return !!data.country && data.markupPerKwh !== undefined && data.taxPercentage !== undefined && data.fixedFeePerMonth !== undefined;
+    return !!data.country && !!data.dynamicProvider && data.markupPerKwh !== undefined && data.taxPercentage !== undefined && data.fixedFeePerMonth !== undefined;
   }
   return data.charge !== undefined && data.electricity_rate !== undefined;
 }, {
@@ -57,6 +58,7 @@ export function TariffForm({ initialData }: { initialData?: any }) {
       charge: 0,
       electricity_rate: 0,
       country: "BE",
+      dynamicProvider: "EnergyZero",
       markupPerKwh: 0,
       taxPercentage: 21,
       fixedFeePerMonth: 0,
@@ -78,6 +80,7 @@ export function TariffForm({ initialData }: { initialData?: any }) {
       try {
         const res = await api.post("/tariffs/preview-epex", {
           country: watchCountry,
+          dynamicProvider: watch("dynamicProvider"),
           markupPerKwh: watchMarkup,
           taxPercentage: watchTax,
         });
@@ -179,6 +182,22 @@ export function TariffForm({ initialData }: { initialData?: any }) {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+              <div className="space-y-2">
+                <Label htmlFor="dynamicProvider">Data Provider</Label>
+                <Select
+                  defaultValue={watch("dynamicProvider")}
+                  onValueChange={(value) => setValue("dynamicProvider", value as "EnergyZero" | "Energy-Charts")}
+                >
+                  <SelectTrigger id="dynamicProvider">
+                    <SelectValue placeholder="Select Provider" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="EnergyZero">EnergyZero (NL only)</SelectItem>
+                    <SelectItem value="Energy-Charts">Energy-Charts (BE/NL)</SelectItem>
+                  </SelectContent>
+                </Select>
+                {errors.dynamicProvider && <p className="text-sm text-destructive">{errors.dynamicProvider.message}</p>}
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="country">Country (EPEX Zone)</Label>
                 <Select

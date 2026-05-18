@@ -153,7 +153,7 @@ export default function TariffsPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    {tariff.tariffType === "DYNAMIC_EPEX" ? `Dynamic (${tariff.country})` : "Fixed"}
+                    {tariff.tariffType === "DYNAMIC_EPEX" ? `Dynamic (${tariff.country} - ${tariff.dynamicProvider || 'EnergyZero'})` : "Fixed"}
                   </TableCell>
                   <TableCell className="text-right font-mono">
                     {tariff.tariffType === "DYNAMIC_EPEX"
