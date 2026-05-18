@@ -112,7 +112,7 @@ export class EpexSpotService {
           }
 
           logger.info("Fetching day-ahead EPEX spot prices for BE from energy-charts...");
-          const beUrl = "https://api.energy-charts.info/price?bzn=BE";
+          const beUrl = `https://api.energy-charts.info/price?bzn=BE&start=${startOfToday.toISOString()}&end=${endOfTomorrow.toISOString()}`;
           const beResponse = await axios.get(beUrl, { timeout: 10000 });
           const beData = beResponse.data;
 
