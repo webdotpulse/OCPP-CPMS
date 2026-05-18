@@ -3,6 +3,7 @@
     "nav": {
       "dashboard": "Dashboard",
       "energyDashboard": "Energy",
+      "emsDashboard": "EMS Dashboard",
       "customers": "Customers",
       "locations": "Locations",
       "chargers": "Chargers",

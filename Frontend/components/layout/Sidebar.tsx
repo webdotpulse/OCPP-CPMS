@@ -4,6 +4,8 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
+import { useState, useEffect } from 'react';
+import { api } from '@/lib/api';
 import {
   BarChart3,
   MapPin,
@@ -19,7 +21,7 @@ import {
   Activity,
 } from 'lucide-react';
 
-const routes = [
+const baseRoutes = [
   { key: 'nav.dashboard', path: '/dashboard', icon: BarChart3 },
   { key: 'nav.customers', path: '/users', icon: Users, adminOnly: true },
   { key: 'nav.locations', path: '/stations', icon: MapPin },
@@ -35,6 +37,27 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean,
   const pathname = usePathname();
   const { user } = useAuth();
   const { t } = useTranslation();
+  const [hasEms, setHasEms] = useState(false);
+
+  useEffect(() => {
+    const checkEms = async () => {
+      if (!user) return;
+      try {
+        const res = await api.get('/ems-gateways');
+        if (res.data && res.data.length > 0) {
+          setHasEms(true);
+        }
+      } catch (error) {
+        // Silently ignore errors
+      }
+    };
+    checkEms();
+  }, [user]);
+
+  const routes = [...baseRoutes];
+  if (hasEms) {
+    routes.splice(1, 0, { key: 'nav.emsDashboard', path: '/energy', icon: Activity, adminOnly: false });
+  }
 
   return (
     <aside className={cn("border-r flex flex-col h-screen fixed left-0 top-0 transition-all duration-300 bg-[#009C9F] dark:bg-slate-900 text-white", isCollapsed ? "w-16" : "w-64")}>
