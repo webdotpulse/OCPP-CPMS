@@ -2,20 +2,26 @@ import { prisma } from "../config/database.js";
 import { logger } from "../utils/logger.js";
 import axios from "axios";
 import { redisClient } from "../config/redis.js";
+import { EnergyChartsService } from "./EnergyChartsService.js";
 
 export class EpexSpotService {
   private static workerIntervalId: NodeJS.Timeout | null = null;
 
   public static async fetchAndStoreDayAheadPrices() {
     try {
+      // Trigger Energy-Charts sync in parallel
+      EnergyChartsService.fetchAndStoreDayAheadPrices().catch(err => {
+        logger.error(`Error triggering EnergyChartsService from EpexWorker: ${err}`);
+      });
+
       const now = new Date();
       const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
 
       const countTodayNL = await prisma.epexSpotPrice.count({
-        where: { timestamp: { gte: startOfToday }, country: "NL" }
+        where: { timestamp: { gte: startOfToday }, country: "NL", provider: "EnergyZero" }
       });
       const countTodayBE = await prisma.epexSpotPrice.count({
-        where: { timestamp: { gte: startOfToday }, country: "BE" }
+        where: { timestamp: { gte: startOfToday }, country: "BE", provider: "EnergyZero" }
       });
 
       const cetHour = (now.getUTCHours() + 1) % 24;
@@ -26,10 +32,10 @@ export class EpexSpotService {
       tomorrowEnd.setHours(23, 0, 0, 0);
 
       const countTomorrowNL = await prisma.epexSpotPrice.count({
-        where: { timestamp: tomorrowEnd, country: "NL" }
+        where: { timestamp: tomorrowEnd, country: "NL", provider: "EnergyZero" }
       });
       const countTomorrowBE = await prisma.epexSpotPrice.count({
-        where: { timestamp: tomorrowEnd, country: "BE" }
+        where: { timestamp: tomorrowEnd, country: "BE", provider: "EnergyZero" }
       });
 
       const needsFetchNL = countTodayNL === 0 || (isPastPublishTime && countTomorrowNL === 0);
@@ -63,9 +69,9 @@ export class EpexSpotService {
 
               nlOperations.push(
                 prisma.epexSpotPrice.upsert({
-                  where: { timestamp_country: { timestamp, country: "NL" } },
+                  where: { timestamp_country_provider: { timestamp, country: "NL", provider: "EnergyZero" } },
                   update: { pricePerMwh },
-                  create: { timestamp, country: "NL", pricePerMwh },
+                  create: { timestamp, country: "NL", pricePerMwh, provider: "EnergyZero" },
                 })
               );
             }
@@ -122,9 +128,9 @@ export class EpexSpotService {
               if (timestamp >= startOfToday && timestamp <= endOfTomorrow) {
                 beOperations.push(
                   prisma.epexSpotPrice.upsert({
-                    where: { timestamp_country: { timestamp, country: "BE" } },
+                    where: { timestamp_country_provider: { timestamp, country: "BE", provider: "EnergyZero" } },
                     update: { pricePerMwh },
-                    create: { timestamp, country: "BE", pricePerMwh },
+                    create: { timestamp, country: "BE", pricePerMwh, provider: "EnergyZero" },
                   })
                 );
               }
@@ -157,12 +163,12 @@ export class EpexSpotService {
     logger.info("Started EPEX Spot Service worker");
   }
 
-  public static async getPriceForTimestamp(country: string, timestamp: Date): Promise<number | null> {
+  public static async getPriceForTimestamp(country: string, timestamp: Date, provider: string = "EnergyZero"): Promise<number | null> {
     try {
       const targetTime = new Date(timestamp);
       targetTime.setMinutes(0, 0, 0);
 
-      const cacheKey = `epex_price:${country}:${targetTime.toISOString()}`;
+      const cacheKey = `epex_price:${provider}:${country}:${targetTime.toISOString()}`;
       const cachedPrice = await redisClient.get(cacheKey);
 
       if (cachedPrice) {
@@ -171,9 +177,10 @@ export class EpexSpotService {
 
       const priceRecord = await prisma.epexSpotPrice.findUnique({
         where: {
-          timestamp_country: {
+          timestamp_country_provider: {
             timestamp: targetTime,
             country,
+            provider,
           },
         },
       });
@@ -183,14 +190,14 @@ export class EpexSpotService {
         return priceRecord.pricePerMwh;
       }
 
-      // Fallback: get the most recent price for the country if the exact hour isn't found
+      // Fallback: get the most recent price for the country and provider if the exact hour isn't found
       const latestPrice = await prisma.epexSpotPrice.findFirst({
-        where: { country },
+        where: { country, provider },
         orderBy: { timestamp: "desc" },
       });
 
       if (latestPrice) {
-        logger.warn(`Exact EPEX price not found for ${country} at ${targetTime.toISOString()}. Using latest available price.`);
+        logger.warn(`Exact EPEX price not found for ${provider} ${country} at ${targetTime.toISOString()}. Using latest available price.`);
         await redisClient.set(cacheKey, latestPrice.pricePerMwh.toString(), "EX", 3600); // 1h
         return latestPrice.pricePerMwh;
       }

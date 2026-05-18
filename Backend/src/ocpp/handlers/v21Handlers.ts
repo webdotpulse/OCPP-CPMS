@@ -517,7 +517,7 @@ export async function handleTransactionEvent(
 
         if (tariff?.tariffType === "DYNAMIC_EPEX" && tariff.country) {
           const { EpexSpotService } = await import("../../services/EpexSpotService.js");
-          const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, transaction.startTime);
+          const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, transaction.startTime, tariff.dynamicProvider || "EnergyZero");
           const spotPriceKwh = spotPriceMwh ? (spotPriceMwh / 1000) : 0;
           const markup = tariff.markupPerKwh || 0;
           const taxRate = tariff.taxPercentage ? (tariff.taxPercentage / 100) : 0;
@@ -566,7 +566,7 @@ export async function handleTransactionEvent(
 
         if (tariff?.tariffType === "DYNAMIC_EPEX" && tariff.country) {
           const { EpexSpotService } = await import("../../services/EpexSpotService.js");
-          const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, rfidSession.startTime);
+          const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, rfidSession.startTime, tariff.dynamicProvider || "EnergyZero");
 
           // Convert MWh to kWh
           const spotPriceKwh = spotPriceMwh ? (spotPriceMwh / 1000) : 0;

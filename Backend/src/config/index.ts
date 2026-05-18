@@ -28,6 +28,10 @@ export const config = {
 
   // Redis
   redisUrl: process.env.REDIS_URL || "redis://localhost:6379",
+
+  // Dynamic Tariffs
+  defaultDynamicProvider: process.env.DEFAULT_DYNAMIC_PROVIDER || "EnergyZero",
+  defaultDynamicCountry: process.env.DEFAULT_DYNAMIC_COUNTRY || "BE",
 };
 
 export const logLevels = ["error", "warn", "info", "debug"] as const;

@@ -47,7 +47,7 @@ describe("EpexSpotService", () => {
 
       const price = await EpexSpotService.getPriceForTimestamp("BE", mockTimestamp);
 
-      expect(mockRedisGet).toHaveBeenCalledWith(`epex_price:BE:${targetTime.toISOString()}`);
+      expect(mockRedisGet).toHaveBeenCalledWith(`epex_price:EnergyZero:BE:${targetTime.toISOString()}`);
       expect(price).toBe(85.5);
     });
 
@@ -71,13 +71,14 @@ describe("EpexSpotService", () => {
 
       expect(mockPrismaFindUnique).toHaveBeenCalledWith({
         where: {
-          timestamp_country: {
+          timestamp_country_provider: {
             timestamp: targetTime,
             country: "BE",
+            provider: "EnergyZero",
           },
         },
       });
-      expect(mockRedisSet).toHaveBeenCalledWith(`epex_price:BE:${targetTime.toISOString()}`, "85.5", "EX", 86400);
+      expect(mockRedisSet).toHaveBeenCalledWith(`epex_price:EnergyZero:BE:${targetTime.toISOString()}`, "85.5", "EX", 86400);
       expect(price).toBe(85.5);
     });
 

@@ -197,6 +197,7 @@ export interface CreateTariffDto {
   electricity_rate: number;
   tariffType?: string;
   country?: string;
+  dynamicProvider?: string;
   markupPerKwh?: number;
   taxPercentage?: number;
   fixedFeePerMonth?: number;
@@ -210,6 +211,7 @@ export interface UpdateTariffDto {
   electricity_rate?: number;
   tariffType?: string;
   country?: string;
+  dynamicProvider?: string;
   markupPerKwh?: number;
   taxPercentage?: number;
   fixedFeePerMonth?: number;
