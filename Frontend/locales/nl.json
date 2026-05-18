@@ -2,6 +2,7 @@
   "translation": {
     "nav": {
       "dashboard": "Dashboard",
+      "energyDashboard": "Energie",
       "customers": "Klanten",
       "locations": "Locaties",
       "chargers": "Laders",
@@ -27,6 +28,7 @@
       "logout": "Uitloggen"
     },
     "dashboard": {
+      "energyOverviewDesc": "Bewaak de telemetrie van uw energie en realtime stroomstromen.",
       "systemOverview": "Systeemoverzicht",
       "systemOverviewDesc": "Bewaak realtime statistieken en laadstatus in uw netwerk.",
       "totalChargers": "Totaal Laders",

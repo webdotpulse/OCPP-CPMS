@@ -43,7 +43,7 @@ export function EnergyFlow({ telemetry }: EnergyFlowProps) {
   );
 
   return (
-    <div className="relative w-full max-w-[400px] aspect-square flex items-center justify-center">
+    <div className="relative w-full max-w-[400px] aspect-square flex items-center justify-center mb-28">
       {/* Central Node */}
       <div className="absolute z-20 w-16 h-16 rounded-full bg-primary/10 border-4 border-primary flex items-center justify-center shadow-[0_0_15px_rgba(var(--primary),0.5)]">
          <div className="w-8 h-8 rounded-full bg-primary animate-pulse" />
@@ -90,7 +90,7 @@ export function EnergyFlow({ telemetry }: EnergyFlowProps) {
       </div>
 
       {/* Connecting Lines SVG */}
-      <svg className="absolute inset-0 w-full h-full -z-10" viewBox="0 0 400 400">
+      <svg className="absolute inset-0 w-full h-full z-0 overflow-visible" viewBox="0 0 400 400">
         <defs>
           <linearGradient id="grad-solar" x1="0%" y1="0%" x2="0%" y2="100%">
              <stop offset="0%" stopColor="#eab308" />
@@ -115,7 +115,7 @@ export function EnergyFlow({ telemetry }: EnergyFlowProps) {
         <line x1="200" y1="230" x2="200" y2="288" stroke="#3b82f6" strokeWidth="6" strokeDasharray="8 8" className={telemetry.house_kw > 0 ? "animate-[dash_1s_linear_infinite]" : "opacity-30"} />
 
         {/* Charger Line */}
-         <line x1="200" y1="288" x2="200" y2="350" stroke="#a855f7" strokeWidth="6" strokeDasharray="8 8" className={chargersPower > 0 ? "animate-[dash_1s_linear_infinite]" : "opacity-30"} />
+         <line x1="200" y1="288" x2="200" y2="400" stroke="#a855f7" strokeWidth="6" strokeDasharray="8 8" className={chargersPower > 0 ? "animate-[dash_1s_linear_infinite]" : "opacity-30"} />
 
       </svg>
       <style>{`
