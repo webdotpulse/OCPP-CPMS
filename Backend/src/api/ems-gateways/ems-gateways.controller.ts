@@ -25,6 +25,36 @@ export const createGateway = async (req: AuthRequest, res: Response): Promise<vo
   }
 };
 
+export const updateGateway = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.userId;
+    const userRole = req.userRole;
+    const { id } = req.params;
+
+    if (!userId) {
+      res.status(401).json({ success: false, error: "Unauthorized" });
+      return;
+    }
+
+    if (userRole !== "admin") {
+      res.status(403).json({ success: false, error: "Only admins can edit EMS Gateways" });
+      return;
+    }
+
+    const { client_id } = req.body;
+
+    if (!client_id) {
+      res.status(400).json({ success: false, error: "Missing client_id" });
+      return;
+    }
+
+    const updatedGateway = await EmsGatewayService.updateGateway(id as string, Number(client_id));
+    res.json({ success: true, data: updatedGateway });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 export const getGateways = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.userId;

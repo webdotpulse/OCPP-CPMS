@@ -16,6 +16,13 @@ export class EmsGatewayService {
     return gateway;
   }
 
+  static async updateGateway(gatewayId: string, clientId: number) {
+    return prisma.emsGateway.update({
+      where: { gateway_id: gatewayId },
+      data: { client_id: clientId },
+    });
+  }
+
   static async getGateways(clientId: number, userRole: string) {
     if (userRole === "admin") {
       return prisma.emsGateway.findMany({

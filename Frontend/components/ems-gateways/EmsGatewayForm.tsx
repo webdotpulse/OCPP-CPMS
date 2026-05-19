@@ -91,7 +91,15 @@ export function EmsGatewayForm({ gatewayId }: EmsGatewayFormProps) {
     try {
       if (initialData) {
         // Edit flow
-        toast.info("Updating EMS Gateways is not currently supported via API.");
+        if (user?.role === 'admin') {
+          const payload = { client_id: data.client_id };
+          await api.put(`/ems-gateways/${gatewayId}`, payload);
+          toast.success("Gateway updated successfully");
+          router.push('/ems-gateways');
+          router.refresh();
+        } else {
+          toast.error("Only admins can edit gateways.");
+        }
       } else {
         // Create flow
         const payload = {
@@ -108,7 +116,7 @@ export function EmsGatewayForm({ gatewayId }: EmsGatewayFormProps) {
       }
     } catch (error: any) {
       console.error("Failed to save EMS Gateway", error);
-      toast.error(error.response?.data?.error || "Failed to register gateway. Please try again.");
+      toast.error(error.response?.data?.error || "Failed to save gateway. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -144,7 +152,7 @@ export function EmsGatewayForm({ gatewayId }: EmsGatewayFormProps) {
     <>
       <Card className="w-full max-w-2xl shadow-sm">
         <CardHeader className="border-b pb-4">
-          <CardTitle>{initialData ? 'View Gateway' : 'Register New Gateway'}</CardTitle>
+          <CardTitle>{initialData ? (user?.role === 'admin' ? 'Edit Gateway' : 'View Gateway') : 'Register New Gateway'}</CardTitle>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-5 pt-6">
@@ -155,7 +163,6 @@ export function EmsGatewayForm({ gatewayId }: EmsGatewayFormProps) {
                 <Select
                   value={watch('client_id')?.toString() || initialData?.client_id?.toString() || user?.id?.toString()}
                   onValueChange={(val) => setValue('client_id', parseInt(val))}
-                  disabled={!!initialData}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a client user" />
@@ -220,10 +227,10 @@ export function EmsGatewayForm({ gatewayId }: EmsGatewayFormProps) {
           </CardContent>
           <CardFooter className="flex flex-col-reverse gap-3 border-t pt-4 sm:flex-row sm:justify-between">
             <Button variant="outline" type="button" onClick={() => router.push('/ems-gateways')}>Cancel</Button>
-            {!initialData && (
+            {(!initialData || user?.role === 'admin') && (
               <Button type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Register Gateway
+                {initialData ? 'Update Gateway' : 'Register Gateway'}
               </Button>
             )}
           </CardFooter>

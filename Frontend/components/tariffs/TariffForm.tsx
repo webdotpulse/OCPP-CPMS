@@ -241,16 +241,16 @@ export function TariffForm({ initialData }: { initialData?: any }) {
           {selectedTariffType === "DYNAMIC_EPEX" && (
             <div className="border-t pt-4 space-y-4">
               <Label>24-Hour Price Preview (€ per kWh)</Label>
-              <div className="h-[250px] w-full bg-slate-50/50 dark:bg-slate-900/50 rounded-md p-4 border">
+              <div className="w-full bg-slate-50/50 dark:bg-slate-900/50 rounded-md p-4 border">
                 {isPreviewLoading ? (
-                  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                  <div className="flex h-[300px] w-full items-center justify-center text-muted-foreground">
                     <Loader2 className="h-6 w-6 animate-spin mr-2" />
                     Loading preview...
                   </div>
                 ) : previewData.length > 0 ? (
                   <DynamicTariffGraph data={previewData as any} country={watchCountry as "BE" | "NL"} />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                  <div className="flex h-[300px] w-full items-center justify-center text-muted-foreground">
                     Preview data unavailable. Check parameters or backend connection.
                   </div>
                 )}

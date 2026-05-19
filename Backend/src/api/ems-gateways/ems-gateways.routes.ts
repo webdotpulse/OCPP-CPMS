@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { authenticateToken } from "../../middleware/auth.js";
-import { createGateway, getGateways, pushTelemetry, setChargingProfileFromEms, throttleChargerFromEms } from "./ems-gateways.controller.js";
+import { createGateway, getGateways, updateGateway, pushTelemetry, setChargingProfileFromEms, throttleChargerFromEms } from "./ems-gateways.controller.js";
 
 const router = Router();
 
 // Routes for web interface (secured by JWT)
 router.post("/", authenticateToken, createGateway as any);
 router.get("/", authenticateToken, getGateways as any);
+router.put("/:id", authenticateToken, updateGateway as any);
 
 // Route for EMS hardware to push data (secured by its own hardware token)
 router.post("/telemetry", pushTelemetry as any);
