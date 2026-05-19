@@ -30,7 +30,7 @@ export function DynamicTariffGraph({ data, country, isLoading }: DynamicTariffGr
       const date = new Date(d.timestamp);
       return {
         ...d,
-        time: date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        time: date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }),
         hour: date.getHours(),
         isNegative: d.price < 0,
       };
@@ -82,7 +82,7 @@ export function DynamicTariffGraph({ data, country, isLoading }: DynamicTariffGr
       <CardContent>
         <div className="h-[300px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 0 }}>
+            <LineChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
               <XAxis
                 dataKey="time"

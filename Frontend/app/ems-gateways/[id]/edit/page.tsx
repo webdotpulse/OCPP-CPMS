@@ -4,7 +4,8 @@ import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default function EditEmsGatewayPage({ params }: { params: { id: string } }) {
+export default async function EditEmsGatewayPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
   return (
     <AppShell>
       <div className="mb-6 space-y-4">
@@ -15,10 +16,10 @@ export default function EditEmsGatewayPage({ params }: { params: { id: string } 
         </Link>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Manage Gateway</h1>
-          <p className="text-muted-foreground">View or edit details for EMS Gateway {params.id}</p>
+          <p className="text-muted-foreground">View or edit details for EMS Gateway {resolvedParams.id}</p>
         </div>
       </div>
-      <EmsGatewayForm gatewayId={params.id} />
+      <EmsGatewayForm gatewayId={resolvedParams.id} />
     </AppShell>
   );
 }
