@@ -47,7 +47,7 @@ export class EmsGatewayService {
     return gateway;
   }
 
-  static async processTelemetry(authToken: string, telemetryData: { solar_kw: number; battery_kw: number; grid_kw: number; house_kw: number }) {
+  static async processTelemetry(authToken: string, telemetryData: { solar_kw?: number; battery_kw?: number; grid_kw?: number; house_kw?: number }) {
     // 1. Authenticate gateway
     const gateway = await EmsGatewayService.validateGatewayToken(authToken);
 
@@ -65,10 +65,10 @@ export class EmsGatewayService {
 
     // Store as hash with expiration (e.g. 5 minutes) so stale data drops
     await redisClient.hset(redisKey, {
-      solar_kw: telemetryData.solar_kw.toString(),
-      battery_kw: telemetryData.battery_kw.toString(),
-      grid_kw: telemetryData.grid_kw.toString(),
-      house_kw: telemetryData.house_kw.toString(),
+      solar_kw: (telemetryData.solar_kw ?? 0).toString(),
+      battery_kw: (telemetryData.battery_kw ?? 0).toString(),
+      grid_kw: (telemetryData.grid_kw ?? 0).toString(),
+      house_kw: (telemetryData.house_kw ?? 0).toString(),
       timestamp: Date.now().toString(),
     });
 

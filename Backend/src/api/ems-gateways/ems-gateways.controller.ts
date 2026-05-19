@@ -80,7 +80,7 @@ export const pushTelemetry = async (req: Request, res: Response): Promise<void> 
     let token = "";
 
     if (authHeader && authHeader.startsWith("Bearer ")) {
-      token = authHeader.split(" ")[1];
+      token = authHeader.replace(/^Bearer\s+/i, "").trim();
     } else {
       res.status(401).json({ success: false, error: "Missing Bearer token" });
       return;
@@ -88,24 +88,11 @@ export const pushTelemetry = async (req: Request, res: Response): Promise<void> 
 
     const { solar_kw, battery_kw, grid_kw, house_kw } = req.body;
 
-    if (
-      solar_kw === undefined ||
-      battery_kw === undefined ||
-      grid_kw === undefined ||
-      house_kw === undefined
-    ) {
-      res.status(400).json({
-        success: false,
-        error: "Missing required telemetry fields: solar_kw, battery_kw, grid_kw, house_kw"
-      });
-      return;
-    }
-
     const result = await EmsGatewayService.processTelemetry(token, {
-      solar_kw: Number(solar_kw),
-      battery_kw: Number(battery_kw),
-      grid_kw: Number(grid_kw),
-      house_kw: Number(house_kw)
+      solar_kw: solar_kw !== undefined ? Number(solar_kw) : undefined,
+      battery_kw: battery_kw !== undefined ? Number(battery_kw) : undefined,
+      grid_kw: grid_kw !== undefined ? Number(grid_kw) : undefined,
+      house_kw: house_kw !== undefined ? Number(house_kw) : undefined,
     });
 
     res.json(result);
