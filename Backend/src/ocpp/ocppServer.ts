@@ -20,9 +20,7 @@ class OcppServer {
         if (protocols.has("ocpp2.1")) return "ocpp2.1";
         if (protocols.has("ocpp2.0.1")) return "ocpp2.0.1";
         if (protocols.has("ocpp1.6")) return "ocpp1.6";
-        // If the client didn't send a protocol or sent an empty string, fallback to ocpp1.6
-        // Returning false would reject the connection for clients not sending the header.
-        if (protocols.size === 0) return "ocpp1.6";
+        // Reject the connection if no supported protocol is provided
         return false;
       },
     });
@@ -212,6 +210,15 @@ class OcppServer {
 
         proxyRouter.removeProxy(chargerId);
         logger.info(`Charger ${charger.name} (ID: ${chargerId}) disconnected`);
+
+        // Clear any pending requests for this charger
+        for (const [messageId, request] of pendingRequests.entries()) {
+          if (request.chargerId === chargerId) {
+            clearTimeout(request.timeout);
+            request.reject(new Error("Charger disconnected"));
+            pendingRequests.delete(messageId);
+          }
+        }
         chargerRegistry.unregister(chargerId).then(async () => {
           // Verify it is truly offline before marking offline in DB (might have reconnected elsewhere)
           if (!(await chargerRegistry.isConnectedGlobally(chargerId))) {
@@ -347,6 +354,14 @@ class OcppServer {
       clearInterval(this.pingInterval);
       this.pingInterval = null;
     }
+
+    // Clear all pending requests
+    for (const [messageId, request] of pendingRequests.entries()) {
+      clearTimeout(request.timeout);
+      request.reject(new Error("Server stopping"));
+      pendingRequests.delete(messageId);
+    }
+
     if (this.wss) {
       this.wss.close();
       this.wss = null;
