@@ -1,4 +1,5 @@
 import { WebSocket, WebSocketServer } from "ws";
+import * as http from "http";
 import { config } from "../config/index.js";
 import { prisma } from "../config/database.js";
 import { logger } from "../utils/logger.js";
@@ -11,11 +12,13 @@ import { proxyRouter } from "./proxyRouter.js";
 
 class OcppServer {
   private wss: WebSocketServer | null = null;
+  private httpServer: http.Server | null = null;
   private pingInterval: NodeJS.Timeout | null = null;
 
   start(): void {
+    this.httpServer = http.createServer();
     this.wss = new WebSocketServer({
-      port: config.ocppPort,
+      noServer: true,
       handleProtocols: (protocols, request) => {
         if (protocols.has("ocpp2.1")) return "ocpp2.1";
         if (protocols.has("ocpp2.0.1")) return "ocpp2.0.1";
@@ -25,7 +28,73 @@ class OcppServer {
       },
     });
 
-    this.wss.on("listening", () => {
+    // Handle the upgrade event to implement optional authentication
+    this.httpServer.on("upgrade", async (request, socket, head) => {
+      try {
+        const pathParts = request.url?.split("?")[0].split("/").filter(Boolean);
+        const chargerIdStr = pathParts?.[pathParts.length - 1];
+
+        if (!chargerIdStr) {
+          logger.error("No charger ID in connection path during upgrade");
+          socket.write('HTTP/1.1 400 Bad Request\r\n\r\n');
+          socket.destroy();
+          return;
+        }
+
+        const chargerIdNum = Number(chargerIdStr);
+        const isNumericId = Number.isInteger(chargerIdNum) && chargerIdStr.trim() !== "";
+
+        const charger = await prisma.charger.findUnique({
+          where: isNumericId ? { charger_id: chargerIdNum } : { name: chargerIdStr },
+        });
+
+        if (!charger) {
+          logger.error(`Charger ${chargerIdStr} not found during upgrade`);
+          socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
+          socket.destroy();
+          return;
+        }
+
+        if (charger.requireAuth) {
+          const authHeader = request.headers.authorization;
+          if (!authHeader || !authHeader.toLowerCase().startsWith('basic ')) {
+            logger.warn(`Charger ${chargerIdStr} requires auth but no Basic auth provided`);
+            socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+            socket.destroy();
+            return;
+          }
+
+          const base64Credentials = authHeader.split(' ')[1];
+          const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
+          const separatorIndex = credentials.indexOf(':');
+          const password = separatorIndex !== -1 ? credentials.slice(separatorIndex + 1) : '';
+
+          if (password !== charger.authPassword) {
+            logger.warn(`Charger ${chargerIdStr} provided invalid auth password`);
+            socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
+            socket.destroy();
+            return;
+          }
+        }
+
+        if (this.wss) {
+          this.wss.handleUpgrade(request, socket, head, (ws) => {
+            if (this.wss) {
+              this.wss.emit('connection', ws, request);
+            }
+          });
+        } else {
+          socket.destroy();
+        }
+      } catch (err) {
+        logger.error(`Error during websocket upgrade interception: ${err}`);
+        socket.write('HTTP/1.1 500 Internal Server Error\r\n\r\n');
+        socket.destroy();
+      }
+    });
+
+    // The HTTP server will handle listening and emit listening events
+    this.httpServer.listen(config.ocppPort, () => {
       logger.info(`OCPP server listening on port ${config.ocppPort}`);
     });
 
@@ -365,8 +434,14 @@ class OcppServer {
     if (this.wss) {
       this.wss.close();
       this.wss = null;
-      logger.info("OCPP server stopped");
     }
+
+    if (this.httpServer) {
+      this.httpServer.close();
+      this.httpServer = null;
+    }
+
+    logger.info("OCPP server stopped");
   }
 }
 
