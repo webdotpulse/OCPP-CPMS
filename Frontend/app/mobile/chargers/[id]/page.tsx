@@ -11,8 +11,10 @@ import { useParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { logger } from "@/lib/logger";
 import { format, formatDistanceToNow } from 'date-fns';
+import { useAuth } from "@/hooks/useAuth";
 
 export default function MobileChargerDetails() {
+  const { user } = useAuth();
   const { id } = useParams();
   const [charger, setCharger] = useState<any>(null);
   const [isCommandLoading, setIsCommandLoading] = useState(false);
@@ -140,14 +142,14 @@ export default function MobileChargerDetails() {
 
       <div className="p-4 space-y-4 pb-24">
         {/* OCPP Remote Controls */}
-        {charger.status !== 'offline' && (
+        {charger.status !== 'offline' && user?.role === 'admin' && (
           <div className="mb-6">
             <RemoteControlPanel chargerId={charger.charger_id} hideTriggerMessage={true} />
           </div>
         )}
 
         {/* Manual Speed Override */}
-        {charger.status !== 'offline' && (
+        {charger.status !== 'offline' && user?.role === 'admin' && (
           <MobileSpeedOverride chargerId={charger.charger_id} currentPower={activeTxns[0]?.currentPower || 0} />
         )}
 
