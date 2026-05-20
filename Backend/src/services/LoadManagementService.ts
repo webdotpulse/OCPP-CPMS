@@ -232,10 +232,16 @@ export class LoadManagementService {
         } else {
           logger.info(`Charge Group ${groupId} active current (${totalActiveCurrent.toFixed(1)}A, Theoretical: ${theoreticalMaxCurrentAmps.toFixed(1)}A) requires load balancing (Safe Limit: ${safeLimitAmps.toFixed(1)}A).`);
 
-          // Ensure limit is at least 6A (standard minimum for EV charging)
-          const limitPerTransactionAmps = Math.max(6, Math.floor(safeLimitAmps / activeTransactions.length));
+          // Prioritize older transactions; suspend others if safe limit drops below 6A per active transaction
+          const sortedTransactions = [...activeTransactions].sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+          const maxActiveChargers = Math.max(1, Math.floor(safeLimitAmps / 6)); // At least 1 to avoid divide-by-zero
+          const activeCount = Math.min(sortedTransactions.length, maxActiveChargers);
+          const limitPerTransactionAmps = Math.floor(safeLimitAmps / activeCount);
 
-          for (const tx of activeTransactions) {
+          for (let i = 0; i < sortedTransactions.length; i++) {
+            const tx = sortedTransactions[i];
+            const currentTxLimitAmps = i < activeCount ? limitPerTransactionAmps : 0;
+
             const existingProfile = await prisma.chargingProfile.findUnique({
               where: {
                 chargerId_chargingProfileId: { chargerId: tx.charger_id, chargingProfileId: 101 }
@@ -245,7 +251,7 @@ export class LoadManagementService {
             const existingSchedule = existingProfile?.chargingSchedule as any;
             const currentLimitAmps = existingSchedule?.chargingSchedulePeriod?.[0]?.limit;
 
-            if (existingProfile && currentLimitAmps === limitPerTransactionAmps) {
+            if (existingProfile && currentLimitAmps === currentTxLimitAmps) {
                continue; // Limit already applied correctly, skip redundant dispatch
             }
 
@@ -262,7 +268,7 @@ export class LoadManagementService {
                   chargingSchedulePeriod: [
                     {
                       startPeriod: 0,
-                      limit: limitPerTransactionAmps
+                      limit: currentTxLimitAmps
                     }
                   ]
                 }
@@ -307,11 +313,16 @@ export class LoadManagementService {
       // APPLY limits based on ACTUAL load or if theoretical limit enforces it
       logger.info(`Charge Group ${groupId} load (Active: ${totalActiveLoadKw.toFixed(1)}kW, Theoretical: ${theoreticalMaxLoadKw.toFixed(1)}kW) requires load balancing (Safe Limit: ${safeLimitKw.toFixed(1)}kW).`);
 
-      // Ensure a reasonable minimum power limit (e.g. 1.4kW ~ 6A at 230V)
-      const limitPerTransactionKw = Math.max(1.4, safeLimitKw / activeTransactions.length);
-      const limitW = Math.floor(limitPerTransactionKw * 1000);
+      // Prioritize older transactions; suspend others if safe limit drops below 1.4kW per active transaction
+      const sortedTransactionsKw = [...activeTransactions].sort((a, b) => a.startTime.getTime() - b.startTime.getTime());
+      const maxActiveChargersKw = Math.max(1, Math.floor(safeLimitKw / 1.4));
+      const activeCountKw = Math.min(sortedTransactionsKw.length, maxActiveChargersKw);
+      const limitPerTransactionKw = safeLimitKw / activeCountKw;
 
-      for (const tx of activeTransactions) {
+      for (let i = 0; i < sortedTransactionsKw.length; i++) {
+        const tx = sortedTransactionsKw[i];
+        const limitW = i < activeCountKw ? Math.floor(limitPerTransactionKw * 1000) : 0;
+
         const existingProfile = await prisma.chargingProfile.findUnique({
           where: {
             chargerId_chargingProfileId: { chargerId: tx.charger_id, chargingProfileId: 100 }
