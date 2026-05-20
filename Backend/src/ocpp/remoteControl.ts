@@ -4,7 +4,7 @@ import type { RemoteStartRequest, RemoteStopRequest, SetChargingProfileRequest, 
 import { redisSubscriber, redisClient } from "../config/redis.js";
 
 // Pending requests map for Promise resolution
-export const pendingRequests = new Map<string, { resolve: (val: any) => void; reject: (err: any) => void; timeout: NodeJS.Timeout }>();
+export const pendingRequests = new Map<string, { resolve: (val: any) => void; reject: (err: any) => void; timeout: NodeJS.Timeout; chargerId: number }>();
 
 // Subscribe to CALLRESULTs
 redisSubscriber.subscribe("ocpp_callresults", (err) => {
@@ -159,7 +159,7 @@ export async function getConfiguration(
         resolve({ status: "Rejected", error: "Timeout waiting for GetConfiguration response" });
       }, 10000); // 10s timeout
 
-      pendingRequests.set(messageId, { resolve, reject, timeout });
+      pendingRequests.set(messageId, { resolve, reject, timeout, chargerId });
     });
 
     await chargerRegistry.publishCommand(chargerId, message);
