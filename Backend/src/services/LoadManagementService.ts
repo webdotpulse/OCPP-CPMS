@@ -112,9 +112,13 @@ export class LoadManagementService {
       // If THEORETICAL max load is safely under limits, clear limits.
       if (theoreticalMaxLoadKw <= safeLimitKw) {
         logger.debug(`Station ${stationId} theoretical load (${theoreticalMaxLoadKw.toFixed(1)}kW) within safe limit (${safeLimitKw.toFixed(1)}kW). Clearing any existing load management profiles.`);
-        for (const tx of activeTransactions) {
-          await this.clearLoadManagementProfile(tx.charger_id, 100);
-        }
+        const clearPromises = activeTransactions.map(tx => this.clearLoadManagementProfile(tx.charger_id, 100));
+        const clearResults = await Promise.allSettled(clearPromises);
+        clearResults.forEach((result, index) => {
+          if (result.status === "rejected") {
+            logger.error(`Failed to clear load management profile for charger ${activeTransactions[index].charger_id}: ${result.reason}`);
+          }
+        });
         return;
       }
 
@@ -136,6 +140,9 @@ export class LoadManagementService {
       const existingProfilesMap = new Map(existingProfilesList.map(p => [p.chargerId, p]));
 
       // Apply the limits via SetChargingProfile
+      const dispatchPromises: Promise<void>[] = [];
+      const txsWithPromises: typeof activeTransactions = [];
+
       for (const tx of activeTransactions) {
         // Skip dispatch if profile already exists with exact limit
         const existingProfile = existingProfilesMap.get(tx.charger_id);
@@ -167,7 +174,17 @@ export class LoadManagementService {
           }
         };
 
-        await this.dispatchChargingProfiles(profileRequest);
+        dispatchPromises.push(this.dispatchChargingProfiles(profileRequest));
+        txsWithPromises.push(tx);
+      }
+
+      if (dispatchPromises.length > 0) {
+        const dispatchResults = await Promise.allSettled(dispatchPromises);
+        dispatchResults.forEach((result, index) => {
+          if (result.status === "rejected") {
+            logger.error(`Failed to dispatch charging profile for charger ${txsWithPromises[index].charger_id}: ${result.reason}`);
+          }
+        });
       }
     } catch (error) {
       logger.error(`Error in balanceSiteLoad for station ${stationId}: ${error}`);
@@ -229,9 +246,13 @@ export class LoadManagementService {
 
         if (theoreticalMaxCurrentAmps <= safeLimitAmps) {
           logger.debug(`Charge Group ${groupId} theoretical current (${theoreticalMaxCurrentAmps.toFixed(1)}A) within safe limit (${safeLimitAmps.toFixed(1)}A). Clearing any existing amp load management profiles.`);
-          for (const tx of activeTransactions) {
-            await this.clearLoadManagementProfile(tx.charger_id, 101).catch((err: any) => logger.error(`Failed to clear amp load management profile ${tx.charger_id}: ${err}`));
-          }
+          const clearPromises = activeTransactions.map(tx => this.clearLoadManagementProfile(tx.charger_id, 101));
+          const clearResults = await Promise.allSettled(clearPromises);
+          clearResults.forEach((result, index) => {
+            if (result.status === "rejected") {
+              logger.error(`Failed to clear amp load management profile for charger ${activeTransactions[index].charger_id}: ${result.reason}`);
+            }
+          });
         } else {
           logger.info(`Charge Group ${groupId} active current (${totalActiveCurrent.toFixed(1)}A, Theoretical: ${theoreticalMaxCurrentAmps.toFixed(1)}A) requires load balancing (Safe Limit: ${safeLimitAmps.toFixed(1)}A).`);
 
@@ -246,6 +267,9 @@ export class LoadManagementService {
             where: { chargerId: { in: chargerIds }, chargingProfileId: 101 }
           });
           const existingAmpProfilesMap = new Map(existingAmpProfilesList.map(p => [p.chargerId, p]));
+
+          const dispatchPromises: Promise<void>[] = [];
+          const txsWithPromises: typeof activeTransactions = [];
 
           for (let i = 0; i < sortedTransactions.length; i++) {
             const tx = sortedTransactions[i];
@@ -281,9 +305,17 @@ export class LoadManagementService {
             };
 
             // Dispatch profile to throttle
-            await this.dispatchChargingProfiles(profileRequest).catch((err: any) =>
-              logger.error(`Failed to dispatch amp throttle profile for tx ${tx.id}: ${err}`)
-            );
+            dispatchPromises.push(this.dispatchChargingProfiles(profileRequest));
+            txsWithPromises.push(tx);
+          }
+
+          if (dispatchPromises.length > 0) {
+            const dispatchResults = await Promise.allSettled(dispatchPromises);
+            dispatchResults.forEach((result, index) => {
+              if (result.status === "rejected") {
+                logger.error(`Failed to dispatch amp throttle profile for tx ${txsWithPromises[index].id}: ${result.reason}`);
+              }
+            });
           }
         }
       }
@@ -309,9 +341,13 @@ export class LoadManagementService {
       // CLEAR limits based on THEORETICAL max load to prevent oscillation
       if (theoreticalMaxLoadKw <= safeLimitKw) {
         logger.debug(`Charge Group ${groupId} theoretical load (${theoreticalMaxLoadKw.toFixed(1)}kW) within safe limit (${safeLimitKw.toFixed(1)}kW). Clearing any existing load management profiles.`);
-        for (const tx of activeTransactions) {
-          await this.clearLoadManagementProfile(tx.charger_id, 100).catch((err: any) => logger.error(`Failed to clear power load management profile ${tx.charger_id}: ${err}`));
-        }
+        const clearPromises = activeTransactions.map(tx => this.clearLoadManagementProfile(tx.charger_id, 100));
+        const clearResults = await Promise.allSettled(clearPromises);
+        clearResults.forEach((result, index) => {
+          if (result.status === "rejected") {
+            logger.error(`Failed to clear power load management profile for charger ${activeTransactions[index].charger_id}: ${result.reason}`);
+          }
+        });
         return;
       }
 
@@ -329,6 +365,9 @@ export class LoadManagementService {
         where: { chargerId: { in: chargerIdsKw }, chargingProfileId: 100 }
       });
       const existingPowerProfilesMap = new Map(existingPowerProfilesList.map(p => [p.chargerId, p]));
+
+      const dispatchPromises: Promise<void>[] = [];
+      const txsWithPromises: typeof activeTransactions = [];
 
       for (let i = 0; i < sortedTransactionsKw.length; i++) {
         const tx = sortedTransactionsKw[i];
@@ -363,7 +402,17 @@ export class LoadManagementService {
           }
         };
 
-        await this.dispatchChargingProfiles(profileRequest).catch((err: any) => logger.error(`Failed to dispatch power throttle profile ${tx.charger_id}: ${err}`));
+        dispatchPromises.push(this.dispatchChargingProfiles(profileRequest));
+        txsWithPromises.push(tx);
+      }
+
+      if (dispatchPromises.length > 0) {
+        const dispatchResults = await Promise.allSettled(dispatchPromises);
+        dispatchResults.forEach((result, index) => {
+          if (result.status === "rejected") {
+            logger.error(`Failed to dispatch power throttle profile for charger ${txsWithPromises[index].charger_id}: ${result.reason}`);
+          }
+        });
       }
     } catch (error) {
       logger.error(`Error in balanceChargeGroupLoad for group ${groupId}: ${error}`);
@@ -416,6 +465,7 @@ export class LoadManagementService {
       }
     } catch (error) {
       logger.error(`Error dispatching charging profile: ${error}`);
+      throw error;
     }
   }
 
@@ -452,6 +502,7 @@ export class LoadManagementService {
       }
     } catch (error) {
       logger.error(`Error clearing load management profile ${profileId} for charger ${chargerId}: ${error}`);
+      throw error;
     }
   }
 }
