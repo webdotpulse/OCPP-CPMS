@@ -86,14 +86,7 @@ export function TariffForm({ initialData }: { initialData?: any }) {
         });
 
         if (res.data) {
-          const formattedData = res.data.map((item: any) => {
-            const d = new Date(item.timestamp);
-            return {
-              time: `${d.getHours().toString().padStart(2, "0")}:00`,
-              price: item.price,
-            };
-          });
-          setPreviewData(formattedData);
+          setPreviewData(res.data);
         }
       } catch (error) {
         logger.error("Failed to fetch EPEX preview", error);
