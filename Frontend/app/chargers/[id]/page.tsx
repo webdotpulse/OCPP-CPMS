@@ -250,23 +250,25 @@ export default function ChargerDetailPage() {
           </div>
 
           {/* Top Priority Section: Remote Controls */}
-          <div className="mb-6">
-            {charger.status !== 'offline' ? (
-              <RemoteControlPanel chargerId={charger.charger_id} />
-            ) : (
-              <Card className="bg-muted/50 border-dashed">
-                <CardContent className="flex flex-col items-center justify-center h-full min-h-[200px] text-center p-6 space-y-4">
-                  <Info className="h-10 w-10 text-muted-foreground" />
-                  <div>
-                    <h3 className="font-medium text-lg">Charger is Offline</h3>
-                    <p className="text-muted-foreground max-w-sm mt-2">
-                      OCPP remote controls are disabled because the charger is not currently connected to the server.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+          {user?.role === "admin" && (
+            <div className="mb-6">
+              {charger.status !== 'offline' ? (
+                <RemoteControlPanel chargerId={charger.charger_id} />
+              ) : (
+                <Card className="bg-muted/50 border-dashed">
+                  <CardContent className="flex flex-col items-center justify-center h-full min-h-[200px] text-center p-6 space-y-4">
+                    <Info className="h-10 w-10 text-muted-foreground" />
+                    <div>
+                      <h3 className="font-medium text-lg">Charger is Offline</h3>
+                      <p className="text-muted-foreground max-w-sm mt-2">
+                        OCPP remote controls are disabled because the charger is not currently connected to the server.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
 
           <div className="mb-6">
             {charger.status !== 'offline' && allConnectors.length > 0 && user?.role === "admin" && (

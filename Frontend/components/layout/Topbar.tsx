@@ -33,12 +33,6 @@ export function Topbar() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Link href="/guide" passHref>
-          <Button variant="ghost" size="icon" title={t('topbar.guide')}>
-            <HelpCircle className="h-5 w-5" />
-            <span className="sr-only">{t('topbar.guide')}</span>
-          </Button>
-        </Link>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" title="Language">

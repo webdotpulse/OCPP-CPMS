@@ -30,7 +30,7 @@ const baseRoutes = [
   { key: 'nav.rfidTags', path: '/rfid', icon: CreditCard },
   { key: 'nav.transactions', path: '/transactions', icon: ReceiptText },
   { key: 'nav.tariffs', path: '/tariffs', icon: WalletCards },
-  { key: 'nav.ocppConsole', path: '/ocpp', icon: TerminalSquare },
+  { key: 'nav.ocppConsole', path: '/ocpp', icon: TerminalSquare, adminOnly: true },
 ];
 
 export function Sidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean, setIsCollapsed: (val: boolean) => void }) {
@@ -64,8 +64,10 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean,
       <div className={cn("h-16 flex items-center border-b border-white/20 dark:border-white/10", isCollapsed ? "justify-center px-0" : "justify-between px-6")}>
         {!isCollapsed && (
           <h1 className="font-bold text-lg tracking-tight flex items-center gap-2">
-            <Image src="/assets/images/favicon/favicon.svg" alt="MobilityPulse Logo" width={24} height={24} className="h-6 w-6 filter brightness-0 invert" />
-            <span className="font-bold">MobilityPulse</span>
+            <div className="bg-primary p-1.5 rounded-md">
+              <Zap className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <span className="font-bold">OCPP CMS</span>
           </h1>
         )}
         <button onClick={() => setIsCollapsed(!isCollapsed)} className="p-1 hover:bg-white/10 rounded">
@@ -98,7 +100,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean,
       </nav>
       {!isCollapsed && (
         <div className="p-4 border-t border-white/20 text-xs text-white/60 text-center">
-          MobilityPulse CPMS v1.0
+          OCPP CMS v1.0
         </div>
       )}
     </aside>
