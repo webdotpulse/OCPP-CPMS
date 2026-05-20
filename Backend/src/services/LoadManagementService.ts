@@ -128,14 +128,17 @@ export class LoadManagementService {
       const limitPerTransactionKw = Math.max(1.4, safeLimitKw / activeTransactions.length);
       const limitW = Math.floor(limitPerTransactionKw * 1000);
 
+      // Pre-fetch all relevant charging profiles in a single query
+      const chargerIds = activeTransactions.map(tx => tx.charger_id);
+      const existingProfilesList = await prisma.chargingProfile.findMany({
+        where: { chargerId: { in: chargerIds }, chargingProfileId: 100 }
+      });
+      const existingProfilesMap = new Map(existingProfilesList.map(p => [p.chargerId, p]));
+
       // Apply the limits via SetChargingProfile
       for (const tx of activeTransactions) {
         // Skip dispatch if profile already exists with exact limit
-        const existingProfile = await prisma.chargingProfile.findUnique({
-          where: {
-            chargerId_chargingProfileId: { chargerId: tx.charger_id, chargingProfileId: 100 }
-          }
-        });
+        const existingProfile = existingProfilesMap.get(tx.charger_id);
 
         const existingSchedule = existingProfile?.chargingSchedule as any;
         const currentLimitW = existingSchedule?.chargingSchedulePeriod?.[0]?.limit;
@@ -238,15 +241,17 @@ export class LoadManagementService {
           const activeCount = Math.min(sortedTransactions.length, maxActiveChargers);
           const limitPerTransactionAmps = Math.floor(safeLimitAmps / activeCount);
 
+          const chargerIds = activeTransactions.map(tx => tx.charger_id);
+          const existingAmpProfilesList = await prisma.chargingProfile.findMany({
+            where: { chargerId: { in: chargerIds }, chargingProfileId: 101 }
+          });
+          const existingAmpProfilesMap = new Map(existingAmpProfilesList.map(p => [p.chargerId, p]));
+
           for (let i = 0; i < sortedTransactions.length; i++) {
             const tx = sortedTransactions[i];
             const currentTxLimitAmps = i < activeCount ? limitPerTransactionAmps : 0;
 
-            const existingProfile = await prisma.chargingProfile.findUnique({
-              where: {
-                chargerId_chargingProfileId: { chargerId: tx.charger_id, chargingProfileId: 101 }
-              }
-            });
+            const existingProfile = existingAmpProfilesMap.get(tx.charger_id);
 
             const existingSchedule = existingProfile?.chargingSchedule as any;
             const currentLimitAmps = existingSchedule?.chargingSchedulePeriod?.[0]?.limit;
@@ -319,15 +324,17 @@ export class LoadManagementService {
       const activeCountKw = Math.min(sortedTransactionsKw.length, maxActiveChargersKw);
       const limitPerTransactionKw = safeLimitKw / activeCountKw;
 
+      const chargerIdsKw = activeTransactions.map(tx => tx.charger_id);
+      const existingPowerProfilesList = await prisma.chargingProfile.findMany({
+        where: { chargerId: { in: chargerIdsKw }, chargingProfileId: 100 }
+      });
+      const existingPowerProfilesMap = new Map(existingPowerProfilesList.map(p => [p.chargerId, p]));
+
       for (let i = 0; i < sortedTransactionsKw.length; i++) {
         const tx = sortedTransactionsKw[i];
         const limitW = i < activeCountKw ? Math.floor(limitPerTransactionKw * 1000) : 0;
 
-        const existingProfile = await prisma.chargingProfile.findUnique({
-          where: {
-            chargerId_chargingProfileId: { chargerId: tx.charger_id, chargingProfileId: 100 }
-          }
-        });
+        const existingProfile = existingPowerProfilesMap.get(tx.charger_id);
 
         const existingSchedule = existingProfile?.chargingSchedule as any;
         const currentLimitW = existingSchedule?.chargingSchedulePeriod?.[0]?.limit;
