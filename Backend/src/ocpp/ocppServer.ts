@@ -50,6 +50,33 @@ class OcppServer {
 
         if (!charger) {
           logger.error(`Charger ${chargerIdStr} not found during upgrade`);
+
+          try {
+            const existing = await prisma.unrecognizedConnection.findFirst({
+              where: { chargePointId: chargerIdStr },
+            });
+            if (existing) {
+              await prisma.unrecognizedConnection.update({
+                where: { id: existing.id },
+                data: {
+                  ipAddress: request.socket.remoteAddress || "Unknown",
+                  reason: "Charger not found in database",
+                  timestamp: new Date(),
+                },
+              });
+            } else {
+              await prisma.unrecognizedConnection.create({
+                data: {
+                  chargePointId: chargerIdStr,
+                  ipAddress: request.socket.remoteAddress || "Unknown",
+                  reason: "Charger not found in database",
+                },
+              });
+            }
+          } catch (err: any) {
+            logger.error(`Failed to log unrecognized connection during upgrade: ${err}`);
+          }
+
           socket.write('HTTP/1.1 404 Not Found\r\n\r\n');
           socket.destroy();
           return;
@@ -155,34 +182,7 @@ class OcppServer {
       });
 
       if (!charger) {
-        logger.error(`Charger ${chargerIdStr} not found in database`);
-        // Log unrecognized connection
-        try {
-          const existing = await prisma.unrecognizedConnection.findFirst({
-            where: { chargePointId: chargerIdStr },
-          });
-          if (existing) {
-            await prisma.unrecognizedConnection.update({
-              where: { id: existing.id },
-              data: {
-                ipAddress: request.socket.remoteAddress || "Unknown",
-                reason: "Charger not found in database",
-                timestamp: new Date(),
-              },
-            });
-          } else {
-            await prisma.unrecognizedConnection.create({
-              data: {
-                chargePointId: chargerIdStr,
-                ipAddress: request.socket.remoteAddress || "Unknown",
-                reason: "Charger not found in database",
-              },
-            });
-          }
-        } catch (err: any) {
-          logger.error(`Failed to log unrecognized connection: ${err}`);
-        }
-
+        logger.error(`Charger ${chargerIdStr} not found in database (after upgrade)`);
         ws.close();
         return;
       }
