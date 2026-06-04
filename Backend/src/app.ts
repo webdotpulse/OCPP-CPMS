@@ -61,7 +61,14 @@ export function createApp(): Application {
   app.use(limiter);
 
   // Body parser
-  app.use(express.json());
+  // Apply raw body parser to Stripe webhook, and express.json to everything else
+  app.use((req, res, next) => {
+    if (req.originalUrl === "/api/payments/webhook") {
+      next();
+    } else {
+      express.json()(req, res, next);
+    }
+  });
   app.use(express.urlencoded({ extended: true }));
 
   // Request logging

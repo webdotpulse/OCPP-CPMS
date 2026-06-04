@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express, { Router } from "express";
 import {
   createPaymentIntent,
   handleWebhook
@@ -6,8 +6,10 @@ import {
 
 const router = Router();
 
-// Placeholder routes for payment integration
+// Routes for payment integration
 router.post("/intent", createPaymentIntent);
-router.post("/webhook", handleWebhook);
+
+// Webhook requires raw body for signature verification
+router.post("/webhook", express.raw({ type: 'application/json' }), handleWebhook);
 
 export default router;
