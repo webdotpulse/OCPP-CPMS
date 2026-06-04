@@ -12,8 +12,8 @@ export const config = {
   // OCPP Configuration
   ocppPort: parseInt(process.env.OCPP_PORT || "9220", 10),
   heartbeatInterval: parseInt(process.env.HEARTBEAT_INTERVAL_SECONDS || "300", 10),
-  offlineThreshold: parseInt(process.env.OFFLINE_THRESHOLD_SECONDS || "60", 10),
-  websocketPingInterval: parseInt(process.env.WEBSOCKET_PING_INTERVAL_SECONDS || "60", 10),
+  offlineThreshold: parseInt(process.env.OFFLINE_THRESHOLD_SECONDS || "90", 10),
+  websocketPingInterval: parseInt(process.env.WEBSOCKET_PING_INTERVAL_SECONDS || "30", 10),
   ocppProtocolVersion: "1.6",
 
   // OCPP Logs WebSocket

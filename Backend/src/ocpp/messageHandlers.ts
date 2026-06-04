@@ -47,9 +47,6 @@ export async function handleOcppMessage(
 ): Promise<any> {
   await logOcppMessage(chargerId, "in", [messageType, messageId, actionName, payload]);
 
-  // Update registry heartbeat on any incoming message
-  await chargerRegistry.updateHeartbeat(chargerId);
-
   // Validate incoming requests (messageType === 2 is CALL) against JSON schemas
   if (messageType === 2) {
     validateOcppMessage(actionName, payload, protocol);

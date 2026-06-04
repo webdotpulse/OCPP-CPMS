@@ -159,10 +159,6 @@ class OcppServer {
       const extWs = ws as WebSocket & { isAlive: boolean };
       extWs.isAlive = true;
 
-      ws.on("pong", () => {
-        extWs.isAlive = true;
-      });
-
       // Extract charger ID from URL path: /{chargerId}
       const pathParts = request.url?.split("?")[0].split("/").filter(Boolean);
       const chargerIdStr = pathParts?.[pathParts.length - 1];
@@ -188,6 +184,15 @@ class OcppServer {
       }
 
       const chargerId = charger.charger_id;
+
+      ws.on("pong", () => {
+        extWs.isAlive = true;
+        // Keep connection alive in registry on pong
+        chargerRegistry.updateHeartbeat(chargerId).catch((err) => {
+          logger.error(`Error updating heartbeat for charger ${chargerId} on pong: ${err}`);
+        });
+      });
+
       if (charger.status === "disabled") {
         logger.error(`Charger ${chargerId} is disabled`);
         // Log unrecognized connection
@@ -254,6 +259,11 @@ class OcppServer {
 
       ws.on("message", async (data: Buffer) => {
         try {
+          // Update registry heartbeat on any incoming message
+          chargerRegistry.updateHeartbeat(chargerId).catch((err) => {
+             logger.error(`Error updating heartbeat for charger ${chargerId} on message: ${err}`);
+          });
+
           const message = JSON.parse(data.toString());
           // Log incoming message
           logger.info(`📩 [OCPP IN] Charger ${chargerId} [${ws.protocol}]: ${JSON.stringify(message)}`);
