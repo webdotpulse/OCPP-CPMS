@@ -50,7 +50,7 @@ export function authenticateToken(
     next();
   } catch (error) {
     logger.error(`JWT verification failed: ${error}`);
-    return res.status(403).json({
+    return res.status(401).json({
       success: false,
       error: "Invalid or expired token",
     });
