@@ -33,7 +33,7 @@ export function GroundPlanLiveView({ stationId }: { stationId: string }) {
     async function loadPlan() {
       try {
         const res = await api.get(`/stations/${stationId}/parking-spots`);
-        setSpots(res.data.data);
+        setSpots(res.data);
       } catch (err) {
         console.error("Failed to load parking spots", err);
       } finally {

@@ -19,6 +19,7 @@ import {
   ReceiptText,
   Globe,
   Activity,
+  Monitor,
 } from 'lucide-react';
 
 const baseRoutes = [
@@ -38,25 +39,41 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean,
   const { user } = useAuth();
   const { t } = useTranslation();
   const [hasEms, setHasEms] = useState(false);
+  const [liveViewStationId, setLiveViewStationId] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkEms = async () => {
+    const checkUserFeatures = async () => {
       if (!user) return;
       try {
-        const res = await api.get('/ems-gateways');
-        if (res.data && res.data.length > 0) {
+        // Check EMS
+        const resEms = await api.get('/ems-gateways');
+        if (resEms.data && resEms.data.length > 0) {
           setHasEms(true);
+        }
+
+        // Check if regular user has any station with ground plan
+        if (user.role !== 'admin') {
+           const resStations = await api.get('/stations');
+           const stations = resStations.data?.data || resStations.data || [];
+           const stationWithPlan = stations.find((s: any) => s.isGroundPlanEnabled);
+           if (stationWithPlan) {
+              setLiveViewStationId(stationWithPlan.id.toString());
+           }
         }
       } catch (error) {
         // Silently ignore errors
       }
     };
-    checkEms();
+    checkUserFeatures();
   }, [user]);
 
   const routes = [...baseRoutes];
   if (hasEms) {
     routes.splice(1, 0, { key: 'nav.emsDashboard', path: '/energy', icon: Activity, adminOnly: false });
+  }
+
+  if (liveViewStationId && user?.role !== 'admin') {
+    routes.splice(1, 0, { key: 'Live View', path: `/stations/${liveViewStationId}/live`, icon: Monitor, adminOnly: false });
   }
 
   return (
