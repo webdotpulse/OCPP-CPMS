@@ -8,7 +8,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Edit, Trash2, MapPin, ArrowUpDown } from "lucide-react";
+import { Plus, Edit, Trash2, MapPin, ArrowUpDown, Monitor } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 
@@ -21,6 +21,7 @@ interface Station {
   postal_code?: string;
   country?: string;
   status: string;
+  isGroundPlanEnabled?: boolean;
   _count?: {
     chargers: number;
   };
@@ -153,7 +154,14 @@ export default function StationsPage() {
             ) : (
               sortedStations.map((station) => (
                 <TableRow key={station.id}>
-                  <TableCell className="font-medium">
+                  <TableCell className="font-medium flex items-center gap-2">
+                    {user?.role === "admin" && station.isGroundPlanEnabled && (
+                      <Link href={`/stations/${station.id}/live`} title="Live View">
+                        <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full bg-primary/10 text-primary hover:bg-primary/20">
+                          <Monitor className="h-3 w-3" />
+                        </Button>
+                      </Link>
+                    )}
                     <Link href={`/stations/${station.id}`} className="hover:underline flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-primary" />
                       {station.station_name}

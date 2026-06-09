@@ -144,7 +144,7 @@ export function GroundPlanBuilder({ stationId, connectors }: Props) {
       try {
         const res = await api.get(`/stations/${stationId}/parking-spots`);
         setSpots(
-          res.data.data.map((s: any) => ({
+          res.data.map((s: any) => ({
             ...s,
             connectorId: s.connector ? s.connector.connector_id.toString() : undefined,
           }))
