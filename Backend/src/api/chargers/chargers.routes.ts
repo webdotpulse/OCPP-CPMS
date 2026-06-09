@@ -11,6 +11,7 @@ import {
   createBulkConnectors,
   getChargerLogs,
   getChargerConfigurations,
+  getPredictiveSchedule
 } from "./chargers.controller.js";
 
 const router = Router();
@@ -26,5 +27,7 @@ router.post("/", createCharger);
 router.put("/:id", updateCharger);
 router.delete("/:id", deleteCharger);
 router.post("/connectors", createBulkConnectors);
+
+router.get("/:id/predictive-schedule", getPredictiveSchedule);
 
 export default router;

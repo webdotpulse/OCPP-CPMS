@@ -15,6 +15,7 @@ import { format, formatDistanceToNow } from "date-fns";
 import { RemoteControlPanel } from "@/components/chargers/RemoteControlPanel";
 import { ConnectorList } from "@/components/chargers/ConnectorList";
 import { ChargerConfigurationPanel } from "@/components/chargers/ChargerConfigurationPanel";
+import { PredictiveLoadMap } from "@/components/chargers/PredictiveLoadMap";
 import { ManualSpeedOverridePanel } from "@/components/chargers/ManualSpeedOverridePanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LoadManagementOverview } from "@/components/dashboard/LoadManagementOverview";
@@ -167,6 +168,7 @@ export default function ChargerDetailPage() {
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
           <TabsTrigger value="configuration">Configuration Parameters</TabsTrigger>
           <TabsTrigger value="profiles">Configuration Profiles</TabsTrigger>
+          <TabsTrigger value="predictive">Predictive Load</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -359,6 +361,11 @@ export default function ChargerDetailPage() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+        <TabsContent value="predictive">
+          <div className="mb-6">
+            <PredictiveLoadMap chargerId={charger.charger_id} />
+          </div>
         </TabsContent>
       </Tabs>
     </AppShell>
