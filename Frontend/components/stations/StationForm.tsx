@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Loader2, MapPin } from "lucide-react";
@@ -29,6 +30,7 @@ const stationSchema = z.object({
   on_site_person_name: z.string().optional(),
   on_site_contact_details: z.string().optional(),
   emergency_contact: z.string().optional(),
+  isGroundPlanEnabled: z.boolean().optional(),
   maxPower: z.number().min(0).optional().nullable(),
   owner_id: z.number().optional(),
 });
@@ -293,6 +295,27 @@ export function StationForm({ initialData }: StationFormProps) {
             {initialData ? 'Update Location' : 'Create Location'}
           </Button>
         </CardFooter>
+
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-slate-50 dark:bg-slate-900 mt-6">
+                <div className="space-y-0.5">
+                  <Label className="text-base">Enable Ground Plan</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Activate the interactive 2D parking spot layout for this location.
+                  </p>
+                </div>
+                <Switch
+                  checked={watch('isGroundPlanEnabled')}
+                  onCheckedChange={(checked) => setValue('isGroundPlanEnabled', checked)}
+                />
+              </div>
+              {initialData?.id && watch('isGroundPlanEnabled') && (
+                <div className="flex justify-end mt-2">
+                  <Button type="button" variant="outline" onClick={() => window.location.href = `/stations/${initialData.id}/ground-plan`}>
+                    Edit Ground Plan Layout
+                  </Button>
+                </div>
+              )}
+
       </form>
     </Card>
   );
