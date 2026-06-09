@@ -80,6 +80,8 @@ model Charger {
   latitude             Float?
   longitude            Float?
   thirdPartyBackendUrl String?
+  isPredictiveBalancingEnabled Boolean @default(false)
+  localSolarKwp        Float?
   owner_id             Int
   charging_station_id  Int
   requireAuth          Boolean        @default(false)
@@ -107,6 +109,7 @@ model Charger {
   
   quirkProfileId   Int?
   quirkProfile     ChargerQuirkProfile?   @relation(fields: [quirkProfileId], references: [id], onDelete: SetNull)
+  schedulePlans    ChargingSchedulePlan[]
 }
 
 model ChargerQuirkProfile {
@@ -555,4 +558,19 @@ model ParkingSpot {
   connector Connector?
 
   @@index([stationId])
+}
+
+model ChargingSchedulePlan {
+  id              Int      @id @default(autoincrement())
+  chargerId       Int
+  timestamp       DateTime
+  predictedAmps   Float
+  solarForecast   Float?
+  epexPrice       Float?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  charger Charger @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
+
+  @@index([chargerId, timestamp])
 }

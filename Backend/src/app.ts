@@ -36,6 +36,7 @@ import { ocppServer } from "./ocpp/ocppServer.js";
 import { ocppLogsServer } from "./ocpp/logsWebSocket.js";
 import { setupRealtimeSocket } from "./ocpp/realtime.socket.js";
 import { startTelemetrySyncCron } from "./cron/telemetrySyncCron.js";
+import "./cron/predictiveBalancingCron.js";
 
 /**
  * Create and configure Express application

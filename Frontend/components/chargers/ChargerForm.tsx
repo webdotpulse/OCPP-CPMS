@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -31,6 +32,8 @@ const chargerSchema = z.object({
   owner_id: z.number().optional(),
   chargeGroupId: z.number().optional().nullable(),
   quirkProfileId: z.number().optional().nullable(),
+  isPredictiveBalancingEnabled: z.boolean().default(false),
+  localSolarKwp: z.number().nonnegative().optional().nullable(),
 });
 
 type ChargerFormValues = z.infer<typeof chargerSchema>;
@@ -57,6 +60,8 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,
       chargeGroupId: initialData?.chargeGroupId || undefined,
       quirkProfileId: initialData?.quirkProfileId || undefined,
+      isPredictiveBalancingEnabled: initialData?.isPredictiveBalancingEnabled || false,
+      localSolarKwp: initialData?.localSolarKwp || undefined,
     } : {
       name: nameParam || '',
       latitude: undefined,
@@ -65,6 +70,8 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,
       chargeGroupId: undefined,
       quirkProfileId: undefined,
+      isPredictiveBalancingEnabled: false,
+      localSolarKwp: undefined,
     },
   });
 
@@ -281,6 +288,44 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
                 <p className="text-xs text-muted-foreground">Select the user who will manage this charger.</p>
               </div>
             )}
+
+
+          <div className="grid grid-cols-1 gap-4 border-t pt-4">
+            <h3 className="text-lg font-medium">Premium Features</h3>
+
+            <div className="flex flex-row items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <Label className="text-base">Predictive Load Balancing</Label>
+                <p className="text-sm text-muted-foreground">
+                  Automatically adjust charging speeds based on local solar forecasts and day-ahead EPEX prices. Requires location coordinates.
+                </p>
+              </div>
+              <Switch
+                checked={watch('isPredictiveBalancingEnabled')}
+                onCheckedChange={(checked) => setValue('isPredictiveBalancingEnabled', checked)}
+              />
+            </div>
+
+            {watch('isPredictiveBalancingEnabled') && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg bg-muted/20">
+                <div className="space-y-2">
+                  <Label htmlFor="latitude">Latitude</Label>
+                  <Input id="latitude" type="number" step="any" {...register('latitude', { valueAsNumber: true })} placeholder="e.g. 52.3676" />
+                  {errors.latitude && <p className="text-sm text-destructive">{errors.latitude.message}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="longitude">Longitude</Label>
+                  <Input id="longitude" type="number" step="any" {...register('longitude', { valueAsNumber: true })} placeholder="e.g. 4.9041" />
+                  {errors.longitude && <p className="text-sm text-destructive">{errors.longitude.message}</p>}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="localSolarKwp">Local Solar Capacity (kWp)</Label>
+                  <Input id="localSolarKwp" type="number" step="any" {...register('localSolarKwp', { valueAsNumber: true })} placeholder="e.g. 10.5" />
+                  {errors.localSolarKwp && <p className="text-sm text-destructive">{errors.localSolarKwp.message}</p>}
+                </div>
+              </div>
+            )}
+          </div>
 
             <div className="space-y-2">
               <Label htmlFor="service_contacts">Service Contacts</Label>

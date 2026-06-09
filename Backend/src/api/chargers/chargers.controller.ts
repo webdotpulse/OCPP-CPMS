@@ -460,3 +460,18 @@ export const createBulkConnectors = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getPredictiveSchedule = async (req: Request, res: Response) => {
+  try {
+    const chargerId = parseInt(req.params.id as string);
+    const schedule = await prisma.chargingSchedulePlan.findMany({
+      where: { chargerId },
+      orderBy: { timestamp: 'asc' },
+      take: 24,
+    });
+    res.json({ success: true, data: schedule });
+  } catch (error) {
+    logger.error(`Error fetching predictive schedule: ${error}`);
+    res.status(500).json({ success: false, error: "Failed to fetch schedule" });
+  }
+};
