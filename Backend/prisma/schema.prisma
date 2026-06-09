@@ -58,8 +58,10 @@ model ChargingStation {
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
-  owner    User      @relation(fields: [owner_id], references: [id])
+  isGroundPlanEnabled Boolean @default(false)
+  owner            User      @relation(fields: [owner_id], references: [id])
   chargers Charger[]
+  parkingSpots     ParkingSpot[]
 }
 
 // Charging Point / Charger
@@ -145,6 +147,8 @@ model Connector {
   updatedAt      DateTime @updatedAt
 
   evse Evse @relation(fields: [evse_id], references: [id])
+  parkingSpotId  Int? @unique
+  parkingSpot    ParkingSpot? @relation(fields: [parkingSpotId], references: [id], onDelete: SetNull)
 }
 
 // RFID tag whitelist
@@ -532,4 +536,23 @@ model EmsTelemetryRecord {
   gateway EmsGateway @relation(fields: [gateway_id], references: [gateway_id], onDelete: Cascade)
 
   @@index([gateway_id, timestamp])
+}
+
+
+model ParkingSpot {
+  id        Int      @id @default(autoincrement())
+  stationId Int
+  name      String
+  x         Float    @default(0)
+  y         Float    @default(0)
+  width     Float    @default(100)
+  height    Float    @default(200)
+  rotation  Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  station   ChargingStation @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  connector Connector?
+
+  @@index([stationId])
 }

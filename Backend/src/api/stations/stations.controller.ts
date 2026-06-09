@@ -43,6 +43,7 @@ export const getAllStations = async (req: Request, res: Response) => {
         where,
         include: {
           owner: { select: { id: true, email: true } },
+        parkingSpots: true,
           chargers: {
             include: { evses: { include: { connectors: true } } },
           },
@@ -99,6 +100,7 @@ export const getStationById = async (req: Request, res: Response) => {
       where,
       include: {
         owner: { select: { id: true, email: true } },
+        parkingSpots: true,
         chargers: {
           include: { evses: { include: { connectors: true } } },
         },
@@ -262,5 +264,101 @@ export const deleteStation = async (req: Request, res: Response) => {
       success: false,
       error: "Failed to delete station",
     });
+  }
+};
+
+/**
+ * GET /api/stations/:id/parking-spots
+ */
+export const getParkingSpots = async (req: Request, res: Response) => {
+  try {
+    const stationId = parseId(req.params.id);
+    if (!stationId) {
+      return res.status(400).json({ success: false, error: "Invalid station ID" });
+    }
+
+    const parkingSpots = await prisma.parkingSpot.findMany({
+      where: { stationId },
+      include: {
+        connector: {
+           include: {
+             evse: {
+                include: {
+                   charger: true
+                }
+             }
+           }
+        }
+      }
+    });
+
+    res.json({ success: true, data: parkingSpots });
+  } catch (error) {
+    logger.error(`Error getting parking spots: ${error}`);
+    res.status(500).json({ success: false, error: "Failed to get parking spots" });
+  }
+};
+
+/**
+ * PUT /api/stations/:id/parking-spots
+ * Updates the entire ground plan for a station. Expects an array of parking spots.
+ */
+export const updateParkingSpots = async (req: Request, res: Response) => {
+  try {
+    const stationId = parseId(req.params.id);
+    if (!stationId) {
+      return res.status(400).json({ success: false, error: "Invalid station ID" });
+    }
+
+    const spots = req.body.spots || [];
+
+    // Begin a transaction to update the entire ground plan
+    await prisma.$transaction(async (tx) => {
+      // Clear out existing connectors' associations for this station's parking spots
+      const existingSpots = await tx.parkingSpot.findMany({ where: { stationId }, select: { id: true } });
+      const existingSpotIds = existingSpots.map(s => s.id);
+
+      if (existingSpotIds.length > 0) {
+         await tx.connector.updateMany({
+           where: { parkingSpotId: { in: existingSpotIds } },
+           data: { parkingSpotId: null }
+         });
+         await tx.parkingSpot.deleteMany({
+           where: { stationId }
+         });
+      }
+
+      // Insert new spots and update connectors
+      for (const spot of spots) {
+        const createdSpot = await tx.parkingSpot.create({
+          data: {
+            stationId,
+            name: spot.name || 'Unnamed Spot',
+            x: spot.x,
+            y: spot.y,
+            width: spot.width,
+            height: spot.height,
+            rotation: spot.rotation || 0,
+          }
+        });
+
+        if (spot.connectorId) {
+          await tx.connector.update({
+            where: { connector_id: parseInt(spot.connectorId, 10) },
+            data: { parkingSpotId: createdSpot.id }
+          });
+        }
+      }
+    });
+
+    const updatedSpots = await prisma.parkingSpot.findMany({
+      where: { stationId },
+      include: { connector: { include: { evse: { include: { charger: true } } } } }
+    });
+
+    res.json({ success: true, data: updatedSpots });
+  } catch (error) {
+    logger.error(`Error updating parking spots: ${error}`);
+    res.status(500).json({ success: false, error: "Failed to update parking spots" });
   }
 };
