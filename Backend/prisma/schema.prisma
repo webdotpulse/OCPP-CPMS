@@ -36,6 +36,7 @@ model User {
   rfidUsers        RfidUser[]
   chargeGroupUsers ChargeGroupUser[]
   emsGateways      EmsGateway[]
+  vehicleEnergyProfile VehicleEnergyProfile?
 }
 
 // Charging station / Site location
@@ -173,6 +174,8 @@ model RfidUser {
 
   owner        User          @relation(fields: [owner_id], references: [id])
   rfidSessions RfidSession[]
+  transactions Transaction[]
+  vehicleEnergyProfile VehicleEnergyProfile?
 }
 
 // RFID post-paid charging sessions
@@ -209,11 +212,15 @@ model Transaction {
   connectorName     String
   charger_id        Int
   charger           Charger   @relation(fields: [charger_id], references: [charger_id])
+  rfidUserId        Int?
+  rfidUser          RfidUser? @relation(fields: [rfidUserId], references: [rfid_user_id])
   startTime         DateTime  @default(now())
   endTime           DateTime?
   initialMeterValue Float?
   finalMeterValue   Float?
   energyConsumed    Float     @default(0)
+  dischargeLimit    Float?
+  currentDirection  String    @default("Charging")
   currentPower      Float?    @default(0)
   soc               Float?
   current           Float?
@@ -601,4 +608,15 @@ model AutoHealRule {
   isActive         Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+}
+
+
+model VehicleEnergyProfile {
+  id              Int       @id @default(autoincrement())
+  userId          Int?      @unique
+  rfidUserId      Int?      @unique
+  minSocThreshold Float     @default(40.0) // Minimum SoC percentage
+
+  user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rfidUser        RfidUser? @relation(fields: [rfidUserId], references: [rfid_user_id], onDelete: Cascade)
 }
