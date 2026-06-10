@@ -558,6 +558,7 @@ export async function handleMeterValues(
       let socValue: number | null = null;
       let currentValue: number | null = null;
       let voltageValue: number | null = null;
+      let temperatureValue: number | null = null;
       let timestamp = new Date();
       let hasReadings = false;
 
@@ -584,6 +585,10 @@ export async function handleMeterValues(
               hasReadings = true;
             } else if (measurand === "Voltage") {
               voltageValue = parseFloat(sv.value);
+              hasReadings = true;
+            }
+            else if (measurand === "Temperature") {
+              temperatureValue = parseFloat(sv.value);
               hasReadings = true;
             }
           }
@@ -647,6 +652,21 @@ export async function handleStatusNotification(
   const errorCode = payload.errorCode;
   const timestamp = payload.timestamp;
   const info = payload.info;
+
+  if (status === "Faulted" || status === "SuspendedEVSE") {
+    try {
+      await prisma.diagnosticEvent.create({
+        data: {
+          chargerId,
+          connectorId,
+          type: "FaultedState",
+          description: `Charger reported status: ${status} (ErrorCode: ${errorCode || "Unknown"})`
+        }
+      });
+    } catch(e) {
+      logger.error("Error creating diagnostic event for status notification " + e);
+    }
+  }
 
   try {
     // Update/Create channel status in database

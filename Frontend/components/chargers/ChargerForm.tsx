@@ -32,7 +32,7 @@ const chargerSchema = z.object({
   owner_id: z.number().optional(),
   chargeGroupId: z.number().optional().nullable(),
   quirkProfileId: z.number().optional().nullable(),
-  isPredictiveBalancingEnabled: z.boolean().default(false),
+  isPredictiveBalancingEnabled: z.boolean().optional(),
   localSolarKwp: z.number().nonnegative().optional().nullable(),
 });
 

@@ -85,6 +85,7 @@ model Charger {
   owner_id             Int
   charging_station_id  Int
   requireAuth          Boolean        @default(false)
+  diagnostics          DiagnosticEvent[]
   authPassword         String?
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
@@ -573,4 +574,31 @@ model ChargingSchedulePlan {
   charger Charger @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
 
   @@index([chargerId, timestamp])
+}
+
+// Diagnostics Event for Auto-Healing
+model DiagnosticEvent {
+  id          Int      @id @default(autoincrement())
+  chargerId   Int
+  connectorId Int?
+  type        String   // e.g., "HighTemperature", "FaultedState", "CommunicationError"
+  description String
+  timestamp   DateTime @default(now())
+  resolved    Boolean  @default(false)
+
+  charger     Charger  @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
+
+  @@index([chargerId])
+  @@index([timestamp])
+}
+
+// Auto-Heal Rule definition
+model AutoHealRule {
+  id               Int      @id @default(autoincrement())
+  triggerType      String   // e.g., "Status", "MeterValue"
+  triggerCondition String   // e.g., "Faulted", "Temperature > 80"
+  actionCommand    String   // e.g., "SoftReset", "HardReset", "UnlockConnector"
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }

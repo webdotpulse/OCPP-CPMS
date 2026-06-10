@@ -30,12 +30,14 @@ import quirkProfilesRoutes from "./api/quirk-profiles/quirk-profiles.routes.js";
 import mailRoutes from "./api/mail/mail.routes.js";
 import settingsTariffsRoutes from "./api/settings/tariffs/tariffs.routes.js";
 import settingsMailRoutes from "./api/settings/mail/mail.routes.js";
+import diagnosticsRoutes from "./routes/diagnostics.js";
 
 // Import OCPP servers
 import { ocppServer } from "./ocpp/ocppServer.js";
 import { ocppLogsServer } from "./ocpp/logsWebSocket.js";
 import { setupRealtimeSocket } from "./ocpp/realtime.socket.js";
 import { startTelemetrySyncCron } from "./cron/telemetrySyncCron.js";
+import { startAutoHealCron } from "./cron/autoHealCron.js";
 import "./cron/predictiveBalancingCron.js";
 
 /**
@@ -109,6 +111,7 @@ export function createApp(): Application {
   app.use("/api/mail", authenticateToken, mailRoutes);
   app.use("/api/settings/tariffs", authenticateToken, settingsTariffsRoutes);
   app.use("/api/settings/mail", authenticateToken, settingsMailRoutes);
+  app.use("/api/diagnostics", diagnosticsRoutes);
 
   // Error handling
   app.use(notFoundHandler);
@@ -141,6 +144,7 @@ export function startServers(): void {
 
   // Start background crons
   startTelemetrySyncCron();
+  startAutoHealCron();
 
   // Graceful shutdown
   const shutdown = (signal: string) => {

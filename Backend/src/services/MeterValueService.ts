@@ -16,6 +16,7 @@ export interface MeterValuePayload {
   socValue: number | null;
   currentValue: number | null;
   voltageValue: number | null;
+  temperatureValue?: number | null;
   current_L1?: number | null;
   current_L2?: number | null;
   current_L3?: number | null;
@@ -103,6 +104,23 @@ export class MeterValueService {
       }
 
       const payloads: MeterValuePayload[] = items.map((item) => JSON.parse(item));
+      for (const p of payloads) {
+        if (p.temperatureValue && p.temperatureValue > 80) {
+          try {
+            await prisma.diagnosticEvent.create({
+              data: {
+                chargerId: p.chargerId,
+                connectorId: p.connectorId,
+                type: "HighTemperature",
+                description: `Temperature exceeded threshold: ${p.temperatureValue}°C`
+              }
+            });
+          } catch(e) {
+            logger.error("Error logging high temperature diagnostic event: " + e);
+          }
+        }
+      }
+
 
       let retryCount = 0;
       let dbSuccess = false;
