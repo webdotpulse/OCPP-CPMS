@@ -31,13 +31,14 @@ model User {
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  chargingStations ChargingStation[]
-  chargers         Charger[]
-  rfidUsers        RfidUser[]
-  chargeGroupUsers ChargeGroupUser[]
-  reimbursementContracts ReimbursementContract[]
-  emsGateways      EmsGateway[]
-  vehicleEnergyProfile VehicleEnergyProfile?
+  chargingStations            ChargingStation[]
+  chargers                    Charger[]
+  rfidUsers                   RfidUser[]
+  chargeGroupUsers            ChargeGroupUser[]
+  reimbursementContracts      ReimbursementContract[]
+  emsGateways                 EmsGateway[]
+  vehicleEnergyProfile        VehicleEnergyProfile?
+  vehicleContractCertificates VehicleContractCertificate[]
 }
 
 // Charging station / Site location
@@ -55,65 +56,65 @@ model ChargingStation {
   on_site_contact_details String?
   emergency_contact       String?
   status                  String   @default("active")
-  maxPower                Float?   // Maximum allowed capacity in kW/Amps
+  maxPower                Float? // Maximum allowed capacity in kW/Amps
   owner_id                Int
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
 
-  isGroundPlanEnabled Boolean @default(false)
-  owner            User      @relation(fields: [owner_id], references: [id])
+  isGroundPlanEnabled    Boolean                 @default(false)
+  owner                  User                    @relation(fields: [owner_id], references: [id])
   reimbursementContracts ReimbursementContract[]
-  chargers Charger[]
-  parkingSpots     ParkingSpot[]
+  chargers               Charger[]
+  parkingSpots           ParkingSpot[]
 }
 
 // Charging Point / Charger
 model Charger {
-  charger_id           Int            @id @default(autoincrement())
-  model                String
-  name                 String         @unique
-  manufacturer         String
-  serial_number        String         @unique
-  manufacturing_date   DateTime?
-  power_capacity       Float
-  status               String         @default("offline")
-  last_heartbeat       DateTime       @default("1970-01-01T00:00:00.000Z")
-  firmware_version     String
-  service_contacts     String
-  latitude             Float?
-  longitude            Float?
-  thirdPartyBackendUrl String?
-  isPredictiveBalancingEnabled Boolean @default(false)
-  localSolarKwp        Float?
-  owner_id             Int
-  charging_station_id  Int
-  requireAuth          Boolean        @default(false)
-  diagnostics          DiagnosticEvent[]
-  authPassword         String?
-  createdAt            DateTime       @default(now())
-  updatedAt            DateTime       @updatedAt
+  charger_id                   Int               @id @default(autoincrement())
+  model                        String
+  name                         String            @unique
+  manufacturer                 String
+  serial_number                String            @unique
+  manufacturing_date           DateTime?
+  power_capacity               Float
+  status                       String            @default("offline")
+  last_heartbeat               DateTime          @default("1970-01-01T00:00:00.000Z")
+  firmware_version             String
+  service_contacts             String
+  latitude                     Float?
+  longitude                    Float?
+  thirdPartyBackendUrl         String?
+  isPredictiveBalancingEnabled Boolean           @default(false)
+  localSolarKwp                Float?
+  owner_id                     Int
+  charging_station_id          Int
+  requireAuth                  Boolean           @default(false)
+  diagnostics                  DiagnosticEvent[]
+  authPassword                 String?
+  createdAt                    DateTime          @default(now())
+  updatedAt                    DateTime          @updatedAt
 
-  owner            User                   @relation(fields: [owner_id], references: [id])
-  chargingStation  ChargingStation        @relation(fields: [charging_station_id], references: [id])
-  
-  chargerAlerts    ChargerAlert[]
-  evses            Evse[]
-  transactions     Transaction[]
-  ocppLogs         OcppLog[]
-  rfidSessions     RfidSession[]
-  tariffs          Tariff[]
-  
-  chargeGroupId    Int?
-  chargeGroup      ChargeGroup?           @relation(fields: [chargeGroupId], references: [id], onDelete: SetNull)
-  
+  owner           User            @relation(fields: [owner_id], references: [id])
+  chargingStation ChargingStation @relation(fields: [charging_station_id], references: [id])
+
+  chargerAlerts ChargerAlert[]
+  evses         Evse[]
+  transactions  Transaction[]
+  ocppLogs      OcppLog[]
+  rfidSessions  RfidSession[]
+  tariffs       Tariff[]
+
+  chargeGroupId Int?
+  chargeGroup   ChargeGroup? @relation(fields: [chargeGroupId], references: [id], onDelete: SetNull)
+
   configurations   ChargerConfiguration[]
   chargingProfiles ChargingProfile[]
   meterValues      MeterValue[]
   deviceComponents DeviceComponent[]
-  
-  quirkProfileId   Int?
-  quirkProfile     ChargerQuirkProfile?   @relation(fields: [quirkProfileId], references: [id], onDelete: SetNull)
-  schedulePlans    ChargingSchedulePlan[]
+
+  quirkProfileId Int?
+  quirkProfile   ChargerQuirkProfile?   @relation(fields: [quirkProfileId], references: [id], onDelete: SetNull)
+  schedulePlans  ChargingSchedulePlan[]
 }
 
 model ChargerQuirkProfile {
@@ -153,9 +154,9 @@ model Connector {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  evse Evse @relation(fields: [evse_id], references: [id])
-  parkingSpotId  Int? @unique
-  parkingSpot    ParkingSpot? @relation(fields: [parkingSpotId], references: [id], onDelete: SetNull)
+  evse          Evse         @relation(fields: [evse_id], references: [id])
+  parkingSpotId Int?         @unique
+  parkingSpot   ParkingSpot? @relation(fields: [parkingSpotId], references: [id], onDelete: SetNull)
 }
 
 // RFID tag whitelist
@@ -174,10 +175,11 @@ model RfidUser {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  owner        User          @relation(fields: [owner_id], references: [id])
-  rfidSessions RfidSession[]
-  transactions Transaction[]
-  vehicleEnergyProfile VehicleEnergyProfile?
+  owner                  User                         @relation(fields: [owner_id], references: [id])
+  rfidSessions           RfidSession[]
+  transactions           Transaction[]
+  vehicleEnergyProfile   VehicleEnergyProfile?
+  vehicleCertificates    VehicleContractCertificate[]
   reimbursementContracts ReimbursementContract[]
 }
 
@@ -259,7 +261,7 @@ model Tariff {
   charge           Float
   electricity_rate Float
   tariffType       String   @default("FIXED") // "FIXED" or "DYNAMIC_EPEX"
-  country          String?  // "BE" or "NL"
+  country          String? // "BE" or "NL"
   dynamicProvider  String?  @default("EnergyZero") // "EnergyZero", "Energy-Charts"
   markupPerKwh     Float?
   taxPercentage    Float?
@@ -269,8 +271,8 @@ model Tariff {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  chargers         Charger[]
-  chargeGroupUsers ChargeGroupUser[]
+  chargers               Charger[]
+  chargeGroupUsers       ChargeGroupUser[]
   reimbursementContracts ReimbursementContract[]
 }
 
@@ -288,8 +290,8 @@ model EpexSpotPrice {
 model PaymentTransaction {
   id              Int      @id @default(autoincrement())
   transactionId   String   @unique
-  provider        String   // "stripe", "mollie", etc.
-  paymentIntentId String?  // ID from provider
+  provider        String // "stripe", "mollie", etc.
+  paymentIntentId String? // ID from provider
   amount          Float
   currency        String   @default("EUR")
   status          String   @default("pending") // "pending", "succeeded", "failed"
@@ -302,7 +304,7 @@ model OcpiEndpoint {
   id        Int      @id @default(autoincrement())
   name      String
   url       String
-  token     String   // Token used for auth
+  token     String // Token used for auth
   version   String   @default("2.2.1")
   status    String   @default("active")
   createdAt DateTime @default(now())
@@ -313,7 +315,7 @@ model ChargeGroup {
   id                  Int      @id @default(autoincrement())
   name                String
   description         String?
-  maxPower            Float?   // Maximum allowed capacity in kW/Amps
+  maxPower            Float? // Maximum allowed capacity in kW/Amps
   maxAmperage         Float?
   phaseUnbalanceLimit Float?
   createdAt           DateTime @default(now())
@@ -362,12 +364,12 @@ model ChargingProfile {
   chargingProfileId      Int
   transactionId          String?
   stackLevel             Int
-  chargingProfilePurpose String    // e.g. "ChargePointMaxProfile", "TxDefaultProfile", "TxProfile"
-  chargingProfileKind    String    // e.g. "Absolute", "Recurring", "Relative"
+  chargingProfilePurpose String // e.g. "ChargePointMaxProfile", "TxDefaultProfile", "TxProfile"
+  chargingProfileKind    String // e.g. "Absolute", "Recurring", "Relative"
   recurrencyKind         String?
   validFrom              DateTime?
   validTo                DateTime?
-  chargingSchedule       Json      // Store the complex charging schedule object
+  chargingSchedule       Json // Store the complex charging schedule object
   createdAt              DateTime  @default(now())
   updatedAt              DateTime  @updatedAt
 
@@ -381,7 +383,7 @@ model OicpEndpoint {
   id        Int      @id @default(autoincrement())
   name      String
   url       String
-  token     String   // Token used for auth
+  token     String // Token used for auth
   version   String   @default("2.3.0")
   status    String   @default("active")
   createdAt DateTime @default(now())
@@ -449,7 +451,7 @@ model DeviceComponent {
 }
 
 model DeviceVariable {
-  id          Int     @id @default(autoincrement())
+  id          Int                 @id @default(autoincrement())
   componentId Int
   name        String
   instance    String?
@@ -526,14 +528,14 @@ model SystemSetting {
 
 // EMS Gateway linked to an account
 model EmsGateway {
-  id             Int                  @id @default(autoincrement())
-  gateway_id     String               @unique @default(uuid())
+  id             Int      @id @default(autoincrement())
+  gateway_id     String   @unique @default(uuid())
   client_id      Int
-  status         String               @default("offline")
-  auth_token     String               @unique
-  last_heartbeat DateTime             @default("1970-01-01T00:00:00.000Z")
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
+  status         String   @default("offline")
+  auth_token     String   @unique
+  last_heartbeat DateTime @default("1970-01-01T00:00:00.000Z")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   client    User                 @relation(fields: [client_id], references: [id])
   telemetry EmsTelemetryRecord[]
@@ -552,7 +554,6 @@ model EmsTelemetryRecord {
 
   @@index([gateway_id, timestamp])
 }
-
 
 model ParkingSpot {
   id        Int      @id @default(autoincrement())
@@ -573,14 +574,14 @@ model ParkingSpot {
 }
 
 model ChargingSchedulePlan {
-  id              Int      @id @default(autoincrement())
-  chargerId       Int
-  timestamp       DateTime
-  predictedAmps   Float
-  solarForecast   Float?
-  epexPrice       Float?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  chargerId     Int
+  timestamp     DateTime
+  predictedAmps Float
+  solarForecast Float?
+  epexPrice     Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   charger Charger @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
 
@@ -592,12 +593,12 @@ model DiagnosticEvent {
   id          Int      @id @default(autoincrement())
   chargerId   Int
   connectorId Int?
-  type        String   // e.g., "HighTemperature", "FaultedState", "CommunicationError"
+  type        String // e.g., "HighTemperature", "FaultedState", "CommunicationError"
   description String
   timestamp   DateTime @default(now())
   resolved    Boolean  @default(false)
 
-  charger     Charger  @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
+  charger Charger @relation(fields: [chargerId], references: [charger_id], onDelete: Cascade)
 
   @@index([chargerId])
   @@index([timestamp])
@@ -606,61 +607,77 @@ model DiagnosticEvent {
 // Auto-Heal Rule definition
 model AutoHealRule {
   id               Int      @id @default(autoincrement())
-  triggerType      String   // e.g., "Status", "MeterValue"
-  triggerCondition String   // e.g., "Faulted", "Temperature > 80"
-  actionCommand    String   // e.g., "SoftReset", "HardReset", "UnlockConnector"
+  triggerType      String // e.g., "Status", "MeterValue"
+  triggerCondition String // e.g., "Faulted", "Temperature > 80"
+  actionCommand    String // e.g., "SoftReset", "HardReset", "UnlockConnector"
   isActive         Boolean  @default(true)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
 
-
 model VehicleEnergyProfile {
-  id              Int       @id @default(autoincrement())
-  userId          Int?      @unique
-  rfidUserId      Int?      @unique
-  minSocThreshold Float     @default(40.0) // Minimum SoC percentage
+  id              Int   @id @default(autoincrement())
+  userId          Int?  @unique
+  rfidUserId      Int?  @unique
+  minSocThreshold Float @default(40.0) // Minimum SoC percentage
 
-  user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  rfidUser        RfidUser? @relation(fields: [rfidUserId], references: [rfid_user_id], onDelete: Cascade)
+  user     User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rfidUser RfidUser? @relation(fields: [rfidUserId], references: [rfid_user_id], onDelete: Cascade)
 }
 
 // Reimbursement Contract
 model ReimbursementContract {
-  id              Int       @id @default(autoincrement())
-  userId          Int       // Employee
-  rfidUserId      Int       // Company Fleet RFID (idTag)
-  stationId       Int       // Employee's Home Charger
-  tariffId        Int       // Employee's specific home energy rate or fixed government rate
-  iban            String    // Employee's IBAN
+  id         Int    @id @default(autoincrement())
+  userId     Int // Employee
+  rfidUserId Int // Company Fleet RFID (idTag)
+  stationId  Int // Employee's Home Charger
+  tariffId   Int // Employee's specific home energy rate or fixed government rate
+  iban       String // Employee's IBAN
 
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  rfidUser        RfidUser        @relation(fields: [rfidUserId], references: [rfid_user_id], onDelete: Cascade)
-  station         ChargingStation @relation(fields: [stationId], references: [id], onDelete: Cascade)
-  tariff          Tariff          @relation(fields: [tariffId], references: [tariff_id], onDelete: Cascade)
+  user     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rfidUser RfidUser        @relation(fields: [rfidUserId], references: [rfid_user_id], onDelete: Cascade)
+  station  ChargingStation @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  tariff   Tariff          @relation(fields: [tariffId], references: [tariff_id], onDelete: Cascade)
 
-  ledgers         ReimbursementLedger[]
+  ledgers ReimbursementLedger[]
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, rfidUserId, stationId])
 }
 
 // Reimbursement Ledger
 model ReimbursementLedger {
-  id                      Int       @id @default(autoincrement())
-  contractId              Int
-  month                   Int
-  year                    Int
-  totalKwh                Float
-  totalAmount             Float
-  status                  String    @default("pending") // "pending", "paid"
+  id          Int    @id @default(autoincrement())
+  contractId  Int
+  month       Int
+  year        Int
+  totalKwh    Float
+  totalAmount Float
+  status      String @default("pending") // "pending", "paid"
 
-  contract                ReimbursementContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  contract ReimbursementContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
 
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([contractId, month, year])
+}
+
+// ISO 15118 Vehicle Contract Certificate for Plug & Charge
+model VehicleContractCertificate {
+  id             Int      @id @default(autoincrement())
+  emaid          String   @unique
+  macAddress     String?
+  contractCert   String?
+  status         String   @default("Valid") // "Valid", "Expired", "Revoked"
+  expirationDate DateTime
+  userId         Int
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  rfidUser             RfidUser? @relation(fields: [rfidUserRfid_user_id], references: [rfid_user_id])
+  rfidUserRfid_user_id Int?
 }

@@ -20,6 +20,7 @@ import {
   Globe,
   Activity,
   Monitor,
+  Car
 } from 'lucide-react';
 
 const baseRoutes = [
