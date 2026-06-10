@@ -155,16 +155,48 @@ export async function handleAuthorize(
   const idTag = payload.idToken?.idToken || payload.idTag;
 
   try {
+    let isAuthorized = true;
+    let userName = "";
+
     // Look up RFID tag in database
     const rfidUser = await prisma.rfidUser.findUnique({
       where: { rfid_tag: idTag },
     });
 
-    let isAuthorized = true;
-
     if (!rfidUser || !rfidUser.active) {
-      isAuthorized = false;
+      // If not an RFID user, check if it's a valid EMAID for Plug & Charge
+      const vcc = await prisma.vehicleContractCertificate.findUnique({
+        where: { emaid: idTag },
+        include: { user: true }
+      });
+
+      if (!vcc || vcc.status !== "Valid" || vcc.expirationDate < new Date()) {
+         isAuthorized = false;
+      } else {
+         userName = vcc.user?.name || "";
+         // Also check charge group for Plug&Charge users
+         const charger = await prisma.charger.findUnique({
+           where: { charger_id: chargerId },
+           select: { chargeGroupId: true }
+         });
+
+         if (charger && charger.chargeGroupId) {
+           const userInGroup = await prisma.chargeGroupUser.findUnique({
+             where: {
+               chargeGroupId_userId: {
+                 chargeGroupId: charger.chargeGroupId,
+                 userId: vcc.userId
+               }
+             }
+           });
+           if (!userInGroup) {
+             logger.warn(`Authorize rejected: User of EMAID ${idTag} is not in the required charge group ${charger.chargeGroupId}`);
+             isAuthorized = false;
+           }
+         }
+      }
     } else {
+      userName = rfidUser.name || "";
       // Check if charger belongs to a group and if user is in that group
       const charger = await prisma.charger.findUnique({
         where: { charger_id: chargerId },
@@ -188,14 +220,14 @@ export async function handleAuthorize(
     }
 
     if (!isAuthorized) {
-      logger.warn(`Authorize rejected: RFID tag ${idTag} not authorized`);
+      logger.warn(`Authorize rejected: RFID/EMAID tag ${idTag} not authorized`);
       let response: any = {};
       response.idTagInfo = { status: "Invalid" };
       await logOcppMessage(chargerId, "out", response);
       return response;
     }
 
-    logger.info(`Authorize accepted: RFID tag ${idTag} (${rfidUser?.name})`);
+    logger.info(`Authorize accepted: RFID/EMAID tag ${idTag} (${userName})`);
     let response: any = {};
     response.idTagInfo = { status: "Accepted" };
     await logOcppMessage(chargerId, "out", response);
@@ -738,6 +770,35 @@ export async function handleStatusNotification(
   }
 }
 
+
+/**
+ * Handle DataTransfer request from charger (used for ISO 15118 PNAC etc)
+ */
+export async function handleDataTransfer(
+  chargerId: number,
+  payload: any,
+  protocol?: string
+): Promise<any> {
+  const vendorId = payload.vendorId;
+  const messageId = payload.messageId;
+
+  logger.info(`Received DataTransfer from charger ${chargerId} [Vendor: ${vendorId}, MessageId: ${messageId}]`);
+
+  // Default successful response for DataTransfer if not explicitly rejected
+  let response: any = {
+    status: "Accepted",
+    data: ""
+  };
+
+  // Here you can handle specific messageIds for ISO 15118 (e.g. Get15118EVCertificate)
+  if (messageId === "Get15118EVCertificate" || vendorId === "ISO15118") {
+     logger.debug(`Handling ISO 15118 PNAC DataTransfer for charger ${chargerId}`);
+     // We return accepted status; specific payload data would go here per spec
+  }
+
+  return response;
+}
+
 export async function handleOcppMessage16(
   chargerId: number,
   actionName: string,
@@ -775,6 +836,10 @@ export async function handleOcppMessage16(
     case "StatusNotification":
       logger.debug(`Routing action ${actionName} -> handleStatusNotification`);
       response = await handleStatusNotification(chargerId, payload);
+      break;
+    case "DataTransfer":
+      logger.debug(`Routing action ${actionName} -> handleDataTransfer`);
+      response = await handleDataTransfer(chargerId, payload, protocol);
       break;
     default:
       logger.warn(`Unknown action name: ${actionName}`);
