@@ -40,6 +40,24 @@
       "energyTodayDesc": "Totaal geleverd",
       "revenueToday": "Omzet Vandaag",
       "revenueTodayDesc": "Geschat achteraf betaald"
+  },
+  "reimbursements": {
+    "title": "Vergoedingen",
+    "employeeSetup": "Werknemer Thuis Setup",
+    "employerFleet": "Werkgever Vloot Weergave",
+    "iban": "IBAN",
+    "station": "Thuis Lader (Station)",
+    "rfid": "Bedrijfs RFID",
+    "tariff": "Thuis Stroom Tarief",
+    "saveContract": "Contract Opslaan",
+    "downloadSepa": "Download SEPA Transfer Bestand",
+    "month": "Maand",
+    "year": "Jaar",
+    "totalKwh": "Totaal kWh",
+    "amount": "Bedrag",
+    "status": "Status",
+    "employee": "Werknemer",
+    "contractSaved": "Vergoedingscontract succesvol opgeslagen."
     }
   }
 }

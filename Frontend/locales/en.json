@@ -40,6 +40,24 @@
       "energyTodayDesc": "Total dispensed",
       "revenueToday": "Revenue Today",
       "revenueTodayDesc": "Estimated post-paid"
+  },
+  "reimbursements": {
+    "title": "Reimbursements",
+    "employeeSetup": "Employee Home Setup",
+    "employerFleet": "Employer Fleet View",
+    "iban": "IBAN",
+    "station": "Home Charger (Station)",
+    "rfid": "Company Fleet RFID",
+    "tariff": "Home Electricity Tariff",
+    "saveContract": "Save Contract",
+    "downloadSepa": "Download SEPA Transfer File",
+    "month": "Month",
+    "year": "Year",
+    "totalKwh": "Total kWh",
+    "amount": "Amount",
+    "status": "Status",
+    "employee": "Employee",
+    "contractSaved": "Reimbursement contract saved successfully."
     }
   }
 }
