@@ -37,8 +37,20 @@ export class EnergyChartsService {
           try {
             logger.info(`Fetching day-ahead EPEX spot prices for ${country} from energy-charts...`);
             const url = `https://api.energy-charts.info/price?bzn=${country}&start=${startOfToday.toISOString()}&end=${endOfTomorrow.toISOString()}`;
-            const response = await axios.get(url, { timeout: 10000 });
-            const data = response.data;
+
+            let response;
+            let retries = 3;
+            while (retries > 0) {
+              try {
+                response = await axios.get(url, { timeout: 10000 });
+                break;
+              } catch (err) {
+                retries--;
+                if (retries === 0) throw err;
+                await new Promise(resolve => setTimeout(resolve, 2000 * (3 - retries)));
+              }
+            }
+            const data = response?.data;
 
             if (data && Array.isArray(data.unix_seconds) && Array.isArray(data.price) && data.unix_seconds.length === data.price.length) {
               const operations = [];

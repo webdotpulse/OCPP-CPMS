@@ -82,9 +82,12 @@ export class MeterValueService {
         return;
       }
 
+      const { config } = await import("../config/index.js");
+      const instanceProcessingKey = `${PROCESSING_KEY}_${config.instanceId}`;
+
       // Atomically rename the list to a processing key
       try {
-        await redisClient.rename(LIST_KEY, PROCESSING_KEY);
+        await redisClient.rename(LIST_KEY, instanceProcessingKey);
       } catch (err: any) {
         if (err.message && err.message.includes("no such key")) {
           // List was emptied before rename
@@ -95,10 +98,10 @@ export class MeterValueService {
       }
 
       // Read all elements from the processing list
-      const items = await redisClient.lrange(PROCESSING_KEY, 0, -1);
+      const items = await redisClient.lrange(instanceProcessingKey, 0, -1);
 
       if (!items || items.length === 0) {
-        await redisClient.del(PROCESSING_KEY);
+        await redisClient.del(instanceProcessingKey);
         this.isProcessing = false;
         return;
       }
@@ -190,12 +193,12 @@ export class MeterValueService {
             };
 
             await prisma.transaction.updateMany({
-              where: { transactionId },
+              where: { transactionId, status: { not: "completed" } },
               data: txUpdateData,
             });
 
             await prisma.rfidSession.updateMany({
-              where: { transactionId },
+              where: { transactionId, status: { not: "completed" } },
               data: txUpdateData,
             });
           }
@@ -218,7 +221,7 @@ export class MeterValueService {
       }
 
       // Cleanup processing key
-      await redisClient.del(PROCESSING_KEY);
+      await redisClient.del(instanceProcessingKey);
 
       if (dbSuccess) {
         logger.debug(`MeterValueService processed ${payloads.length} entries from the list.`);
