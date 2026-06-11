@@ -1,9 +1,3 @@
-<p align="center">
-  <a href="https://www.mobilitypulse.com" target="_blank">
-    <img src="https://www.mobilitypulse.com/assets/images/logo/logo.svg" alt="MobilityPulse – Community EV Charging Platform" height="64" style="max-width: 100%; height: auto; max-height: 64px;" />
-  </a>
-</p>
-
 <h1 align="center">OCPP Charge Management System</h1>
 
 <p align="center">
