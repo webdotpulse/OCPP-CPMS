@@ -77,7 +77,9 @@ export class V2GOrchestrationService {
 
         if (currentSoc > minSoc) {
            // We have enough charge. Dispatch negative power profile.
-           const limitKw = -Math.min(gridLoadKw, 11); // Discharge up to 11kW to offset load
+           // Use actual charger capacity, ensuring we cap it so we don't discharge more than the charger is rated for
+           const chargerCapacityKw = tx.charger.power_capacity || 11;
+           const limitKw = -Math.min(gridLoadKw, chargerCapacityKw);
            const limitAmps = (limitKw * 1000) / 230; // Approx negative amps
 
            logger.info(`Triggering V2G discharge for tx ${tx.id} on charger ${tx.charger_id} at ${limitKw}kW`);
