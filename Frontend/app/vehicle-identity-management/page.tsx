@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Trash2, Plus } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 interface VCC {
   id: number;
@@ -24,7 +24,7 @@ interface VCC {
 
 export default function VehicleIdentityManagementPage() {
   const { user } = useAuth();
-  const { toast } = useToast();
+
   const [vehicles, setVehicles] = useState<VCC[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newVehicle, setNewVehicle] = useState({
@@ -54,21 +54,21 @@ export default function VehicleIdentityManagementPage() {
         macAddress: newVehicle.macAddress,
         userId: Number(newVehicle.userId || user?.id),
       });
-      toast({ title: "Vehicle Registered", description: "Successfully added new vehicle for Plug & Charge." });
+      toast.success("Successfully added new vehicle for Plug & Charge.");
       setIsDialogOpen(false);
       fetchVehicles();
     } catch (error: any) {
-      toast({ title: "Error", description: error.response?.data?.error || "Failed to add vehicle", variant: "destructive" });
+      toast.error(error.response?.data?.error || "Failed to add vehicle");
     }
   };
 
   const handleDelete = async (id: number) => {
     try {
       await axios.delete(`/api/vehicles/${id}`);
-      toast({ title: "Vehicle Removed", description: "Successfully removed vehicle." });
+      toast.success("Successfully removed vehicle.");
       fetchVehicles();
     } catch (error) {
-      toast({ title: "Error", description: "Failed to remove vehicle", variant: "destructive" });
+      toast.error("Failed to remove vehicle");
     }
   };
 

@@ -34,6 +34,7 @@ export class PredictiveBalancingService {
       const charger = await prisma.charger.findUnique({
         where: { charger_id: chargerId },
         include: {
+          chargingStation: true,
           owner: {
             include: { emsGateways: true }
           }
@@ -41,14 +42,14 @@ export class PredictiveBalancingService {
       });
 
       if (!charger || !charger.isPredictiveBalancingEnabled) return;
-      if (!charger.latitude || !charger.longitude || !charger.localSolarKwp) {
-        logger.warn(`Charger ${chargerId} has predictive balancing enabled but missing location/solar data.`);
+      if (!charger.chargingStation?.latitude || !charger.chargingStation?.longitude || !charger.localSolarKwp) {
+        logger.warn(`Charger ${chargerId} has predictive balancing enabled but missing location/solar data on its station.`);
         return;
       }
 
       const hasEms = charger.owner?.emsGateways && charger.owner.emsGateways.length > 0;
 
-      const forecast = await this.fetchSolarForecast(charger.latitude, charger.longitude);
+      const forecast = await this.fetchSolarForecast(charger.chargingStation.latitude, charger.chargingStation.longitude);
       if (!forecast) {
         logger.warn(`Could not get solar forecast for charger ${chargerId}`);
         return;

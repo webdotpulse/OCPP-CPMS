@@ -25,8 +25,6 @@ const chargerSchema = z.object({
   firmware_version: z.string().optional(),
   service_contacts: z.string(),
   charging_station_id: z.number().positive("Must assign a station"),
-  latitude: z.number().min(-90).max(90).optional().nullable(),
-  longitude: z.number().min(-180).max(180).optional().nullable(),
   thirdPartyBackendUrl: z.union([z.string().url("Must be a valid URL"), z.literal("")]).optional().nullable(),
   tariffId: z.number().optional(),
   owner_id: z.number().optional(),
@@ -54,8 +52,6 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
     resolver: zodResolver(chargerSchema),
     defaultValues: initialData ? {
       ...initialData,
-      latitude: initialData?.latitude || undefined,
-      longitude: initialData?.longitude || undefined,
       thirdPartyBackendUrl: initialData?.thirdPartyBackendUrl || undefined,
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,
       chargeGroupId: initialData?.chargeGroupId || undefined,
@@ -64,8 +60,6 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
       localSolarKwp: initialData?.localSolarKwp || undefined,
     } : {
       name: nameParam || '',
-      latitude: undefined,
-      longitude: undefined,
       thirdPartyBackendUrl: undefined,
       tariffId: initialData?.tariffs?.[0]?.tariff_id || undefined,
       chargeGroupId: undefined,
@@ -307,17 +301,7 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
             </div>
 
             {watch('isPredictiveBalancingEnabled') && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg bg-muted/20">
-                <div className="space-y-2">
-                  <Label htmlFor="latitude">Latitude</Label>
-                  <Input id="latitude" type="number" step="any" {...register('latitude', { valueAsNumber: true })} placeholder="e.g. 52.3676" />
-                  {errors.latitude && <p className="text-sm text-destructive">{errors.latitude.message}</p>}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="longitude">Longitude</Label>
-                  <Input id="longitude" type="number" step="any" {...register('longitude', { valueAsNumber: true })} placeholder="e.g. 4.9041" />
-                  {errors.longitude && <p className="text-sm text-destructive">{errors.longitude.message}</p>}
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-1 gap-4 p-4 border rounded-lg bg-muted/20">
                 <div className="space-y-2">
                   <Label htmlFor="localSolarKwp">Local Solar Capacity (kWp)</Label>
                   <Input id="localSolarKwp" type="number" step="any" {...register('localSolarKwp', { valueAsNumber: true })} placeholder="e.g. 10.5" />
