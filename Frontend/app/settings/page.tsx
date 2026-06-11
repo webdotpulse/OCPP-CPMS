@@ -478,6 +478,20 @@ export default function SettingsPage() {
 
                 <div className="space-y-2 border rounded-lg p-4 bg-muted/30">
                   <h3 className="font-medium flex items-center gap-2">
+                    <Mail className="h-4 w-4" /> Mail Templates
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Manage templates used for transactional emails like password resets.
+                  </p>
+                  <Link href="/settings/templates">
+                    <Button variant="outline" size="sm" className="w-full">
+                      Manage Mail Templates
+                    </Button>
+                  </Link>
+                </div>
+
+                <div className="space-y-2 border rounded-lg p-4 bg-muted/30">
+                  <h3 className="font-medium flex items-center gap-2">
                     <Mail className="h-4 w-4" /> Mail Server
                   </h3>
                   <p className="text-sm text-muted-foreground mb-2">
