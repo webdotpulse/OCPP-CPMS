@@ -18,6 +18,8 @@ model User {
   role                String    @default("admin")
   userType            String    @default("private")
   companyName         String?
+  companyId           Int?
+  company             Company?  @relation(fields: [companyId], references: [id])
   address             String?
   phone               String?
   taxNumber           String?
@@ -39,6 +41,14 @@ model User {
   emsGateways                 EmsGateway[]
   vehicleEnergyProfile        VehicleEnergyProfile?
   vehicleContractCertificates VehicleContractCertificate[]
+}
+
+model Company {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]
 }
 
 // Charging station / Site location

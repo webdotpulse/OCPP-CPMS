@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { api } from "@/lib/api";
@@ -21,6 +21,20 @@ export default function CreateUserPage() {
   const [role, setRole] = useState("user");
   const [userType, setUserType] = useState("private");
   const [companyName, setCompanyName] = useState("");
+  const [companyId, setCompanyId] = useState("");
+  const [companies, setCompanies] = useState<{ id: number; name: string }[]>([]);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const response = await api.get('/companies');
+        setCompanies(response.data?.data || []);
+      } catch (error) {
+        console.error("Failed to fetch companies:", error);
+      }
+    };
+    fetchCompanies();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +48,8 @@ export default function CreateUserPage() {
         password,
         role,
         userType,
-        companyName: userType === 'private' ? null : companyName
+        companyName: userType === 'company' ? companyName : null,
+        companyId: userType === 'employee' ? companyId : null
       });
       toast.success("User created successfully");
       router.push('/users');
@@ -96,10 +111,24 @@ export default function CreateUserPage() {
               </div>
             </div>
 
-            {userType !== 'private' && (
+            {userType === 'company' && (
               <div className="space-y-2 pt-2 border-t mt-4">
                 <Label>Company Name</Label>
-                <Input value={companyName} onChange={(e: any) => setCompanyName(e.target.value)} placeholder="Required for companies/employees" required={userType !== 'private'} />
+                <Input value={companyName} onChange={(e: any) => setCompanyName(e.target.value)} placeholder="Required for companies" required />
+              </div>
+            )}
+
+            {userType === 'employee' && (
+              <div className="space-y-2 pt-2 border-t mt-4">
+                <Label>Select Company</Label>
+                <Select value={companyId} onValueChange={setCompanyId} required>
+                  <SelectTrigger><SelectValue placeholder="Select a company" /></SelectTrigger>
+                  <SelectContent>
+                    {companies.map(company => (
+                      <SelectItem key={company.id} value={company.id.toString()}>{company.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
 

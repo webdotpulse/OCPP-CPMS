@@ -37,6 +37,7 @@ export const getAllUsers = async (req: AuthRequest, res: Response) => {
           role: true,
           userType: true,
           companyName: true,
+        companyId: true,
           createdAt: true,
         },
         orderBy: { createdAt: "desc" },
@@ -86,6 +87,7 @@ export const getUserById = async (req: AuthRequest, res: Response) => {
         role: true,
         userType: true,
         companyName: true,
+        companyId: true,
         address: true,
         phone: true,
         taxNumber: true,
@@ -116,7 +118,7 @@ export const getUserById = async (req: AuthRequest, res: Response) => {
 export const updateUser = async (req: AuthRequest, res: Response) => {
   try {
     const userId = parseId(req.params.id);
-    const { name, email, role, userType, companyName, address, phone, taxNumber } = req.body;
+    const { name, email, role, userType, companyName, companyId, address, phone, taxNumber } = req.body;
 
     if (!userId) {
       return res.status(400).json({
@@ -140,6 +142,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
         role,
         userType,
         companyName,
+        companyId: companyId ? parseInt(companyId, 10) : null,
         address,
         phone,
         taxNumber
@@ -151,6 +154,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
         role: true,
         userType: true,
         companyName: true,
+        companyId: true,
         address: true,
         phone: true,
         taxNumber: true,
@@ -214,7 +218,7 @@ export const updateUserRole = async (req: AuthRequest, res: Response) => {
 
 export const createUser = async (req: AuthRequest, res: Response) => {
   try {
-    const { name, email, password, role, userType, companyName } = req.body;
+    const { name, email, password, role, userType, companyName, companyId } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ success: false, error: "Email and password required" });
@@ -234,9 +238,10 @@ export const createUser = async (req: AuthRequest, res: Response) => {
         password: hashedPassword,
         role: role || "user",
         userType: userType || "private",
-        companyName: companyName || null
+        companyName: companyName || null,
+        companyId: companyId ? parseInt(companyId, 10) : null
       },
-      select: { id: true, name: true, email: true, role: true, userType: true, companyName: true }
+      select: { id: true, name: true, email: true, role: true, userType: true, companyName: true, companyId: true }
     });
 
     try {
