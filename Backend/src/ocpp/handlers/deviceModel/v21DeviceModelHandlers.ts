@@ -154,10 +154,8 @@ export async function handleSetVariables(chargerId: number, payload: any): Promi
 }
 
 export async function handleGetBaseReport(chargerId: number, payload: any): Promise<any> {
-    logger.info(`Handling GetBaseReport for charger ${chargerId}`, payload);
-    // Real implementation would trigger actual fetching from charger or async processing
-    // For now, accept the report request
-    return { status: "Accepted" };
+    logger.warn(`Received GetBaseReport from charger ${chargerId}. This is a CPMS-to-CS message. Charger should not send this.`, payload);
+    return { status: "NotSupported" };
 }
 
 export async function handleNotifyReport(chargerId: number, payload: any): Promise<any> {
