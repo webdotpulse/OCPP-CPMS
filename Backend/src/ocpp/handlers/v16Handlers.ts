@@ -452,12 +452,46 @@ export async function handleStopTransaction(
 
       if (tariff?.tariffType === "DYNAMIC_EPEX" && tariff.country) {
         const { EpexSpotService } = await import("../../services/EpexSpotService.js");
-        const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, transaction.startTime, tariff.dynamicProvider || "EnergyZero");
-        const spotPriceKwh = spotPriceMwh ? (spotPriceMwh / 1000) : 0;
-        const markup = tariff.markupPerKwh || 0;
-        const taxRate = tariff.taxPercentage ? (tariff.taxPercentage / 100) : 0;
-        const hourlyCostKwh = (spotPriceKwh + markup) * (1 + taxRate);
-        energyFee = (energyConsumedTx / 1000) * hourlyCostKwh * 100;
+
+        const meterValues = await prisma.meterValue.findMany({
+          where: { transactionId: String(transactionId), energy: { not: null } },
+          orderBy: { timestamp: "asc" }
+        });
+
+        if (meterValues.length > 0) {
+          let previousEnergy = transaction.initialMeterValue || meterValues[0].energy || 0;
+          const markup = tariff.markupPerKwh || 0;
+          const taxRate = tariff.taxPercentage ? (tariff.taxPercentage / 100) : 0;
+
+          for (let i = 0; i < meterValues.length; i++) {
+            const mv = meterValues[i];
+            const currentEnergy = mv.energy || 0;
+            const energyDeltaKwh = Math.max(0, currentEnergy - previousEnergy) / 1000;
+
+            if (energyDeltaKwh > 0) {
+              const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, mv.timestamp, tariff.dynamicProvider || "EnergyZero");
+              const spotPriceKwh = spotPriceMwh ? (spotPriceMwh / 1000) : 0;
+              const hourlyCostKwh = (spotPriceKwh + markup) * (1 + taxRate);
+              energyFee += energyDeltaKwh * hourlyCostKwh * 100;
+            }
+            previousEnergy = currentEnergy;
+          }
+
+          const finalDeltaKwh = Math.max(0, meterStop - previousEnergy) / 1000;
+          if (finalDeltaKwh > 0) {
+              const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, stopTime, tariff.dynamicProvider || "EnergyZero");
+              const spotPriceKwh = spotPriceMwh ? (spotPriceMwh / 1000) : 0;
+              const hourlyCostKwh = (spotPriceKwh + markup) * (1 + taxRate);
+              energyFee += finalDeltaKwh * hourlyCostKwh * 100;
+          }
+        } else {
+          const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, transaction.startTime, tariff.dynamicProvider || "EnergyZero");
+          const spotPriceKwh = spotPriceMwh ? (spotPriceMwh / 1000) : 0;
+          const markup = tariff.markupPerKwh || 0;
+          const taxRate = tariff.taxPercentage ? (tariff.taxPercentage / 100) : 0;
+          const hourlyCostKwh = (spotPriceKwh + markup) * (1 + taxRate);
+          energyFee = (energyConsumedTx / 1000) * hourlyCostKwh * 100;
+        }
       } else {
         energyFee = (energyConsumedTx / 1000) * tariffRate * 100;
       }
@@ -517,18 +551,45 @@ export async function handleStopTransaction(
 
       if (tariff?.tariffType === "DYNAMIC_EPEX" && tariff.country) {
         const { EpexSpotService } = await import("../../services/EpexSpotService.js");
-        const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, rfidSession.startTime, tariff.dynamicProvider || "EnergyZero");
+        const meterValues = await prisma.meterValue.findMany({
+          where: { transactionId: String(transactionId), energy: { not: null } },
+          orderBy: { timestamp: "asc" }
+        });
 
-        // Convert MWh to kWh
-        const spotPriceKwh = spotPriceMwh ? (spotPriceMwh / 1000) : 0;
+        if (meterValues.length > 0) {
+          let previousEnergy = rfidSession.initialMeterValue || meterValues[0].energy || 0;
+          const markup = tariff.markupPerKwh || 0;
+          const taxRate = tariff.taxPercentage ? (tariff.taxPercentage / 100) : 0;
 
-        // Formula: Hourly Cost = (EPEX_Spot_Price_Per_kWh + markupPerKwh) * (1 + taxPercentage)
-        const markup = tariff.markupPerKwh || 0;
-        const taxRate = tariff.taxPercentage ? (tariff.taxPercentage / 100) : 0;
+          for (let i = 0; i < meterValues.length; i++) {
+            const mv = meterValues[i];
+            const currentEnergy = mv.energy || 0;
+            const energyDeltaKwh = Math.max(0, currentEnergy - previousEnergy) / 1000;
+            if (energyDeltaKwh > 0) {
+              const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, mv.timestamp, tariff.dynamicProvider || "EnergyZero");
+              const spotPriceKwh = spotPriceMwh ? (spotPriceMwh / 1000) : 0;
+              const hourlyCostKwh = (spotPriceKwh + markup) * (1 + taxRate);
+              amountDue += energyDeltaKwh * hourlyCostKwh * 100;
+            }
+            previousEnergy = currentEnergy;
+          }
 
-        const hourlyCostKwh = (spotPriceKwh + markup) * (1 + taxRate);
-
-        amountDue = (energyConsumed / 1000) * hourlyCostKwh * 100; // Convert to paise/cents
+          const finalDeltaKwh = Math.max(0, meterStop - previousEnergy) / 1000;
+          if (finalDeltaKwh > 0) {
+              const stopTimeMs = new Date(timestamp);
+              const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, stopTimeMs, tariff.dynamicProvider || "EnergyZero");
+              const spotPriceKwh = spotPriceMwh ? (spotPriceMwh / 1000) : 0;
+              const hourlyCostKwh = (spotPriceKwh + markup) * (1 + taxRate);
+              amountDue += finalDeltaKwh * hourlyCostKwh * 100;
+          }
+        } else {
+            const spotPriceMwh = await EpexSpotService.getPriceForTimestamp(tariff.country, rfidSession.startTime, tariff.dynamicProvider || "EnergyZero");
+            const spotPriceKwh = spotPriceMwh ? (spotPriceMwh / 1000) : 0;
+            const markup = tariff.markupPerKwh || 0;
+            const taxRate = tariff.taxPercentage ? (tariff.taxPercentage / 100) : 0;
+            const hourlyCostKwh = (spotPriceKwh + markup) * (1 + taxRate);
+            amountDue = (energyConsumed / 1000) * hourlyCostKwh * 100;
+        }
       } else {
         amountDue = (energyConsumed / 1000) * tariffRate * 100; // Convert to paise
       }

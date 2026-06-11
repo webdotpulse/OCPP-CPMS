@@ -79,40 +79,54 @@ export class PredictiveBalancingService {
 
         // Extremely simplified estimation: SolarKwp * (radiation / 1000)
         let solarKw = charger.localSolarKwp * (radiation / 1000);
+        let batteryKw = 0;
+        let gridKw = 0;
 
-        if (hasEms) {
-          // If EMS is present, we might factor in live data or battery, but for the next 24 hours
-          // we still largely rely on the forecast since it's predictive.
-          // In a real scenario, we would use EMS telemetry to adjust the starting point.
-          // For now, we'll give a slight boost if EMS says battery is available (stubbed).
+        if (hasEms && charger.owner?.emsGateways && charger.owner.emsGateways.length > 0) {
+          try {
+            const { redisClient } = await import("../config/redis.js");
+            const gateway = charger.owner.emsGateways[0];
+            const redisKey = `ems_telemetry:${gateway.gateway_id}`;
+            const telemetryRaw = await redisClient.hgetall(redisKey);
+
+            if (telemetryRaw && Object.keys(telemetryRaw).length > 0) {
+              batteryKw = parseFloat(telemetryRaw.battery_kw || "0");
+              gridKw = parseFloat(telemetryRaw.grid_kw || "0");
+
+              // Use real-time solar if it's the current hour
+              if (i === 0 && telemetryRaw.solar_kw) {
+                solarKw = parseFloat(telemetryRaw.solar_kw);
+              }
+            }
+          } catch (e) {
+            logger.error(`Failed to fetch EMS telemetry for predictive balancing: ${e}`);
+          }
         }
 
         // Get EPEX price for the hour (using Netherlands as default if country unknown)
-        // You might want to get country from station in a real implementation
         const epexPrice = await EpexSpotService.getPriceForTimestamp("NL", targetTime) || 0;
 
-        // Simple logic:
-        // High solar -> High Amps
-        // High price -> Low Amps
         // Max Amps for charger is based on power_capacity (kW) * 1000 / 230 (Volts) -> approx A
         const maxAmps = Math.min(32, (charger.power_capacity * 1000) / 230); // Cap at 32A per phase
         const minAmps = 6;
 
         let predictedAmps = minAmps;
 
-        // If price is negative or very low (e.g. < 50 EUR/MWh), charge at max
+        // Calculate total available renewable/local power
+        // Positive batteryKw means discharging (available to use), negative means charging
+        const totalAvailableLocalKw = solarKw + (batteryKw > 0 ? batteryKw : 0);
+
         if (epexPrice < 50) {
           predictedAmps = maxAmps;
-        }
-        // If we have good solar (e.g. > 1kW), scale up amps
-        else if (solarKw > 1) {
-           // Scale amps based on solar available (roughly 230V * 1A = 230W)
-           const solarAmps = (solarKw * 1000) / 230;
-           predictedAmps = Math.min(maxAmps, Math.max(minAmps, solarAmps));
-        }
-        // If price is high (> 150), turn off or min
-        else if (epexPrice > 150) {
-          predictedAmps = 0; // Suspend if too expensive
+        } else if (totalAvailableLocalKw > 1.4) {
+           // 1.4kW is approx 6A at 230V
+           const localAmps = (totalAvailableLocalKw * 1000) / 230;
+           predictedAmps = Math.min(maxAmps, Math.max(minAmps, localAmps));
+        } else if (gridKw > charger.power_capacity) {
+           // If building is already drawing heavily from grid, suspend charging
+           predictedAmps = 0;
+        } else if (epexPrice > 150) {
+          predictedAmps = 0;
         }
 
         plansToCreate.push({

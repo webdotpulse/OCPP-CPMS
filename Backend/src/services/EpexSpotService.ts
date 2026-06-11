@@ -2,6 +2,7 @@ import { prisma } from "../config/database.js";
 import { logger } from "../utils/logger.js";
 import axios from "axios";
 import { redisClient } from "../config/redis.js";
+import { XMLParser } from "fast-xml-parser";
 import { EnergyChartsService } from "./EnergyChartsService.js";
 
 export class EpexSpotService {
@@ -110,59 +111,108 @@ export class EpexSpotService {
       }
       if (needsFetchBE) {
 
+        let entsoeSuccess = false;
         try {
           if (entsoeKey) {
             logger.info("Fetching day-ahead EPEX spot prices for BE from ENTSO-E...");
-            // To properly query ENTSO-E we need periodStart and periodEnd in yyyyMMddHH00 format
-            // In a full implementation, we'd build the XML request or use an ENTSO-E wrapper.
-            // Since this is a specialized format, let's just log and fallback to energy-charts for now
-            // OR simulate it if we don't have a full XML parser.
-            // For the sake of the requirement "use it in the service", we'll just log we're using it
-            // and continue using energy-charts as the reliable JSON fallback since ENTSO-E requires XML parsing.
-            logger.info(`Using ENTSOE API Key ${entsoeKey.substring(0, 4)}... but using energy-charts JSON wrapper for simplicity in parsing.`);
-          }
 
-          logger.info("Fetching day-ahead EPEX spot prices for BE from energy-charts...");
-          const beUrl = `https://api.energy-charts.info/price?bzn=BE&start=${startOfToday.toISOString()}&end=${endOfTomorrow.toISOString()}`;
+            const formatEntsoeDate = (d: Date) => {
+               return d.toISOString().replace(/[:-]/g, '').substring(0, 12) + '00';
+            };
 
-          let beResponse;
-          let beRetries = 3;
-          while (beRetries > 0) {
-            try {
-              beResponse = await axios.get(beUrl, { timeout: 10000 });
-              break;
-            } catch (err) {
-              beRetries--;
-              if (beRetries === 0) throw err;
-              await new Promise(resolve => setTimeout(resolve, 2000 * (3 - beRetries)));
+            const periodStart = formatEntsoeDate(startOfToday);
+            const periodEnd = formatEntsoeDate(endOfTomorrow);
+
+            // BZN for Belgium is 10YBE----------2
+            const entsoeUrl = `https://web-api.tp.entsoe.eu/api?securityToken=${entsoeKey}&documentType=A44&in_Domain=10YBE----------2&out_Domain=10YBE----------2&periodStart=${periodStart}&periodEnd=${periodEnd}`;
+
+            const entsoeResponse = await axios.get(entsoeUrl, { timeout: 15000 });
+
+            if (entsoeResponse.data) {
+               const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_" });
+               const parsed = parser.parse(entsoeResponse.data);
+
+               const timeseries = parsed.Publication_MarketDocument?.TimeSeries;
+               if (timeseries) {
+                  const beOperations = [];
+                  const seriesList = Array.isArray(timeseries) ? timeseries : [timeseries];
+
+                  for (const series of seriesList) {
+                     const period = series.Period;
+                     if (!period) continue;
+                     const startPeriod = new Date(period.timeInterval.start);
+
+                     const points = Array.isArray(period.Point) ? period.Point : [period.Point];
+                     for (const pt of points) {
+                        const position = parseInt(pt.position, 10);
+                        const pricePerMwh = parseFloat(pt["price.amount"]);
+
+                        // ENTSO-E positions are 1-based offset from period start
+                        const timestamp = new Date(startPeriod.getTime() + (position - 1) * 3600 * 1000);
+
+                        if (timestamp >= startOfToday && timestamp <= endOfTomorrow) {
+                           beOperations.push(
+                             prisma.epexSpotPrice.upsert({
+                               where: { timestamp_country_provider: { timestamp, country: "BE", provider: "ENTSO-E" } },
+                               update: { pricePerMwh },
+                               create: { timestamp, country: "BE", pricePerMwh, provider: "ENTSO-E" },
+                             })
+                           );
+                        }
+                     }
+                  }
+                  for (let i = 0; i < beOperations.length; i += chunkSize) {
+                    await prisma.$transaction(beOperations.slice(i, i + chunkSize));
+                  }
+                  logger.info(`Successfully fetched and stored ${beOperations.length} day-ahead EPEX spot prices for BE from ENTSO-E.`);
+                  entsoeSuccess = true;
+               }
             }
           }
-          const beData = beResponse?.data;
 
-          if (beData && Array.isArray(beData.unix_seconds) && Array.isArray(beData.price) && beData.unix_seconds.length === beData.price.length) {
-            const beOperations = [];
-            for (let i = 0; i < beData.unix_seconds.length; i++) {
-              const timestamp = new Date(beData.unix_seconds[i] * 1000);
-              const pricePerMwh = beData.price[i];
+          if (!entsoeSuccess) {
+            logger.info("Fetching day-ahead EPEX spot prices for BE from energy-charts...");
+            const beUrl = `https://api.energy-charts.info/price?bzn=BE&start=${startOfToday.toISOString()}&end=${endOfTomorrow.toISOString()}`;
 
-              if (typeof pricePerMwh !== 'number') continue;
-
-              // Only insert if it's within our target range
-              if (timestamp >= startOfToday && timestamp <= endOfTomorrow) {
-                beOperations.push(
-                  prisma.epexSpotPrice.upsert({
-                    where: { timestamp_country_provider: { timestamp, country: "BE", provider: "Energy-Charts" } },
-                    update: { pricePerMwh },
-                    create: { timestamp, country: "BE", pricePerMwh, provider: "Energy-Charts" },
-                  })
-                );
+            let beResponse;
+            let beRetries = 3;
+            while (beRetries > 0) {
+              try {
+                beResponse = await axios.get(beUrl, { timeout: 10000 });
+                break;
+              } catch (err) {
+                beRetries--;
+                if (beRetries === 0) throw err;
+                await new Promise(resolve => setTimeout(resolve, 2000 * (3 - beRetries)));
               }
             }
+            const beData = beResponse?.data;
 
-            for (let i = 0; i < beOperations.length; i += chunkSize) {
-              await prisma.$transaction(beOperations.slice(i, i + chunkSize));
+            if (beData && Array.isArray(beData.unix_seconds) && Array.isArray(beData.price) && beData.unix_seconds.length === beData.price.length) {
+              const beOperations = [];
+              for (let i = 0; i < beData.unix_seconds.length; i++) {
+                const timestamp = new Date(beData.unix_seconds[i] * 1000);
+                const pricePerMwh = beData.price[i];
+
+                if (typeof pricePerMwh !== 'number') continue;
+
+                // Only insert if it's within our target range
+                if (timestamp >= startOfToday && timestamp <= endOfTomorrow) {
+                  beOperations.push(
+                    prisma.epexSpotPrice.upsert({
+                      where: { timestamp_country_provider: { timestamp, country: "BE", provider: "Energy-Charts" } },
+                      update: { pricePerMwh },
+                      create: { timestamp, country: "BE", pricePerMwh, provider: "Energy-Charts" },
+                    })
+                  );
+                }
+              }
+
+              for (let i = 0; i < beOperations.length; i += chunkSize) {
+                await prisma.$transaction(beOperations.slice(i, i + chunkSize));
+              }
+              logger.info(`Successfully processed ${beOperations.length} prices for BE.`);
             }
-            logger.info(`Successfully processed ${beOperations.length} prices for BE.`);
           }
         } catch (beError) {
           logger.error(`Error fetching/processing EPEX prices for BE: ${beError}`);
