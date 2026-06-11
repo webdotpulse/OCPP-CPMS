@@ -68,8 +68,12 @@ export class V2GOrchestrationService {
         const profile = tx.rfidUser?.vehicleEnergyProfile;
         const minSoc = profile ? profile.minSocThreshold : 40.0;
 
-        // In a real scenario, we'd pull the actual EV SoC from MeterValues or direct query.
-        const currentSoc = tx.finalMeterValue || 100; // Mock SoC check
+        const latestMeterValue = await prisma.meterValue.findFirst({
+          where: { transactionId: tx.transactionId },
+          orderBy: { timestamp: "desc" }
+        });
+
+        const currentSoc = latestMeterValue?.soc ?? tx.finalMeterValue ?? 100;
 
         if (currentSoc > minSoc) {
            // We have enough charge. Dispatch negative power profile.
