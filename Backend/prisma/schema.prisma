@@ -67,6 +67,8 @@ model ChargingStation {
   mediaCampaigns         MediaCampaign[]
   chargers               Charger[]
   parkingSpots           ParkingSpot[]
+  roamingSessions        RoamingSession[]
+  cdrs                   CDR[]
 }
 
 // Charging Point / Charger
@@ -697,4 +699,58 @@ model MediaCampaign {
 
   station     ChargingStation? @relation(fields: [stationId], references: [id], onDelete: Cascade)
   chargeGroup ChargeGroup?     @relation(fields: [chargeGroupId], references: [id], onDelete: Cascade)
+}
+
+// Roaming Partner (eMSP)
+model RoamingPartner {
+  id              Int      @id @default(autoincrement())
+  name            String
+  type            String   @default("eMSP") // "eMSP" or "Hubject/Clearinghouse"
+  apiCredentials  String?
+  wholesaleMarkup Float    @default(0) // Percentage or fixed
+  clearingFee     Float    @default(0) // Clearinghouse fees
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  roamingSessions RoamingSession[]
+  cdrs            CDR[]
+}
+
+// Roaming Session
+model RoamingSession {
+  id              Int      @id @default(autoincrement())
+  partnerId       Int
+  partner         RoamingPartner @relation(fields: [partnerId], references: [id])
+  stationId       Int
+  station         ChargingStation @relation(fields: [stationId], references: [id])
+  transactionId   String   @unique
+  startTime       DateTime @default(now())
+  endTime         DateTime?
+  energyConsumed  Float    @default(0)
+  wholesaleCost   Float    @default(0) // Cost billed to foreign MSP
+  baseCost        Float    @default(0) // Internal energy cost
+  netMargin       Float    @default(0) // wholesaleCost - baseCost
+  status          String   @default("active") // "active", "completed", "settled"
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Charge Detail Record (CDR)
+model CDR {
+  id              Int      @id @default(autoincrement())
+  cdrId           String   @unique
+  partnerId       Int
+  partner         RoamingPartner @relation(fields: [partnerId], references: [id])
+  stationId       Int
+  station         ChargingStation @relation(fields: [stationId], references: [id])
+  transactionId   String
+  startTime       DateTime
+  endTime         DateTime
+  totalEnergy     Float
+  totalTime       Float
+  totalCost       Float
+  currency        String   @default("EUR")
+  status          String   @default("pending") // "pending", "sent", "settled"
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
