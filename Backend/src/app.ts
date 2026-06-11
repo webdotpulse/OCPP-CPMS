@@ -31,6 +31,7 @@ import mailRoutes from "./api/mail/mail.routes.js";
 import settingsTariffsRoutes from "./api/settings/tariffs/tariffs.routes.js";
 import settingsMailRoutes from "./api/settings/mail/mail.routes.js";
 import diagnosticsRoutes from "./routes/diagnostics.js";
+import mediaCampaignsRoutes from "./api/media-campaigns/media-campaigns.routes.js";
 
 // Import OCPP servers
 import { ocppServer } from "./ocpp/ocppServer.js";
@@ -62,6 +63,9 @@ export function createApp(): Application {
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   });
   app.use(limiter);
+
+  // Serve uploaded media files
+  app.use("/uploads", express.static("uploads"));
 
   // Body parser
   // Apply raw body parser to Stripe webhook, and express.json to everything else
@@ -112,6 +116,7 @@ export function createApp(): Application {
   app.use("/api/settings/tariffs", authenticateToken, settingsTariffsRoutes);
   app.use("/api/settings/mail", authenticateToken, settingsMailRoutes);
   app.use("/api/diagnostics", diagnosticsRoutes);
+  app.use("/api/media-campaigns", authenticateToken, mediaCampaignsRoutes);
 
   // Error handling
   app.use(notFoundHandler);
