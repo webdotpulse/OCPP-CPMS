@@ -477,6 +477,23 @@ export async function handleStopTransaction(
         include: { charger: true }
       });
 
+      // Update Connector status to Finishing
+      if (transaction.connectorName) {
+         const existingConnector = await prisma.connector.findFirst({
+           where: {
+             evse: { charger_id: chargerId },
+             connector_name: transaction.connectorName
+           }
+         });
+
+         if (existingConnector) {
+           await prisma.connector.update({
+             where: { connector_id: existingConnector.connector_id },
+             data: { status: "Finishing", updatedAt: new Date() },
+           });
+         }
+      }
+
       // Trigger Load Balancing since a transaction has stopped, freeing up capacity
       if (updatedTransaction.charger.charging_station_id) {
         loadManagementService.balanceSiteLoad(updatedTransaction.charger.charging_station_id)
@@ -784,9 +801,9 @@ export async function handleDataTransfer(
 
   logger.info(`Received DataTransfer from charger ${chargerId} [Vendor: ${vendorId}, MessageId: ${messageId}]`);
 
-  // Default successful response for DataTransfer if not explicitly rejected
+  // Default response for DataTransfer if not explicitly supported
   let response: any = {
-    status: "Accepted",
+    status: "UnknownVendorId",
     data: ""
   };
 
@@ -794,6 +811,22 @@ export async function handleDataTransfer(
   if (messageId === "Get15118EVCertificate" || vendorId === "ISO15118") {
      logger.debug(`Handling ISO 15118 PNAC DataTransfer for charger ${chargerId}`);
      // We return accepted status; specific payload data would go here per spec
+     response.status = "Accepted";
+  } else {
+     logger.warn(`Unrecognized DataTransfer vendorId: ${vendorId}, messageId: ${messageId} from charger ${chargerId}`);
+
+     // Log the unrecognized data transfer as a diagnostic event
+     try {
+       await prisma.diagnosticEvent.create({
+         data: {
+           chargerId,
+           type: "UnknownDataTransfer",
+           description: `Received unsupported DataTransfer. Vendor: ${vendorId}, MessageId: ${messageId}`
+         }
+       });
+     } catch(e) {
+       logger.error("Error creating diagnostic event for unknown DataTransfer " + e);
+     }
   }
 
   return response;

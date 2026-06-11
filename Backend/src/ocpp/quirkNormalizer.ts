@@ -17,9 +17,20 @@ export async function normalizeMeterValues(
 
     // Apply calculatePowerFromVoltageAndCurrent
     if (rules.calculatePowerFromVoltageAndCurrent && (!powerValue || powerValue === 0)) {
-      if (voltageValue != null && currentValue != null) {
+      if (
+        payload.voltage_L1 != null && payload.current_L1 != null &&
+        payload.voltage_L2 != null && payload.current_L2 != null &&
+        payload.voltage_L3 != null && payload.current_L3 != null
+      ) {
+        // 3-phase calculation
+        powerValue = (payload.voltage_L1 * payload.current_L1) +
+                     (payload.voltage_L2 * payload.current_L2) +
+                     (payload.voltage_L3 * payload.current_L3);
+        logger.debug(`[Quirk] Calculated 3-phase power: ${powerValue}W for charger ${chargerId}`);
+      } else if (voltageValue != null && currentValue != null) {
+        // Single phase fallback
         powerValue = voltageValue * currentValue;
-        logger.debug(`[Quirk] Calculated power: ${powerValue}W for charger ${chargerId}`);
+        logger.debug(`[Quirk] Calculated single-phase power: ${powerValue}W for charger ${chargerId}`);
       }
     }
 

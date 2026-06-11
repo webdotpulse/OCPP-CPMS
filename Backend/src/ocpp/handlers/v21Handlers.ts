@@ -541,6 +541,23 @@ export async function handleTransactionEvent(
           include: { charger: true }
         });
 
+        // Update Connector status to Finishing
+        if (transaction.connectorName) {
+           const existingConnector = await prisma.connector.findFirst({
+             where: {
+               evse: { charger_id: chargerId },
+               connector_name: transaction.connectorName
+             }
+           });
+
+           if (existingConnector) {
+             await prisma.connector.update({
+               where: { connector_id: existingConnector.connector_id },
+               data: { status: "Finishing", updatedAt: new Date() },
+             });
+           }
+        }
+
         if (updatedTransaction.charger.charging_station_id) {
           loadManagementService.balanceSiteLoad(updatedTransaction.charger.charging_station_id)
             .catch(err => logger.error(`Error balancing site load: ${err}`));
