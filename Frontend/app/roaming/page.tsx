@@ -5,6 +5,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OcpiTab } from "@/components/roaming/OcpiTab";
 import { OicpTab } from "@/components/roaming/OicpTab";
+import { SettlementTab } from "@/components/roaming/SettlementTab";
 import { AlertCircle } from "lucide-react";
 
 export default function RoamingPage() {
@@ -35,12 +36,16 @@ export default function RoamingPage() {
         <TabsList className="mb-4">
           <TabsTrigger value="ocpi">OCPI (Open Charge Point Interface)</TabsTrigger>
           <TabsTrigger value="oicp">OICP (Hubject)</TabsTrigger>
+          <TabsTrigger value="settlement">Settlement Visualizer</TabsTrigger>
         </TabsList>
         <TabsContent value="ocpi">
           <OcpiTab />
         </TabsContent>
         <TabsContent value="oicp">
           <OicpTab />
+        </TabsContent>
+        <TabsContent value="settlement">
+          <SettlementTab />
         </TabsContent>
       </Tabs>
     </AppShell>

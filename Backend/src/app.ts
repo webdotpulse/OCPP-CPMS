@@ -22,6 +22,7 @@ import dashboardRoutes from "./api/dashboard/dashboard.routes.js";
 import paymentsRoutes from "./api/payments/payments.routes.js";
 import ocpiRoutes from "./api/ocpi/ocpi.routes.js";
 import oicpRoutes from "./api/oicp/oicp.routes.js";
+import roamingRoutes from "./api/roaming/roaming.routes.js";
 import usersRoutes from "./api/users/users.routes.js";
 import chargeGroupsRoutes from "./api/chargeGroups/chargeGroups.routes.js";
 import emsGatewaysRoutes from "./api/ems-gateways/ems-gateways.routes.js";
@@ -110,6 +111,7 @@ export function createApp(): Application {
   app.use("/api/payments", paymentsRoutes); // Removed auth for webhook/initial testing
   app.use("/api/ocpi", ocpiRoutes); // Removed auth for initial testing
   app.use("/api/oicp", oicpRoutes); // Removed auth for initial testing
+  app.use("/api/roaming", authenticateToken, roamingRoutes);
   app.use("/api/config-profiles", authenticateToken, configProfilesRoutes);
   app.use("/api/quirk-profiles", authenticateToken, quirkProfilesRoutes);
   app.use("/api/mail", authenticateToken, mailRoutes);
