@@ -33,35 +33,37 @@
 
 The system consists of four primary layers that work together to manage EV chargers end-to-end:
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                         OCPP CMS – High-Level Architecture              │
 └─────────────────────────────────────────────────────────────────────────┘
 
   ┌──────────────────┐         OCPP 1.6 & 2.1/2.0.1 WebSocket         ┌──────────────────────────┐
-  │   EV Chargers /  │ ◄─────────────────────────────────► │   OCPP WebSocket Server  │
-  │   Charge Points  │    ws://host:9220/OCPP/[1.6|2.1]/{id}     │   (Node.js / ws library) │
-  └──────────────────┘                                     └────────────┬─────────────┘
-                                                                        │
-                                                                        │  Internal Events
-                                                                        ▼
-  ┌──────────────────┐        HTTPS / REST API            ┌──────────────────────────┐
-  │  Next.js Admin   │ ◄─────────────────────────────────► │   Express REST API       │
-  │  Dashboard       │    http://host:3000/api/v1/...      │   (TypeScript / Prisma)  │
-  │  (Frontend UI)   │                                     └────────────┬─────────────┘
-  └──────────────────┘                                                  │
-                                                                        │  ORM Queries
-                                                                        ▼
-  ┌──────────────────┐      WebSocket (Live Logs)         ┌──────────────────────────┐
-  │  OCPP Log        │ ◄─────────────────────────────────► │   PostgreSQL Database    │
-  │  Viewer (UI)     │    ws://host:3001                   │   (via Prisma ORM)       │
-  └──────────────────┘                                     └──────────────────────────┘
-                                                                        │
-                                                                        │  Pub/Sub & Caching
-                                                                        ▼
-                                                           ┌──────────────────────────┐
-                                                           │   Redis (ioredis)        │
-                                                           └──────────────────────────┘
+  │   EV Chargers /  │ ◄─────────────────────────────────────────────►│   OCPP WebSocket Server  │
+  │   Charge Points  │    ws://host:9220/OCPP/[1.6|2.1]/{id}          │   (Node.js / ws library) │
+  └──────────────────┘                                                └────────────┬─────────────┘
+                                                                                   │
+                                                                                   │ Internal Events
+                                                                                   ▼
+  ┌──────────────────┐        HTTPS / REST API                        ┌──────────────────────────┐
+  │  Next.js Admin   │ ◄─────────────────────────────────────────────►│   Express REST API       │
+  │  Dashboard UI    │    http://host:3000/api/v1/...                 │   (TypeScript / Prisma)  │
+  │                  │ ◄─────────────────────────────────────────────►│                          │
+  │                  │    Socket.IO Stream (/api/realtime)            │                          │
+  └────────┬─────────┘                                                └────────────┬─────────────┘
+           │ Stripe Payments                                                       │ ORM Queries
+           ▼                                                                       ▼
+  ┌──────────────────┐      OCPI / Webhooks                           ┌──────────────────────────┐
+  │  Stripe / OCPI   │ ◄─────────────────────────────────────────────►│   PostgreSQL Database    │
+  │  External APIs   │                                                │   (via Prisma ORM)       │
+  └──────────────────┘                                                └────────────┬─────────────┘
+                                                                                   │
+                                                                                   │ Pub/Sub & Cache
+                                                                                   ▼
+  ┌──────────────────┐      Hardware Token Auth                       ┌──────────────────────────┐
+  │  EMS Gateway     │ ◄─────────────────────────────────────────────►│   Redis (ioredis)        │
+  │  (Telemetry)     │    (battery_kw, grid_kw, solar_kw)             │   (Pub/Sub, Caching)     │
+  └──────────────────┘                                                └──────────────────────────┘
 ```
 
 ```mermaid
@@ -70,19 +72,29 @@ flowchart TD
     OCPP["OCPP WebSocket Server\nws://:9220/OCPP/[1.6|2.1]/{id}"]
     API["Backend REST API\nExpress + TypeScript\nhttp://:3000"]
     DB[("PostgreSQL Database\n(via Prisma ORM)")]
-    UI["🖥️ Admin Dashboard\nNext.js 15 + shadcn/ui\nhttp://:3002"]
-    LOGS["📋 Live OCPP Log Viewer\nWebSocket Stream\nws://:3001"]
+    UI["🖥️ Admin Dashboard\nNext.js 16+ App Router\nhttp://:3002"]
+    RT["📋 Live Real-Time Server\nSocket.IO Stream\n/api/realtime"]
+    EMS["🔋 EMS Gateway\n(Live Telemetry)"]
+    V2G["🔄 V2G Orchestration\nService"]
+    STRIPE["💳 Stripe API\n(Ad-Hoc Payments)"]
+    OCPI["🌍 OCPI Partners\n(Roaming)"]
 
     CP <-->|"OCPP 1.6 & 2.1/2.0.1 JSON\nWebSocket"| OCPP
     OCPP -->|"Internal events\n& data writes"| API
     API <-->|"ORM queries\n& migrations"| DB
     UI <-->|"HTTPS / REST"| API
-    UI <-->|"WebSocket stream"| LOGS
-    OCPP -->|"Real-time\nlog broadcast"| LOGS
+    UI <-->|"Socket.IO stream"| RT
+    OCPP -->|"Real-time\nlog broadcast"| RT
     OCPP <-->|"Pub/Sub\n& Caching"| REDIS[("Redis Cache")]
     API <-->|"Pub/Sub\n& Caching"| REDIS
     API -->|"Dynamic Power Limits"| LMS["Load Management Service"]
     LMS -->|"SetChargingProfile"| OCPP
+
+    EMS -->|"Telemetry (battery, grid, solar)"| REDIS
+    API <-->|"Roaming Sync"| OCPI
+    UI -->|"PaymentIntent"| STRIPE
+    API <-->|"Stripe Webhooks"| STRIPE
+    V2G -->|"Discharge Limits\n& Pricing"| API
 ```
 
 ### Key Data Flows
@@ -91,8 +103,9 @@ flowchart TD
 |------|----------|-------------|
 | Charger ↔ OCPP Server | OCPP 1.6 & 2.1/2.0.1 (WebSocket JSON) | Boot, Heartbeat, Authorize, Start/Stop Transaction, MeterValues |
 | Dashboard ↔ API | HTTPS REST | Station management, analytics, RFID, tariffs, user auth |
-| Dashboard ↔ Log Server | WebSocket | Real-time OCPP message streaming for monitoring/debugging |
+| Dashboard ↔ Log Server | Socket.IO | Real-time OCPP message streaming and live EMS telemetry for monitoring/debugging |
 | API ↔ Database | Prisma ORM (SQL) | All persistent data — chargers, sessions, tariffs, users |
+| External APIs ↔ API | HTTPS REST/Webhooks | OCPI roaming sync, Stripe payment processing, and EPEX spot pricing |
 
 ---
 
@@ -127,13 +140,15 @@ open-source-csms/
 ### ⚡ OCPP 1.6 & 2.1/2.0.1 Protocol
 - Full support for core OCPP 1.6 & 2.1/2.0.1 JSON messages.
 
-### 🖥️ Real-Time Dashboard
-- Live charger status monitoring.
-- Active session tracking with live energy and duration counters.
-- Real-time OCPP message log viewer.
+### 🖥️ Real-Time Dashboard (Next.js 16+ App Router)
+- Live charger status monitoring with `react-leaflet` interactive maps.
+- Active session tracking with live energy, duration counters, and dynamic charts.
+- Drag-and-drop management using `@dnd-kit` and smooth `framer-motion` UI animations.
+- Fully internationalized (i18n) interface using `react-i18next`.
 
-### 🎛️ Remote Control
+### 🎛️ Remote Control & V2G Orchestration
 - Start/stop charging sessions remotely, reset chargers, unlock connectors.
+- V2G Orchestration Service with predictive balancing and dynamic discharge limits based on battery SOC and live telemetry.
 
 ### 🔑 RFID Management
 - Full whitelist management for RFID-authorized sessions.
@@ -141,19 +156,19 @@ open-source-csms/
 ### 🏢 Multi-Station & Multi-Charger
 - Manage multiple charging stations across different locations.
 
-### 💰 Tariff Management
-- Define and manage tariffs per station. Associate pricing with charging sessions.
+### 💰 Tariff Management & SEPA Reimbursements
+- Dynamic tariffs calculated iteratively using EPEX spot pricing.
+- Automated reimbursement generation and export using SEPA XML (`pain.001.001.03`) formats.
+
+### 💳 Stripe Payments
+- Fully integrated Ad-hoc EV charging payments via Stripe PaymentIntents and Webhooks.
 
 ### ⚡ Smart Charging & Load Management
 - Intelligent power distribution via `LoadManagementService` to prevent grid overloads.
 - Energy Management System (EMS) gateway integration with Redis telemetry caching and hardware token authentication for external load constraints.
 
 ### 🌍 OCPI Roaming
-- Supports OCPI endpoint mapping for locations and tariffs to integrate with external roaming partners.
-
-### ⚠️ Note on OICP & Payments
-- **OICP Roaming**: Foundational database schema (`OicpEndpoint`) and connectivity testing implemented. Full feature integration is pending.
-- **Payments**: The `/api/payments` endpoints and UI components are currently mock implementations/placeholders (ready for Mollie integration but not functional yet).
+- Supports OCPI endpoint mapping for locations and tariffs to integrate with external roaming partners. (OICP foundation is present, full integration pending).
 
 ---
 
@@ -188,6 +203,10 @@ Comprehensive guides for users, administrators, and EMS integrators are availabl
 | Language | TypeScript |
 | Styling | Tailwind CSS |
 | UI Components | shadcn/ui |
+| Drag & Drop | `@dnd-kit` |
+| Animations | `framer-motion` |
+| Maps | `react-leaflet` |
+| i18n | `react-i18next` |
 
 ---
 
