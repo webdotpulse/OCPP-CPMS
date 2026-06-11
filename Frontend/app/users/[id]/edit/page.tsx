@@ -20,6 +20,7 @@ export default function EditUserPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [companies, setCompanies] = useState<{ id: number; name: string }[]>([]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -27,10 +28,23 @@ export default function EditUserPage() {
     role: "user",
     userType: "private",
     companyName: "",
+    companyId: "",
     address: "",
     phone: "",
     taxNumber: "",
   });
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const res = await api.get('/companies');
+        setCompanies(res.data?.data || []);
+      } catch (err) {
+        console.error("Failed to fetch companies:", err);
+      }
+    };
+    fetchCompanies();
+  }, []);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -46,6 +60,7 @@ export default function EditUserPage() {
             role: u.role || "user",
             userType: u.userType || "private",
             companyName: u.companyName || "",
+            companyId: u.companyId ? u.companyId.toString() : "",
             address: u.address || "",
             phone: u.phone || "",
             taxNumber: u.taxNumber || "",
@@ -76,8 +91,14 @@ export default function EditUserPage() {
     e.preventDefault();
     setIsSaving(true);
 
+    const payload = {
+      ...formData,
+      companyName: formData.userType === 'company' ? formData.companyName : null,
+      companyId: formData.userType === 'employee' ? formData.companyId : null
+    };
+
     try {
-      await api.put(`/users/${id}`, formData);
+      await api.put(`/users/${id}`, payload);
       toast.success("User updated successfully");
       router.push("/users");
       router.refresh();
@@ -196,7 +217,7 @@ export default function EditUserPage() {
                 </div>
               </div>
 
-              {(formData.userType === 'company' || formData.userType === 'employee') && (
+              {formData.userType === 'company' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="companyName">Company Name</Label>
@@ -207,17 +228,36 @@ export default function EditUserPage() {
                       onChange={handleChange}
                     />
                   </div>
-                  {formData.userType === 'company' && (
-                    <div className="space-y-2">
-                      <Label htmlFor="taxNumber">Tax Number / VAT</Label>
-                      <Input
-                        id="taxNumber"
-                        name="taxNumber"
-                        value={formData.taxNumber}
-                        onChange={handleChange}
-                      />
-                    </div>
-                  )}
+                  <div className="space-y-2">
+                    <Label htmlFor="taxNumber">Tax Number / VAT</Label>
+                    <Input
+                      id="taxNumber"
+                      name="taxNumber"
+                      value={formData.taxNumber}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {formData.userType === 'employee' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="companyId">Select Company</Label>
+                    <Select
+                      value={formData.companyId}
+                      onValueChange={(val) => handleSelectChange('companyId', val)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a company" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {companies.map(c => (
+                          <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               )}
             </CardContent>
