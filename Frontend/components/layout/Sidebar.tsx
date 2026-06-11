@@ -31,6 +31,7 @@ const baseRoutes = [
   { key: 'nav.chargers', path: '/chargers', icon: Zap },
   { key: 'nav.chargeGroups', path: '/charge-groups', icon: Users },
   { key: 'nav.rfidTags', path: '/rfid', icon: CreditCard },
+  { key: 'nav.vehicleIdentity', path: '/vehicle-identity-management', icon: Car },
   { key: 'nav.transactions', path: '/transactions', icon: ReceiptText },
   { key: 'nav.payments', path: '/payments', icon: CreditCard },
   { key: 'nav.reimbursements', path: '/reimbursements', icon: ReceiptText },
