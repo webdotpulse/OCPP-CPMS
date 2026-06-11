@@ -64,6 +64,7 @@ model ChargingStation {
   isGroundPlanEnabled    Boolean                 @default(false)
   owner                  User                    @relation(fields: [owner_id], references: [id])
   reimbursementContracts ReimbursementContract[]
+  mediaCampaigns         MediaCampaign[]
   chargers               Charger[]
   parkingSpots           ParkingSpot[]
 }
@@ -321,8 +322,9 @@ model ChargeGroup {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  chargers Charger[]
-  users    ChargeGroupUser[]
+  chargers       Charger[]
+  users          ChargeGroupUser[]
+  mediaCampaigns MediaCampaign[]
 }
 
 model ChargerConfiguration {
@@ -680,4 +682,19 @@ model VehicleContractCertificate {
   updatedAt            DateTime  @updatedAt
   rfidUser             RfidUser? @relation(fields: [rfidUserRfid_user_id], references: [rfid_user_id])
   rfidUserRfid_user_id Int?
+}
+
+model MediaCampaign {
+  id              Int      @id @default(autoincrement())
+  name            String
+  assetUrl        String
+  displayDuration Int      @default(30) // in seconds
+  targetModels    Json     // Array of charger model names or patterns
+  stationId       Int?
+  chargeGroupId   Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  station     ChargingStation? @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  chargeGroup ChargeGroup?     @relation(fields: [chargeGroupId], references: [id], onDelete: Cascade)
 }
