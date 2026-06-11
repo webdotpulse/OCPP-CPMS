@@ -119,16 +119,48 @@ export async function handleAuthorize(
   const idTag = payload.idToken?.idToken;
 
   try {
+    let isAuthorized = true;
+    let userName = "";
+
     // Look up RFID tag in database
     const rfidUser = await prisma.rfidUser.findUnique({
       where: { rfid_tag: idTag },
     });
 
-    let isAuthorized = true;
-
     if (!rfidUser || !rfidUser.active) {
-      isAuthorized = false;
+      // If not an RFID user, check if it's a valid EMAID for Plug & Charge
+      const vcc = await prisma.vehicleContractCertificate.findUnique({
+        where: { emaid: idTag },
+        include: { user: true }
+      });
+
+      if (!vcc || vcc.status !== "Valid" || vcc.expirationDate < new Date()) {
+         isAuthorized = false;
+      } else {
+         userName = vcc.user?.name || "";
+         // Also check charge group for Plug&Charge users
+         const charger = await prisma.charger.findUnique({
+           where: { charger_id: chargerId },
+           select: { chargeGroupId: true }
+         });
+
+         if (charger && charger.chargeGroupId) {
+           const userInGroup = await prisma.chargeGroupUser.findUnique({
+             where: {
+               chargeGroupId_userId: {
+                 chargeGroupId: charger.chargeGroupId,
+                 userId: vcc.userId
+               }
+             }
+           });
+           if (!userInGroup) {
+             logger.warn(`Authorize rejected: User of EMAID ${idTag} is not in the required charge group ${charger.chargeGroupId}`);
+             isAuthorized = false;
+           }
+         }
+      }
     } else {
+      userName = rfidUser.name || "";
       // Check if charger belongs to a group and if user is in that group
       const charger = await prisma.charger.findUnique({
         where: { charger_id: chargerId },
@@ -152,14 +184,14 @@ export async function handleAuthorize(
     }
 
     if (!isAuthorized) {
-      logger.warn(`Authorize rejected: RFID tag ${idTag} not authorized`);
+      logger.warn(`Authorize rejected: Identifier ${idTag} not authorized`);
       let response: any = {};
       response.idTokenInfo = { status: "Invalid" };
       await logOcppMessage(chargerId, "out", response);
       return response;
     }
 
-    logger.info(`Authorize accepted: RFID tag ${idTag} (${rfidUser?.name})`);
+    logger.info(`Authorize accepted: Identifier ${idTag} (${userName})`);
     let response: any = {};
     response.idTokenInfo = { status: "Accepted" };
     await logOcppMessage(chargerId, "out", response);
@@ -676,6 +708,32 @@ export async function handleNotifyEvent(
   }
 }
 
+export async function handleGet15118EVCertificate(chargerId: number, payload: any): Promise<any> {
+  const emaid = payload.exiRequest || payload.emaid;
+
+  if (emaid) {
+    const vcc = await prisma.vehicleContractCertificate.findUnique({
+      where: { emaid: emaid as string }
+    });
+    if (vcc && vcc.status === "Valid" && vcc.expirationDate >= new Date()) {
+       return {
+         status: "Accepted",
+         exiResponse: vcc.contractCert || "dummy_cert_data"
+       };
+    } else {
+       return {
+         status: "Failed",
+         exiResponse: "Invalid or expired certificate"
+       };
+    }
+  } else {
+    return {
+      status: "Failed",
+      exiResponse: "No EMAID provided"
+    };
+  }
+}
+
 export async function handleOcppMessage21(
   chargerId: number,
   actionName: string,
@@ -724,6 +782,10 @@ export async function handleOcppMessage21(
     case "NotifyEvent":
       logger.debug(`Routing action ${actionName} -> handleNotifyEvent`);
       response = await handleNotifyEvent(chargerId, payload);
+      break;
+    case "Get15118EVCertificate":
+      logger.debug(`Routing action ${actionName} -> handleGet15118EVCertificate`);
+      response = await handleGet15118EVCertificate(chargerId, payload);
       break;
     default:
       logger.warn(`Unknown action name: ${actionName}`);

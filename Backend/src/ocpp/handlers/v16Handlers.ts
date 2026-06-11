@@ -871,8 +871,26 @@ export async function handleDataTransfer(
   // Here you can handle specific messageIds for ISO 15118 (e.g. Get15118EVCertificate)
   if (messageId === "Get15118EVCertificate" || vendorId === "ISO15118") {
      logger.debug(`Handling ISO 15118 PNAC DataTransfer for charger ${chargerId}`);
-     // We return accepted status; specific payload data would go here per spec
-     response.status = "Accepted";
+     // Try to extract EMAID from data if possible. Usually in OCPP 2.0.1 Get15118EVCertificate is a standard message.
+     // In OCPP 1.6 it's sent via DataTransfer. Data may contain EMAID.
+     const emaid = payload.data ? (typeof payload.data === "string" ? payload.data : payload.data.emaid || payload.data.exiRequest) : null;
+
+     if (emaid) {
+       const vcc = await prisma.vehicleContractCertificate.findUnique({
+         where: { emaid: emaid as string }
+       });
+       if (vcc && vcc.status === "Valid" && vcc.expirationDate >= new Date()) {
+          response.status = "Accepted";
+          response.data = vcc.contractCert || "dummy_cert_data";
+       } else {
+          response.status = "Rejected";
+          response.data = "Invalid or expired certificate";
+       }
+     } else {
+       // We return accepted status; specific payload data would go here per spec
+       response.status = "Accepted";
+       response.data = "No EMAID provided";
+     }
   } else {
      logger.warn(`Unrecognized DataTransfer vendorId: ${vendorId}, messageId: ${messageId} from charger ${chargerId}`);
 
