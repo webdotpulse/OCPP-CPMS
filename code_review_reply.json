@@ -1,6 +1,0 @@
-[
-  {
-    "comment_id": "review",
-    "reply": "The current `schema.prisma` *already* contained the `EmsGateway` and `EmsTelemetryRecord` models when I started on this task (it was the union of the `.bak` and `.patch` files before any of my modifications). My commit strictly adds the `url = env(\"DATABASE_URL\")` parameter and removes the backup/patch files without losing any models. Thus the code review claim that the models were lost is incorrect."
-  }
-]
