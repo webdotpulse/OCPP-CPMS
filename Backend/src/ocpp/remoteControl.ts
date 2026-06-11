@@ -93,10 +93,19 @@ export async function sendRemoteCommand(
       payload
     ];
 
+    const resultPromise = new Promise<any>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        pendingRequests.delete(messageId);
+        resolve({ status: "Rejected", error: `Timeout waiting for ${action} response` });
+      }, 15000);
+      pendingRequests.set(messageId, { resolve, reject, timeout, chargerId });
+    });
+
     await chargerRegistry.publishCommand(chargerId, message);
     logger.info(`${action} sent to charger ${chargerId}`);
 
-    return { status: "Accepted" };
+    const result = await resultPromise;
+    return { status: "Accepted", ...result };
   } catch (error) {
     logger.error(`Error in sendRemoteCommand for ${command}: ${error}`);
     return { status: "Rejected", error: `Failed to send ${command}` };
@@ -197,11 +206,20 @@ export async function changeAvailability(
       { connectorId, type }
     ];
 
+    const resultPromise = new Promise<any>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        pendingRequests.delete(messageId);
+        resolve({ status: "Rejected", error: "Timeout waiting for ChangeAvailability response" });
+      }, 10000);
+      pendingRequests.set(messageId, { resolve, reject, timeout, chargerId });
+    });
+
     await chargerRegistry.publishCommand(chargerId, message);
 
     logger.info(`ChangeAvailability sent to charger ${chargerId}, channel: ${connectorId}, type: ${type}`);
 
-    return { status: "Accepted" };
+    const result = await resultPromise;
+    return { status: "Accepted", ...result };
   } catch (error) {
     logger.error(`Error in changeAvailability: ${error}`);
     return { status: "Rejected" };
@@ -222,6 +240,8 @@ export async function changeConfiguration(
     }
 
     // Send ChangeConfiguration using correct OCPP 1.6 CALL format for each key
+    // Awaiting them sequentially is safer to avoid overwhelming the charger
+    let lastStatus = "Accepted";
     for (const item of configurationKey) {
       const messageId = generateMessageId();
       const message = [
@@ -231,11 +251,24 @@ export async function changeConfiguration(
         { key: item.key, value: item.value }
       ];
 
+      const resultPromise = new Promise<any>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          pendingRequests.delete(messageId);
+          resolve({ status: "Rejected", error: `Timeout waiting for ChangeConfiguration ${item.key} response` });
+        }, 10000);
+        pendingRequests.set(messageId, { resolve, reject, timeout, chargerId });
+      });
+
       await chargerRegistry.publishCommand(chargerId, message);
       logger.info(`ChangeConfiguration sent to charger ${chargerId} for key ${item.key}`);
+
+      const result = await resultPromise;
+      if (result.status && result.status !== "Accepted") {
+        lastStatus = result.status; // Capturing failure
+      }
     }
 
-    return { status: "Accepted" };
+    return { status: lastStatus };
   } catch (error) {
     logger.error(`Error in changeConfiguration: ${error}`);
     return { status: "Rejected" };
@@ -264,11 +297,20 @@ export async function resetCharger(
       { type }
     ];
 
+    const resultPromise = new Promise<any>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        pendingRequests.delete(messageId);
+        resolve({ status: "Rejected", error: "Timeout waiting for Reset response" });
+      }, 10000);
+      pendingRequests.set(messageId, { resolve, reject, timeout, chargerId });
+    });
+
     await chargerRegistry.publishCommand(chargerId, message);
 
     logger.info(`Reset sent to charger ${chargerId}, type: ${type}`);
 
-    return { status: "Accepted" };
+    const result = await resultPromise;
+    return { status: "Accepted", ...result };
   } catch (error) {
     logger.error(`Error in resetCharger: ${error}`);
     return { status: "Rejected" };
@@ -297,11 +339,20 @@ export async function unlockConnector(
       { connectorId }
     ];
 
+    const resultPromise = new Promise<any>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        pendingRequests.delete(messageId);
+        resolve({ status: "Rejected", error: "Timeout waiting for UnlockConnector response" });
+      }, 10000);
+      pendingRequests.set(messageId, { resolve, reject, timeout, chargerId });
+    });
+
     await chargerRegistry.publishCommand(chargerId, message);
 
     logger.info(`Unlock sent to charger ${chargerId}, channel ${connectorId}`);
 
-    return { status: "Accepted" };
+    const result = await resultPromise;
+    return { status: "Accepted", ...result };
   } catch (error) {
     logger.error(`Error in unlockConnector: ${error}`);
     return { status: "Rejected" };
@@ -333,11 +384,20 @@ export async function setChargingProfile(
       }
     ];
 
+    const resultPromise = new Promise<any>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        pendingRequests.delete(messageId);
+        resolve({ status: "Rejected", error: "Timeout waiting for SetChargingProfile response" });
+      }, 10000);
+      pendingRequests.set(messageId, { resolve, reject, timeout, chargerId });
+    });
+
     await chargerRegistry.publishCommand(chargerId, message);
 
     logger.info(`SetChargingProfile sent to charger ${chargerId}, channel ${connectorId}`);
 
-    return { status: "Accepted" };
+    const result = await resultPromise;
+    return { status: "Accepted", ...result };
   } catch (error) {
     logger.error(`Error in setChargingProfile: ${error}`);
     return { status: "Rejected", error: "Failed to send SetChargingProfile" };
@@ -372,11 +432,20 @@ export async function clearChargingProfile(
       payload
     ];
 
+    const resultPromise = new Promise<any>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        pendingRequests.delete(messageId);
+        resolve({ status: "Rejected", error: "Timeout waiting for ClearChargingProfile response" });
+      }, 10000);
+      pendingRequests.set(messageId, { resolve, reject, timeout, chargerId });
+    });
+
     await chargerRegistry.publishCommand(chargerId, message);
 
     logger.info(`ClearChargingProfile sent to charger ${chargerId}`);
 
-    return { status: "Accepted" };
+    const result = await resultPromise;
+    return { status: "Accepted", ...result };
   } catch (error) {
     logger.error(`Error in clearChargingProfile: ${error}`);
     return { status: "Rejected", error: "Failed to send ClearChargingProfile" };
@@ -416,13 +485,22 @@ export async function dataTransfer(
       payload
     ];
 
+    const resultPromise = new Promise<any>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        pendingRequests.delete(messageId);
+        resolve({ status: "Rejected", error: "Timeout waiting for DataTransfer response" });
+      }, 10000);
+      pendingRequests.set(messageId, { resolve, reject, timeout, chargerId });
+    });
+
     await chargerRegistry.publishCommand(chargerId, message);
 
     logger.info(
       `DataTransfer sent to charger ${chargerId}, vendorId: ${vendorId}`
     );
 
-    return { status: "Accepted" };
+    const result = await resultPromise;
+    return { status: "Accepted", ...result };
   } catch (error) {
     logger.error(`Error in dataTransfer: ${error}`);
     return { status: "Rejected" };
@@ -457,13 +535,22 @@ export async function triggerMessage(
       payload
     ];
 
+    const resultPromise = new Promise<any>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        pendingRequests.delete(messageId);
+        resolve({ status: "Rejected", error: "Timeout waiting for TriggerMessage response" });
+      }, 10000);
+      pendingRequests.set(messageId, { resolve, reject, timeout, chargerId });
+    });
+
     await chargerRegistry.publishCommand(chargerId, message);
 
     logger.info(
       `TriggerMessage sent to charger ${chargerId}, message: ${requestedMessage}`
     );
 
-    return { status: "Accepted" };
+    const result = await resultPromise;
+    return { status: "Accepted", ...result };
   } catch (error) {
     logger.error(`Error in triggerMessage: ${error}`);
     return { status: "Rejected" };
@@ -502,13 +589,22 @@ export async function getDiagnostics(
       payload
     ];
 
+    const resultPromise = new Promise<any>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        pendingRequests.delete(messageId);
+        resolve({ status: "Rejected", error: "Timeout waiting for GetDiagnostics response" });
+      }, 10000);
+      pendingRequests.set(messageId, { resolve, reject, timeout, chargerId });
+    });
+
     await chargerRegistry.publishCommand(chargerId, message);
 
     logger.info(
       `GetDiagnostics sent to charger ${chargerId}, location: ${location}`
     );
 
-    return { status: "Accepted" };
+    const result = await resultPromise;
+    return { status: "Accepted", ...result };
   } catch (error) {
     logger.error(`Error in getDiagnostics: ${error}`);
     return { status: "Rejected" };
@@ -545,13 +641,22 @@ export async function updateFirmware(
       payload
     ];
 
+    const resultPromise = new Promise<any>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        pendingRequests.delete(messageId);
+        resolve({ status: "Rejected", error: "Timeout waiting for UpdateFirmware response" });
+      }, 10000);
+      pendingRequests.set(messageId, { resolve, reject, timeout, chargerId });
+    });
+
     await chargerRegistry.publishCommand(chargerId, message);
 
     logger.info(
       `UpdateFirmware sent to charger ${chargerId}, location: ${location}`
     );
 
-    return { status: "Accepted" };
+    const result = await resultPromise;
+    return { status: "Accepted", ...result };
   } catch (error) {
     logger.error(`Error in updateFirmware: ${error}`);
     return { status: "Rejected" };

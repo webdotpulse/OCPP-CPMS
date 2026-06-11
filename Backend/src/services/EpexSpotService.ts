@@ -56,8 +56,19 @@ export class EpexSpotService {
           logger.info("Fetching day-ahead EPEX spot prices for NL from EnergyZero...");
           const url = `https://api.energyzero.nl/v1/energyprices?fromDate=${startOfToday.toISOString()}&tillDate=${endOfTomorrow.toISOString()}&interval=4&usageType=1&inclBtw=false`;
 
-          const response = await axios.get(url, { timeout: 10000 });
-          const data = response.data;
+          let response;
+          let retries = 3;
+          while (retries > 0) {
+            try {
+              response = await axios.get(url, { timeout: 10000 });
+              break;
+            } catch (err) {
+              retries--;
+              if (retries === 0) throw err;
+              await new Promise(resolve => setTimeout(resolve, 2000 * (3 - retries)));
+            }
+          }
+          const data = response?.data;
 
           if (data && Array.isArray(data.Prices)) {
             const nlOperations = [];
@@ -113,8 +124,20 @@ export class EpexSpotService {
 
           logger.info("Fetching day-ahead EPEX spot prices for BE from energy-charts...");
           const beUrl = `https://api.energy-charts.info/price?bzn=BE&start=${startOfToday.toISOString()}&end=${endOfTomorrow.toISOString()}`;
-          const beResponse = await axios.get(beUrl, { timeout: 10000 });
-          const beData = beResponse.data;
+
+          let beResponse;
+          let beRetries = 3;
+          while (beRetries > 0) {
+            try {
+              beResponse = await axios.get(beUrl, { timeout: 10000 });
+              break;
+            } catch (err) {
+              beRetries--;
+              if (beRetries === 0) throw err;
+              await new Promise(resolve => setTimeout(resolve, 2000 * (3 - beRetries)));
+            }
+          }
+          const beData = beResponse?.data;
 
           if (beData && Array.isArray(beData.unix_seconds) && Array.isArray(beData.price) && beData.unix_seconds.length === beData.price.length) {
             const beOperations = [];
@@ -128,9 +151,9 @@ export class EpexSpotService {
               if (timestamp >= startOfToday && timestamp <= endOfTomorrow) {
                 beOperations.push(
                   prisma.epexSpotPrice.upsert({
-                    where: { timestamp_country_provider: { timestamp, country: "BE", provider: "EnergyZero" } },
+                    where: { timestamp_country_provider: { timestamp, country: "BE", provider: "Energy-Charts" } },
                     update: { pricePerMwh },
-                    create: { timestamp, country: "BE", pricePerMwh, provider: "EnergyZero" },
+                    create: { timestamp, country: "BE", pricePerMwh, provider: "Energy-Charts" },
                   })
                 );
               }
