@@ -68,8 +68,6 @@ export interface CreateChargerDto {
   power_capacity: number;
   firmware_version: string;
   service_contacts: string;
-  latitude?: number;
-  longitude?: number;
   charging_station_id: number;
   owner_id: number;
   tariffId?: number;
@@ -87,8 +85,6 @@ export interface UpdateChargerDto {
   status?: ChargerStatus;
   firmware_version?: string;
   service_contacts?: string;
-  latitude?: number;
-  longitude?: number;
   tariffId?: number;
 }
 
