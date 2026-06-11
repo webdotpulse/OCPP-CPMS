@@ -127,9 +127,9 @@ export const getLocations = async (req: Request, res: Response): Promise<void> =
           const connectors = evse.connectors.map(connector => ({
             id: String(connector.connector_id),
             standard: connector.connector_name, // e.g., "Channel 1" - adjust as needed
-            format: "SOCKET", // Dummy value or derive from DB if available
+            format: connector.format || "SOCKET",
             power_type: connector.current_type || "AC_3_PHASE",
-            max_voltage: 400, // Dummy value or derive
+            max_voltage: connector.max_voltage || 400,
             max_amperage: connector.max_current || 32,
             max_electric_power: connector.max_power ? connector.max_power * 1000 : 22000,
           }));

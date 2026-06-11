@@ -11,7 +11,6 @@ export function FleetBatteryCapacityWidget() {
   useEffect(() => {
     const fetchCapacity = async () => {
       try {
-        // Mock endpoint or real implementation in future backend work
         const response = await api.get('/dashboard/fleet-capacity');
         setCapacity(response.data);
       } catch (error) {

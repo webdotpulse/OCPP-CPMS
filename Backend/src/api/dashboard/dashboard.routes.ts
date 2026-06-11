@@ -6,7 +6,8 @@ import {
   getChargersStatus,
   getLoadMetrics,
   getEmsTelemetry,
-  getHistoricalEmsTelemetry
+  getHistoricalEmsTelemetry,
+  getFleetCapacity
 } from "./dashboard.controller.js";
 
 const router = Router();
@@ -18,5 +19,6 @@ router.get("/chargers-status", getChargersStatus);
 router.get("/load", getLoadMetrics);
 router.get("/ems-telemetry", getEmsTelemetry);
 router.get("/ems-telemetry/history", getHistoricalEmsTelemetry);
+router.get("/fleet-capacity", getFleetCapacity);
 
 export default router;

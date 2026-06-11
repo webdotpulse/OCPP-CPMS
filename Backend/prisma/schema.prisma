@@ -153,6 +153,8 @@ model Connector {
   max_current    Float?
   max_power      Float?
   mac_address    String?
+  format         String   @default("SOCKET")
+  max_voltage    Float    @default(400)
   evse_id        Int
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -624,6 +626,7 @@ model VehicleEnergyProfile {
   userId          Int?  @unique
   rfidUserId      Int?  @unique
   minSocThreshold Float @default(40.0) // Minimum SoC percentage
+  batteryCapacity Float?
 
   user     User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   rfidUser RfidUser? @relation(fields: [rfidUserId], references: [rfid_user_id], onDelete: Cascade)

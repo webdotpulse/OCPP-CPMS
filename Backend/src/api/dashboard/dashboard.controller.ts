@@ -419,6 +419,66 @@ export const getEmsTelemetry = async (req: Request, res: Response) => {
 };
 
 /**
+ * GET /api/dashboard/fleet-capacity - Get available V2G discharge capacity
+ */
+export const getFleetCapacity = async (req: Request, res: Response) => {
+  try {
+    // @ts-expect-error userRole is attached by authenticateToken middleware
+    const userRole = req.userRole;
+    // @ts-expect-error userId is attached by authenticateToken middleware
+    const userId = req.userId;
+
+    const isUser = userRole !== "admin";
+
+    const activeTransactions = await prisma.transaction.findMany({
+      where: isUser ? { status: { in: ["initiated", "charging"] }, charger: { owner_id: userId } } : { status: { in: ["initiated", "charging"] } },
+      include: {
+        rfidUser: {
+          include: { vehicleEnergyProfile: true }
+        }
+      }
+    });
+
+    let availableKwh = 0;
+    let connectedVehicles = 0;
+
+    for (const tx of activeTransactions) {
+      const profile = tx.rfidUser?.vehicleEnergyProfile;
+      if (!profile || profile.batteryCapacity == null) continue;
+
+      const latestMeterValue = await prisma.meterValue.findFirst({
+        where: { transactionId: tx.transactionId },
+        orderBy: { timestamp: "desc" }
+      });
+
+      const currentSoc = latestMeterValue?.soc ?? tx.finalMeterValue ?? 100;
+      const minSoc = profile.minSocThreshold;
+
+      if (currentSoc > minSoc) {
+        const excessSoc = currentSoc - minSoc;
+        const availableEnergyForVehicle = (excessSoc / 100) * profile.batteryCapacity;
+        availableKwh += availableEnergyForVehicle;
+        connectedVehicles++;
+      }
+    }
+
+    res.json({
+      success: true,
+      data: {
+        availableKwh,
+        connectedVehicles
+      }
+    });
+  } catch (error) {
+    logger.error(`Error getting fleet capacity: ${error}`);
+    res.status(500).json({
+      success: false,
+      error: "Failed to get fleet capacity",
+    });
+  }
+};
+
+/**
  * GET /api/dashboard/ems-telemetry/history - Get historical EMS telemetry for linked gateways
  */
 export const getHistoricalEmsTelemetry = async (req: Request, res: Response) => {
