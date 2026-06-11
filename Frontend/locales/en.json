@@ -15,6 +15,10 @@
       "configProfiles": "Config Profiles",
       "quirkProfiles": "Quirk Profiles",
       "emsGateways": "EMS Gateways",
+      "payments": "Payments",
+      "reimbursements": "Reimbursements",
+      "hardwareAtRisk": "Hardware Risk",
+      "v2g": "V2G Orchestration",
       "settings": "Settings",
       "ocppConsole": "OCPP Console"
     },
