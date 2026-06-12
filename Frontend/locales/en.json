@@ -19,7 +19,7 @@
       "reimbursements": "Reimbursements",
       "hardwareAtRisk": "Hardware Risk",
       "v2g": "V2G Orchestration",
-      "vehicleIdentity": "Vehicle Identity Management",
+      "vehicleIdentity": "Vehicle Management",
       "settings": "Settings",
       "ocppConsole": "OCPP Console"
     },
