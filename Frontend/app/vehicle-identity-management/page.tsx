@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Badge } from "@/components/ui/badge";
 import { Trash2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { AppShell } from "@/components/layout/AppShell";
 
 interface VCC {
   id: number;
@@ -73,8 +74,9 @@ export default function VehicleIdentityManagementPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <AppShell>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Vehicle Identity Management</h1>
           <p className="text-muted-foreground mt-2">Manage Plug & Charge (ISO 15118) vehicle certificates and authentication.</p>
@@ -146,9 +148,10 @@ export default function VehicleIdentityManagementPage() {
                 </TableRow>
               )}
             </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    </AppShell>
   );
 }
