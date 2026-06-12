@@ -34,7 +34,7 @@ const baseRoutes = [
   { key: 'nav.vehicleIdentity', path: '/vehicle-identity-management', icon: Car },
   { key: 'nav.transactions', path: '/transactions', icon: ReceiptText },
   // { key: 'nav.payments', path: '/payments', icon: CreditCard },
-  { key: 'nav.reimbursements', path: '/reimbursements', icon: ReceiptText },
+  // { key: 'nav.reimbursements', path: '/reimbursements', icon: ReceiptText },
   { key: 'nav.tariffs', path: '/tariffs', icon: WalletCards },
   { key: 'nav.hardwareAtRisk', path: '/hardware-at-risk', icon: AlertCircle },
   // { key: 'nav.v2g', path: '/v2g', icon: Car },
