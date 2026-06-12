@@ -1,7 +1,7 @@
 import { NextResponse, userAgent } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // We can't actually read localStorage here, so we'll just check for a token cookie if we were using one.
   // Since we rely on localStorage for the JWT (common in SPAs, but tricky in SSR), 
   // Next.js middleware won't have access to the localStorage token unless we set a cookie.
