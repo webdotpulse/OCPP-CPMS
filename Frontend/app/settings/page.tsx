@@ -583,6 +583,20 @@ export default function SettingsPage() {
                     </Button>
                   </Link>
                 </div>
+
+                <div className="space-y-2 border rounded-lg p-4 bg-muted/30">
+                  <h3 className="font-medium flex items-center gap-2">
+                    <WalletCards className="h-4 w-4" /> Payments
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Configure Mollie payment integration.
+                  </p>
+                  <Link href="/settings/payments">
+                    <Button variant="outline" size="sm" className="w-full">
+                      Configure Payments
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </CardContent>
           </Card>

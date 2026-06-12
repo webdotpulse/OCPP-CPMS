@@ -1,20 +1,24 @@
 import { Request, Response } from "express";
 import { prisma } from "../../config/database.js";
 import { logger } from "../../utils/logger.js";
-import { stripe, isStripeConfigured } from "../../services/StripeService.js";
+import { MollieService } from "../../services/MollieService.js";
+import { PaymentStatus } from "@mollie/api-client";
 
 /**
- * Creates a Stripe payment intent and initiates a PaymentTransaction record.
+ * Creates a Mollie payment and initiates a PaymentTransaction record.
  */
 export const createPaymentIntent = async (req: Request, res: Response) => {
-  if (!isStripeConfigured() || !stripe) {
-    return res.status(501).json({
-      success: false,
-      message: "Payment integration is not configured. Missing STRIPE_SECRET_KEY.",
-    });
-  }
+  const companyId = req.body.companyId || null;
 
   try {
+    const isConfigured = await MollieService.isConfigured(companyId);
+    if (!isConfigured) {
+      return res.status(501).json({
+        success: false,
+        message: "Payment integration is not configured. Missing Mollie API Key.",
+      });
+    }
+
     const { amount, currency = "EUR", transactionId } = req.body;
 
     if (!amount || !transactionId) {
@@ -24,13 +28,20 @@ export const createPaymentIntent = async (req: Request, res: Response) => {
        });
     }
 
-    // Amount must be an integer representing cents
-    const amountInCents = Math.round(amount * 100);
+    // Amount must be a string with 2 decimal places for Mollie
+    const amountStr = parseFloat(amount).toFixed(2);
 
-    // Create a PaymentIntent with the order amount and currency
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amountInCents,
-      currency: currency.toLowerCase(),
+    const client = await MollieService.getClient(companyId);
+
+    // Create a Payment in Mollie
+    const payment = await client.payments.create({
+      amount: {
+        value: amountStr,
+        currency: currency.toUpperCase(),
+      },
+      description: `Order ${transactionId}`,
+      redirectUrl: `${req.headers.origin || process.env.FRONTEND_URL}/payments?success=true`,
+      webhookUrl: `${process.env.BACKEND_URL}/api/payments/webhook${companyId ? `?companyId=${companyId}` : ''}`,
       metadata: {
         transactionId: transactionId,
       },
@@ -40,9 +51,9 @@ export const createPaymentIntent = async (req: Request, res: Response) => {
     await prisma.paymentTransaction.create({
       data: {
         transactionId: transactionId,
-        provider: "stripe",
-        paymentIntentId: paymentIntent.id,
-        amount: amount,
+        provider: "mollie",
+        paymentIntentId: payment.id,
+        amount: parseFloat(amount),
         currency: currency.toUpperCase(),
         status: "pending",
       }
@@ -51,7 +62,7 @@ export const createPaymentIntent = async (req: Request, res: Response) => {
     res.json({
       success: true,
       data: {
-         clientSecret: paymentIntent.client_secret,
+         checkoutUrl: payment._links.checkout?.href,
       }
     });
   } catch (error: any) {
@@ -65,60 +76,85 @@ export const createPaymentIntent = async (req: Request, res: Response) => {
 };
 
 /**
- * Handles incoming payment webhooks from Stripe.
+ * Handles incoming payment webhooks from Mollie.
  */
 export const handleWebhook = async (req: Request, res: Response) => {
-   if (!isStripeConfigured() || !stripe) {
+  const paymentId = req.body.id;
+  const companyId = req.query.companyId ? parseInt(req.query.companyId as string, 10) : null;
+
+  if (!paymentId) {
+      return res.status(400).send('Missing payment ID');
+  }
+
+  try {
+    const isConfigured = await MollieService.isConfigured(companyId);
+    if (!isConfigured) {
+       return res.status(501).json({
+         success: false,
+         message: "Payment integration is not configured.",
+       });
+    }
+
+    const client = await MollieService.getClient(companyId);
+    const payment = await client.payments.get(paymentId);
+
+    let status = 'pending';
+    if (payment.status === PaymentStatus.paid) {
+        status = 'succeeded';
+    } else if (payment.status === PaymentStatus.failed || payment.status === PaymentStatus.canceled || payment.status === PaymentStatus.expired) {
+        status = 'failed';
+    }
+
+    await prisma.paymentTransaction.updateMany({
+        where: { paymentIntentId: payment.id },
+        data: { status }
+    });
+
+    logger.info(`Payment intent ${payment.id} updated to ${status}`);
+
+    // Return a 200 response to acknowledge receipt of the event
+    res.send();
+  } catch (err: any) {
+    logger.error(`Webhook handling failed: ${err.message}`);
+    return res.status(500).send(`Webhook Error: ${err.message}`);
+  }
+};
+
+/**
+ * Handles generating a refund for a payment.
+ */
+export const handleRefund = async (req: Request, res: Response) => {
+  const { paymentId, amount, companyId } = req.body;
+
+  if (!paymentId || !amount) {
+    return res.status(400).json({
+      success: false,
+      message: "paymentId and amount are required",
+    });
+  }
+
+  try {
+    const isConfigured = await MollieService.isConfigured(companyId);
+    if (!isConfigured) {
       return res.status(501).json({
         success: false,
         message: "Payment integration is not configured.",
       });
-   }
+    }
 
-  const sig = req.headers['stripe-signature'];
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    const amountStr = parseFloat(amount).toFixed(2);
+    const refund = await MollieService.generateRefund(paymentId, amountStr, companyId);
 
-  if (!sig || !endpointSecret) {
-      return res.status(400).send('Missing signature or webhook secret');
+    res.json({
+      success: true,
+      data: refund
+    });
+  } catch (error: any) {
+    logger.error(`Failed to handle refund for payment ${paymentId}`, error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to process refund",
+      error: error.message
+    });
   }
-
-  let event;
-
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-  } catch (err: any) {
-    logger.error(`Webhook signature verification failed: ${err.message}`);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  // Handle the event
-  try {
-      switch (event.type) {
-        case 'payment_intent.succeeded': {
-          const paymentIntent = event.data.object as any;
-          await prisma.paymentTransaction.updateMany({
-             where: { paymentIntentId: paymentIntent.id },
-             data: { status: 'succeeded' }
-          });
-          logger.info(`Payment intent ${paymentIntent.id} succeeded`);
-          break;
-        }
-        case 'payment_intent.payment_failed': {
-          const paymentIntent = event.data.object as any;
-          await prisma.paymentTransaction.updateMany({
-             where: { paymentIntentId: paymentIntent.id },
-             data: { status: 'failed' }
-          });
-          logger.error(`Payment intent ${paymentIntent.id} failed`);
-          break;
-        }
-        default:
-          logger.info(`Unhandled event type ${event.type}`);
-      }
-  } catch (dbError) {
-      logger.error("Error updating payment transaction from webhook", dbError);
-  }
-
-  // Return a 200 response to acknowledge receipt of the event
-  res.send();
 };

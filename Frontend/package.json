@@ -17,8 +17,6 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-progress": "^1.1.8",
-    "@stripe/react-stripe-js": "^6.6.0",
-    "@stripe/stripe-js": "^9.7.0",
     "@tanstack/react-virtual": "^3.13.24",
     "@types/uuid": "^10.0.0",
     "axios": "^1.13.6",
