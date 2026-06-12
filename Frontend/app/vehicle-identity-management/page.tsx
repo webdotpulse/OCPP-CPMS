@@ -78,7 +78,7 @@ export default function VehicleIdentityManagementPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Vehicle Identity Management</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Vehicle Management</h1>
           <p className="text-muted-foreground mt-2">Manage Plug & Charge (ISO 15118) vehicle certificates and authentication.</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

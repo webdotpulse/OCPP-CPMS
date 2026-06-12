@@ -19,6 +19,7 @@
       "reimbursements": "Vergoedingen",
       "hardwareAtRisk": "Hardware Risico",
       "v2g": "V2G Orkestratie",
+      "vehicleIdentity": "Voertuigbeheer",
       "settings": "Instellingen",
       "ocppConsole": "OCPP Console"
     },
