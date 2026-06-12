@@ -1,15 +1,17 @@
-import express, { Router } from "express";
+import { Router } from "express";
 import {
   createPaymentIntent,
-  handleWebhook
+  handleWebhook,
+  handleRefund
 } from "./payments.controller.js";
 
 const router = Router();
 
 // Routes for payment integration
 router.post("/intent", createPaymentIntent);
+router.post("/refund", handleRefund);
 
-// Webhook requires raw body for signature verification
-router.post("/webhook", express.raw({ type: 'application/json' }), handleWebhook);
+// Mollie webhook sends the ID via a standard form post
+router.post("/webhook", handleWebhook);
 
 export default router;
