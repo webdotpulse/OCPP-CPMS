@@ -83,6 +83,8 @@ model ChargingStation {
 
 // Charging Point / Charger
 model Charger {
+  isHardwareAtRisk             Boolean           @default(false)
+  consecutiveErrors            Int               @default(0)
   charger_id                   Int               @id @default(autoincrement())
   model                        String
   name                         String            @unique
@@ -764,4 +766,16 @@ model CDR {
   status          String   @default("pending") // "pending", "sent", "settled"
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+// Settings for Hardware at Risk monitoring
+model HardwareAtRiskSetting {
+  id                      Int      @id @default(autoincrement())
+  isEnabled               Boolean  @default(false)
+  offlineThresholdMinutes Int      @default(60)
+  criticalErrorCodeLimit  Int      @default(5)
+  autoHealAttemptLimit    Int      @default(3)
+  notifyAdminEmail        Boolean  @default(false)
+  adminEmailAddress       String?
+  updatedAt               DateTime @updatedAt
 }

@@ -773,8 +773,25 @@ export async function handleStatusNotification(
           description: `Charger reported status: ${status} (ErrorCode: ${errorCode || "Unknown"})`
         }
       });
+      // Increment consecutive errors
+      if (status === "Faulted") {
+        await prisma.charger.update({
+          where: { charger_id: chargerId },
+          data: { consecutiveErrors: { increment: 1 } }
+        });
+      }
     } catch(e) {
       logger.error("Error creating diagnostic event for status notification " + e);
+    }
+  } else if (status === "Available" || status === "Charging") {
+    try {
+      // Reset consecutive errors if it returns to a healthy state
+      await prisma.charger.update({
+        where: { charger_id: chargerId },
+        data: { consecutiveErrors: 0 }
+      });
+    } catch(e) {
+      logger.error("Error resetting consecutive errors for status notification " + e);
     }
   }
 

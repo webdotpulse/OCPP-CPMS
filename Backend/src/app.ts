@@ -32,6 +32,7 @@ import quirkProfilesRoutes from "./api/quirk-profiles/quirk-profiles.routes.js";
 import mailRoutes from "./api/mail/mail.routes.js";
 import settingsTariffsRoutes from "./api/settings/tariffs/tariffs.routes.js";
 import settingsMailRoutes from "./api/settings/mail/mail.routes.js";
+import settingsHardwareAtRiskRoutes from "./api/settings/hardware-at-risk/hardwareAtRisk.routes.js";
 import diagnosticsRoutes from "./routes/diagnostics.js";
 import mediaCampaignsRoutes from "./api/media-campaigns/media-campaigns.routes.js";
 import vehiclesRoutes from "./api/vehicles/vehicles.routes.js";
@@ -120,6 +121,7 @@ export function createApp(): Application {
   app.use("/api/mail", authenticateToken, mailRoutes);
   app.use("/api/settings/tariffs", authenticateToken, settingsTariffsRoutes);
   app.use("/api/settings/mail", authenticateToken, settingsMailRoutes);
+  app.use("/api/settings/hardware-at-risk", authenticateToken, settingsHardwareAtRiskRoutes);
   app.use("/api/diagnostics", diagnosticsRoutes);
   app.use("/api/media-campaigns", authenticateToken, mediaCampaignsRoutes);
   app.use("/api/vehicles", authenticateToken, vehiclesRoutes);
