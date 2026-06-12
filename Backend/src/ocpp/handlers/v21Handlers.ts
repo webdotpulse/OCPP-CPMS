@@ -219,6 +219,26 @@ export async function handleStatusNotification(
   const info = payload.info;
 
   try {
+    if (status === "Faulted") {
+      try {
+        await prisma.charger.update({
+          where: { charger_id: chargerId },
+          data: { consecutiveErrors: { increment: 1 } }
+        });
+      } catch (e) {
+        logger.error(`Error incrementing consecutive errors: ${e}`);
+      }
+    } else if (status === "Available" || status === "Occupied") {
+      try {
+        await prisma.charger.update({
+          where: { charger_id: chargerId },
+          data: { consecutiveErrors: 0 }
+        });
+      } catch (e) {
+        logger.error(`Error resetting consecutive errors: ${e}`);
+      }
+    }
+
     if (evseId !== undefined && connectorId !== undefined) {
       // Find or create Evse
       let evse = await prisma.evse.findUnique({

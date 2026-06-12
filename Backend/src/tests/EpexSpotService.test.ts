@@ -30,90 +30,118 @@ jest.unstable_mockModule('axios', () => ({
 }));
 
 // Now dynamically import the service so it gets the mocked versions
-const { EpexSpotService } = await import('../services/EpexSpotService.js');
+const importPromise = import('../services/EpexSpotService.js');
 
 describe("EpexSpotService", () => {
+  let EpexSpotService: any;
+  let mockTimestamp: Date;
+
+  beforeAll(async () => {
+      const module = await importPromise;
+      EpexSpotService = module.EpexSpotService;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
+    mockTimestamp = new Date('2025-01-01T14:30:00Z'); // Note the 30 minutes to test normalization
   });
 
   describe("getPriceForTimestamp", () => {
     it("should return the exact spot price from Redis cache if available", async () => {
-      const mockTimestamp = new Date("2025-01-01T14:30:00.000Z");
-      const targetTime = new Date(mockTimestamp);
-      targetTime.setMinutes(0, 0, 0);
+      // Setup
+      mockRedisGet.mockResolvedValue("85.5"); // 85.5 EUR/MWh
 
-      mockRedisGet.mockResolvedValue("85.5");
+      const targetTime = new Date('2025-01-01T14:00:00Z'); // Normalized to start of hour
 
+      // Execute
       const price = await EpexSpotService.getPriceForTimestamp("BE", mockTimestamp);
 
+      // Verify
       expect(mockRedisGet).toHaveBeenCalledWith(`epex_price:EnergyZero:BE:${targetTime.toISOString()}`);
       expect(price).toBe(85.5);
     });
 
-    it("should return the exact spot price from the database and cache it", async () => {
-      const mockTimestamp = new Date("2025-01-01T14:30:00.000Z");
-      const targetTime = new Date(mockTimestamp);
-      targetTime.setMinutes(0, 0, 0);
+    it("should fallback to the most recent price if exact hour is missing from Redis", async () => {
+      // Setup
+      mockRedisGet.mockResolvedValueOnce(null); // Exact hour misses
+      mockRedisGet.mockResolvedValueOnce("72.1"); // Fallback hour hits
 
-      const mockPriceRecord = {
-        id: 1,
-        timestamp: targetTime,
-        country: "BE",
-        pricePerMwh: 85.5,
-      };
-
-      mockRedisGet.mockResolvedValue(null);
-      mockRedisSet.mockResolvedValue("OK");
-      mockPrismaFindUnique.mockResolvedValue(mockPriceRecord);
-
+      // Execute
       const price = await EpexSpotService.getPriceForTimestamp("BE", mockTimestamp);
 
+      // Verify
+      expect(mockRedisGet).toHaveBeenCalledTimes(2);
+      expect(price).toBe(72.1);
+    });
+
+    it("should return the exact spot price from the database and cache it", async () => {
+      // Setup
+      mockRedisGet.mockResolvedValue(null); // Cache completely misses
+      const targetTime = new Date('2025-01-01T14:00:00Z');
+
+      mockPrismaFindUnique.mockResolvedValue({
+        timestamp: targetTime,
+        price_eur_per_mwh: 90.0
+      });
+
+      // Execute
+      const price = await EpexSpotService.getPriceForTimestamp("BE", mockTimestamp);
+
+      // Verify
       expect(mockPrismaFindUnique).toHaveBeenCalledWith({
         where: {
           timestamp_country_provider: {
             timestamp: targetTime,
             country: "BE",
-            provider: "EnergyZero",
-          },
-        },
+            provider: "EnergyZero"
+          }
+        }
       });
-      expect(mockRedisSet).toHaveBeenCalledWith(`epex_price:EnergyZero:BE:${targetTime.toISOString()}`, "85.5", "EX", 86400);
-      expect(price).toBe(85.5);
+      // Should cache the result
+      expect(mockRedisSet).toHaveBeenCalledWith(
+        `epex_price:EnergyZero:BE:${targetTime.toISOString()}`,
+        "90",
+        "EX",
+        86400 // 24 hours TTL
+      );
+      expect(price).toBe(90.0);
     });
 
-    it("should return null if no exact or fallback price is found", async () => {
-      mockRedisGet.mockResolvedValue(null);
-      mockPrismaFindUnique.mockResolvedValue(null);
-      mockPrismaFindFirst.mockResolvedValue(null);
+    it("should fallback to the database fallback if exact hour is missing from cache and DB", async () => {
+       // Setup
+       mockRedisGet.mockResolvedValue(null);
+       mockPrismaFindUnique.mockResolvedValue(null); // Exact hour DB miss
 
-      const price = await EpexSpotService.getPriceForTimestamp("BE", new Date());
+       mockPrismaFindFirst.mockResolvedValue({
+         price_eur_per_mwh: 65.4
+       });
 
-      expect(price).toBeNull();
+       // Execute
+       const price = await EpexSpotService.getPriceForTimestamp("BE", mockTimestamp);
+
+       // Verify
+       expect(mockPrismaFindFirst).toHaveBeenCalledWith({
+         where: {
+           country: "BE",
+           provider: "EnergyZero",
+           timestamp: { lte: expect.any(Date) } // Expecting it to search backwards
+         },
+         orderBy: { timestamp: "desc" }
+       });
+       expect(price).toBe(65.4);
     });
-  });
 
-  describe("Dynamic Pricing Calculation", () => {
-    it("should correctly apply markup and tax to a spot price", () => {
-      // Simulate the logic in v16/v21 handlers
-      const spotPriceMwh = 100; // €100 / MWh
-      const spotPriceKwh = spotPriceMwh / 1000; // €0.10 / kWh
+    it("should return null if price is completely unavailable", async () => {
+       // Setup
+       mockRedisGet.mockResolvedValue(null);
+       mockPrismaFindUnique.mockResolvedValue(null);
+       mockPrismaFindFirst.mockResolvedValue(null);
 
-      const markup = 0.05; // €0.05 / kWh
-      const taxPercentage = 21; // 21% VAT
-      const taxRate = taxPercentage / 100;
+       // Execute
+       const price = await EpexSpotService.getPriceForTimestamp("BE", mockTimestamp);
 
-      const hourlyCostKwh = (spotPriceKwh + markup) * (1 + taxRate);
-
-      // Expected: (0.10 + 0.05) * 1.21 = 0.15 * 1.21 = 0.1815
-      expect(hourlyCostKwh).toBeCloseTo(0.1815, 4);
-
-      // Now calculate amount due for 50 kWh
-      const energyConsumed = 50000; // 50,000 Wh = 50 kWh
-      const amountDue = (energyConsumed / 1000) * hourlyCostKwh * 100;
-
-      // Expected: 50 * 0.1815 * 100 = 907.5
-      expect(amountDue).toBeCloseTo(907.5, 1);
+       // Verify
+       expect(price).toBeNull();
     });
   });
 });
