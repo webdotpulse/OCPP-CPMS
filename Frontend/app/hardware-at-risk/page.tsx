@@ -21,9 +21,21 @@ export default function HardwareAtRiskPage() {
     const fetchDiagnostics = async () => {
       try {
         const response = await api.get("/diagnostics");
-        setEvents(response.data || []);
+
+        // Ensure events is always an array
+        let eventsData: any[] = [];
+        if (Array.isArray(response.data)) {
+          eventsData = response.data;
+        } else if (response.data && Array.isArray(response.data.events)) {
+          eventsData = response.data.events;
+        } else if (response.data && Array.isArray(response.data.data)) {
+          eventsData = response.data.data;
+        }
+
+        setEvents(eventsData);
       } catch (error) {
         console.error("Failed to fetch diagnostics", error);
+        setEvents([]); // Fallback to empty array on error
       } finally {
         setLoading(false);
       }
