@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ export default function VehicleIdentityManagementPage() {
 
   const fetchVehicles = async () => {
     try {
-      const response = await axios.get("/api/vehicles");
+      const response = await api.get("/vehicles");
       setVehicles(response.data);
     } catch (error) {
       console.error("Failed to fetch vehicles", error);
@@ -50,7 +50,7 @@ export default function VehicleIdentityManagementPage() {
   const handleAddVehicle = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post("/api/vehicles", {
+      await api.post("/vehicles", {
         emaid: newVehicle.emaid,
         macAddress: newVehicle.macAddress,
         userId: Number(newVehicle.userId || user?.id),
@@ -65,7 +65,7 @@ export default function VehicleIdentityManagementPage() {
 
   const handleDelete = async (id: number) => {
     try {
-      await axios.delete(`/api/vehicles/${id}`);
+      await api.delete(`/vehicles/${id}`);
       toast.success("Successfully removed vehicle.");
       fetchVehicles();
     } catch (error) {
