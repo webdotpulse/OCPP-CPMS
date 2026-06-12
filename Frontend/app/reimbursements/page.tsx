@@ -45,8 +45,10 @@ export default function ReimbursementsPage() {
       const fetchedContracts = await getContracts();
       setContracts(fetchedContracts);
 
-      const fetchedLedgers = await getLedgers();
-      setLedgers(fetchedLedgers);
+      if (user?.role === 'admin') {
+        const fetchedLedgers = await getLedgers();
+        setLedgers(fetchedLedgers);
+      }
 
       // Auto-fill form if employee has one contract
       if (user?.role !== 'admin' && fetchedContracts.length > 0) {
