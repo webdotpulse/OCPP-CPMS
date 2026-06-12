@@ -37,7 +37,7 @@ const baseRoutes = [
   { key: 'nav.reimbursements', path: '/reimbursements', icon: ReceiptText },
   { key: 'nav.tariffs', path: '/tariffs', icon: WalletCards },
   { key: 'nav.hardwareAtRisk', path: '/hardware-at-risk', icon: AlertCircle },
-  { key: 'nav.v2g', path: '/v2g', icon: Car },
+  // { key: 'nav.v2g', path: '/v2g', icon: Car },
   { key: 'nav.ocppConsole', path: '/ocpp', icon: TerminalSquare, adminOnly: true },
 ];
 
