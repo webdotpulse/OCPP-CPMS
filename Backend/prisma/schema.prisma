@@ -565,6 +565,13 @@ model EmsGateway {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  maxGridImport       Float   @default(0)
+  maxGridExport       Float   @default(0)
+  strategy            String  @default("self-consumption")
+  v2gEnabled          Boolean @default(false)
+  batteryReserveLimit Float   @default(20)
+  autoUpdate          Boolean @default(true)
+
   client    User                 @relation(fields: [client_id], references: [id])
   telemetry EmsTelemetryRecord[]
 }

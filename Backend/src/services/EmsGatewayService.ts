@@ -1,6 +1,8 @@
 import { prisma } from "../config/database.js";
 import { redisClient } from "../config/redis.js";
 import { randomBytes } from "crypto";
+import { getIO } from "../ocpp/realtime.socket.js";
+import { logger } from "../utils/logger.js";
 
 export class EmsGatewayService {
   static async createGateway(clientId: number) {
@@ -21,6 +23,42 @@ export class EmsGatewayService {
       where: { gateway_id: gatewayId },
       data: { client_id: clientId },
     });
+  }
+
+  static async updateSettings(gatewayId: string, settings: any) {
+    const updated = await prisma.emsGateway.update({
+      where: { gateway_id: gatewayId },
+      data: {
+        maxGridImport: settings.maxGridImport !== undefined ? Number(settings.maxGridImport) : undefined,
+        maxGridExport: settings.maxGridExport !== undefined ? Number(settings.maxGridExport) : undefined,
+        strategy: settings.strategy,
+        v2gEnabled: settings.v2gEnabled,
+        batteryReserveLimit: settings.batteryReserveLimit !== undefined ? Number(settings.batteryReserveLimit) : undefined,
+        autoUpdate: settings.autoUpdate,
+      },
+    });
+
+    // Push the updated settings to the connected NEMS device via WebSocket
+    const io = getIO();
+    if (io) {
+      // By default in this system real-time clients join a room matching their gateway ID
+      io.to(gatewayId).emit("EMS_SETTINGS_UPDATE", {
+        gateway_id: gatewayId,
+        settings: {
+          maxGridImport: updated.maxGridImport,
+          maxGridExport: updated.maxGridExport,
+          strategy: updated.strategy,
+          v2gEnabled: updated.v2gEnabled,
+          batteryReserveLimit: updated.batteryReserveLimit,
+          autoUpdate: updated.autoUpdate,
+        }
+      });
+      logger.info(`Emitted EMS_SETTINGS_UPDATE to room ${gatewayId}`);
+    } else {
+      logger.warn(`Could not emit EMS_SETTINGS_UPDATE to room ${gatewayId}: Socket.IO not initialized`);
+    }
+
+    return updated;
   }
 
   static async getGateways(clientId: number, userRole: string) {
