@@ -1,8 +1,10 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { EmsGatewayForm } from "@/components/ems-gateways/EmsGatewayForm";
+import { EmsGatewaySettings } from "@/components/ems-gateways/EmsGatewaySettings";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default async function EditEmsGatewayPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -19,7 +21,19 @@ export default async function EditEmsGatewayPage({ params }: { params: Promise<{
           <p className="text-muted-foreground">View or edit details for EMS Gateway {resolvedParams.id}</p>
         </div>
       </div>
-      <EmsGatewayForm gatewayId={resolvedParams.id} />
+
+      <Tabs defaultValue="details" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="details">Details</TabsTrigger>
+          <TabsTrigger value="settings">Remote Configuration</TabsTrigger>
+        </TabsList>
+        <TabsContent value="details">
+          <EmsGatewayForm gatewayId={resolvedParams.id} />
+        </TabsContent>
+        <TabsContent value="settings">
+          <EmsGatewaySettings gatewayId={resolvedParams.id} />
+        </TabsContent>
+      </Tabs>
     </AppShell>
   );
 }

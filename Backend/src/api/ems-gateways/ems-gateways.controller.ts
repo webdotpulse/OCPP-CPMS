@@ -55,6 +55,44 @@ export const updateGateway = async (req: AuthRequest, res: Response): Promise<vo
   }
 };
 
+export const updateGatewaySettings = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.userId;
+    const userRole = req.userRole;
+    const { id } = req.params;
+
+    if (!userId) {
+      res.status(401).json({ success: false, error: "Unauthorized" });
+      return;
+    }
+
+    // Authorization check: User must own the gateway or be an admin
+    const gateways = await EmsGatewayService.getGateways(userId, userRole || "");
+    const ownsGateway = gateways.some(g => g.gateway_id === id);
+
+    if (!ownsGateway && userRole !== "admin") {
+      res.status(403).json({ success: false, error: "Unauthorized to modify this gateway's settings" });
+      return;
+    }
+
+    // Settings fields
+    const { maxGridImport, maxGridExport, strategy, v2gEnabled, batteryReserveLimit, autoUpdate } = req.body;
+
+    const updatedGateway = await EmsGatewayService.updateSettings(id as string, {
+      maxGridImport,
+      maxGridExport,
+      strategy,
+      v2gEnabled,
+      batteryReserveLimit,
+      autoUpdate
+    });
+
+    res.json({ success: true, data: updatedGateway });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
 export const getGateways = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.userId;

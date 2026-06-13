@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticateToken } from "../../middleware/auth.js";
-import { createGateway, getGateways, updateGateway, pushTelemetry, setChargingProfileFromEms, throttleChargerFromEms } from "./ems-gateways.controller.js";
+import { createGateway, getGateways, updateGateway, updateGatewaySettings, pushTelemetry, setChargingProfileFromEms, throttleChargerFromEms } from "./ems-gateways.controller.js";
 
 const router = Router();
 
@@ -8,6 +8,7 @@ const router = Router();
 router.post("/", authenticateToken, createGateway as any);
 router.get("/", authenticateToken, getGateways as any);
 router.put("/:id", authenticateToken, updateGateway as any);
+router.patch("/:id/settings", authenticateToken, updateGatewaySettings as any);
 
 // Route for EMS hardware to push data (secured by its own hardware token)
 router.post("/telemetry", pushTelemetry as any);
