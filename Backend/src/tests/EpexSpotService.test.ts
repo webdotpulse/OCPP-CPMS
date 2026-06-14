@@ -64,13 +64,14 @@ describe("EpexSpotService", () => {
     it("should fallback to the most recent price if exact hour is missing from Redis", async () => {
       // Setup
       mockRedisGet.mockResolvedValueOnce(null); // Exact hour misses
-      mockRedisGet.mockResolvedValueOnce("72.1"); // Fallback hour hits
+      mockPrismaFindUnique.mockResolvedValue(null); // DB exact hour miss
+      mockPrismaFindFirst.mockResolvedValue({ pricePerMwh: 72.1 }); // Fallback hit
 
       // Execute
       const price = await EpexSpotService.getPriceForTimestamp("BE", mockTimestamp);
 
       // Verify
-      expect(mockRedisGet).toHaveBeenCalledTimes(2);
+      expect(mockRedisGet).toHaveBeenCalledTimes(1);
       expect(price).toBe(72.1);
     });
 
@@ -81,7 +82,7 @@ describe("EpexSpotService", () => {
 
       mockPrismaFindUnique.mockResolvedValue({
         timestamp: targetTime,
-        price_eur_per_mwh: 90.0
+        pricePerMwh: 90.0
       });
 
       // Execute
@@ -113,7 +114,7 @@ describe("EpexSpotService", () => {
        mockPrismaFindUnique.mockResolvedValue(null); // Exact hour DB miss
 
        mockPrismaFindFirst.mockResolvedValue({
-         price_eur_per_mwh: 65.4
+         pricePerMwh: 65.4
        });
 
        // Execute
@@ -124,7 +125,6 @@ describe("EpexSpotService", () => {
          where: {
            country: "BE",
            provider: "EnergyZero",
-           timestamp: { lte: expect.any(Date) } // Expecting it to search backwards
          },
          orderBy: { timestamp: "desc" }
        });

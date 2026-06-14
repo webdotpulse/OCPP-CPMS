@@ -334,6 +334,10 @@ export const updateParkingSpots = async (req: Request, res: Response) => {
           data: {
             stationId,
             name: spot.name || 'Unnamed Spot',
+            type: spot.type || 'spot',
+            fillColor: spot.fillColor,
+            lineColor: spot.lineColor,
+            lineWidth: spot.lineWidth,
             x: spot.x,
             y: spot.y,
             width: spot.width,
