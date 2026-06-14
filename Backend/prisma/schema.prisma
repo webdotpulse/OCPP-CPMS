@@ -594,6 +594,10 @@ model ParkingSpot {
   id        Int      @id @default(autoincrement())
   stationId Int
   name      String
+  type      String   @default("spot") // spot, line, rectangle
+  fillColor String?
+  lineColor String?
+  lineWidth Float?
   x         Float    @default(0)
   y         Float    @default(0)
   width     Float    @default(100)
