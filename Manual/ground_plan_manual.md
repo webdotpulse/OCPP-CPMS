@@ -17,11 +17,19 @@ Clicking the Edit button opens the Ground Plan Builder:
 
 ### Controls:
 - **Add Spot**: Creates a new draggable parking spot on the canvas.
-- **Drag & Drop**: Click and drag any spot to align it with your physical parking layout.
-- **Rotate**: Click the small circular arrow icon on a spot to rotate it by 45 degrees.
-- **Delete**: Click the trash can icon to remove a spot.
-- **Name**: Click the text input inside the spot to rename it (e.g., "VIP 1", "Spot A").
-- **Assign Connector**: Use the dropdown inside the spot to link an available physical charger socket to that parking space.
+- **Draw Area**: Creates a customizable rectangular area on the canvas.
+- **Draw Line**: Creates a customizable line on the canvas.
+- **Drag & Drop**: Click and drag any spot, area, or line to align it with your physical parking layout.
+- **Rotate**: Click the small circular arrow icon on an element to rotate it by 45 degrees.
+- **Delete**: Click the trash can icon to remove an element.
+- **Name**: Click the text input inside a spot or area to rename it (e.g., "VIP 1", "Spot A", "Label (Optional)").
+- **Assign Connector**: Use the dropdown inside a spot to link an available physical charger socket to that parking space.
+- **Customization (Hover Menu)**: Hover over lines or areas to access a customization menu allowing you to adjust:
+  - **Line Color**: Pick a color for lines or the border of an area.
+  - **Fill Color**: Pick a background color for rectangular areas.
+  - **Line Width**: Adjust the thickness of a line or the border of an area.
+  - **Width**: Set the specific width dimension.
+  - **Height**: Set the specific height dimension.
 
 Once satisfied with the layout, click **Save Plan**.
 
