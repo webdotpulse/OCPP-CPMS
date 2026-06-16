@@ -17,6 +17,7 @@ model User {
   password            String
   role                String    @default("admin")
   userType            String    @default("private")
+  language            String    @default("en")
   companyName         String?
   companyId           Int?
   company             Company?  @relation(fields: [companyId], references: [id])
@@ -317,7 +318,7 @@ model EpexSpotPrice {
 model PaymentTransaction {
   id              Int      @id @default(autoincrement())
   transactionId   String   @unique
-  provider        String // "stripe", "mollie", etc.
+  provider        String // "mollie", etc., etc.
   paymentIntentId String? // ID from provider
   amount          Float
   currency        String   @default("EUR")
@@ -539,7 +540,9 @@ model MailConfig {
 model MailTemplate {
   id        Int      @id @default(autoincrement())
   name      String
-  type      String   @unique
+  type      String
+  language  String   @default("en")
+  @@unique([type, language])
   subject   String
   bodyHtml  String
   bodyText  String

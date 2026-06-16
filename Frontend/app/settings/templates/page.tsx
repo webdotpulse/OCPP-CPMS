@@ -12,6 +12,7 @@ interface MailTemplate {
   id?: number;
   name: string;
   type: string;
+  language: string;
   subject: string;
   bodyHtml: string;
   bodyText: string;
@@ -58,6 +59,7 @@ export default function MailTemplatesPage() {
       subject: "",
       bodyHtml: "",
       bodyText: "",
+      language: "en",
     });
   };
 
@@ -147,6 +149,17 @@ export default function MailTemplatesPage() {
             </div>
           </div>
           <div>
+            <label className="block text-sm font-medium">Language</label>
+            <input
+              type="text"
+              name="language"
+              value={editingTemplate.language}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded border-gray-300 shadow-sm p-2"
+              required
+            />
+          </div>
+          <div>
             <label className="block text-sm font-medium">Subject</label>
             <input
               type="text"
@@ -200,6 +213,7 @@ export default function MailTemplatesPage() {
               <tr className="bg-gray-100">
                 <th className="py-2 px-4 border-b text-left">Name</th>
                 <th className="py-2 px-4 border-b text-left">Type</th>
+                <th className="py-2 px-4 border-b text-left">Language</th>
                 <th className="py-2 px-4 border-b text-left">Subject</th>
                 <th className="py-2 px-4 border-b text-center">Actions</th>
               </tr>
@@ -209,6 +223,7 @@ export default function MailTemplatesPage() {
                 <tr key={tpl.id} className="hover:bg-gray-50">
                   <td className="py-2 px-4 border-b">{tpl.name}</td>
                   <td className="py-2 px-4 border-b">{tpl.type}</td>
+                  <td className="py-2 px-4 border-b">{tpl.language}</td>
                   <td className="py-2 px-4 border-b">{tpl.subject}</td>
                   <td className="py-2 px-4 border-b text-center space-x-2">
                     <button
@@ -228,7 +243,7 @@ export default function MailTemplatesPage() {
               ))}
                 {(!templates || templates.length === 0) && (
                   <tr>
-                    <td colSpan={4} className="py-4 text-center text-gray-500">
+                    <td colSpan={5} className="py-4 text-center text-gray-500">
                       No templates found
                     </td>
                   </tr>

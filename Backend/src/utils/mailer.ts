@@ -23,6 +23,7 @@ export const sendEmail = async (
   textFallback: string,
   htmlFallback?: string,
   templateType?: string,
+  language: string = "en",
   variables?: Record<string, string>
 ) => {
   try {
@@ -33,7 +34,7 @@ export const sendEmail = async (
     // If templateType provided, try to find and parse template
     if (templateType) {
       const template = await prisma.mailTemplate.findUnique({
-        where: { type: templateType }
+        where: { type_language: { type: templateType, language: language } }
       });
       if (template) {
         finalSubject = variables ? parseTemplate(template.subject, variables) : template.subject;
