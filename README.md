@@ -51,10 +51,10 @@ The system consists of four primary layers that work together to manage EV charg
   │                  │ ◄─────────────────────────────────────────────►│                          │
   │                  │    Socket.IO Stream (/api/realtime)            │                          │
   └────────┬─────────┘                                                └────────────┬─────────────┘
-           │ Stripe Payments                                                       │ ORM Queries
+           │ Mollie Payments                                                       │ ORM Queries
            ▼                                                                       ▼
   ┌──────────────────┐      OCPI / Webhooks                           ┌──────────────────────────┐
-  │  Stripe / OCPI   │ ◄─────────────────────────────────────────────►│   PostgreSQL Database    │
+  │  Mollie / OCPI   │ ◄─────────────────────────────────────────────►│   PostgreSQL Database    │
   │  External APIs   │                                                │   (via Prisma ORM)       │
   └──────────────────┘                                                └────────────┬─────────────┘
                                                                                    │
@@ -76,7 +76,7 @@ flowchart TD
     RT["📋 Live Real-Time Server\nSocket.IO Stream\n/api/realtime"]
     EMS["🔋 EMS Gateway\n(Live Telemetry)"]
     V2G["🔄 V2G Orchestration\nService"]
-    STRIPE["💳 Stripe API\n(Ad-Hoc Payments)"]
+    MOLLIE["💳 Mollie API\n(Ad-Hoc Payments)"]
     OCPI["🌍 OCPI Partners\n(Roaming)"]
 
     CP <-->|"OCPP 1.6 & 2.1/2.0.1 JSON\nWebSocket"| OCPP
@@ -92,8 +92,8 @@ flowchart TD
 
     EMS -->|"Telemetry (battery, grid, solar)"| REDIS
     API <-->|"Roaming Sync"| OCPI
-    UI -->|"PaymentIntent"| STRIPE
-    API <-->|"Stripe Webhooks"| STRIPE
+    UI -->|"PaymentIntent"| MOLLIE
+    API <-->|"Mollie Webhooks"| MOLLIE
     V2G -->|"Discharge Limits\n& Pricing"| API
 ```
 
@@ -105,7 +105,7 @@ flowchart TD
 | Dashboard ↔ API | HTTPS REST | Station management, analytics, RFID, tariffs, user auth |
 | Dashboard ↔ Log Server | Socket.IO | Real-time OCPP message streaming and live EMS telemetry for monitoring/debugging |
 | API ↔ Database | Prisma ORM (SQL) | All persistent data — chargers, sessions, tariffs, users |
-| External APIs ↔ API | HTTPS REST/Webhooks | OCPI roaming sync, Stripe payment processing, and EPEX spot pricing |
+| External APIs ↔ API | HTTPS REST/Webhooks | OCPI roaming sync, Mollie payment processing, and EPEX spot pricing |
 
 ---
 
@@ -160,8 +160,8 @@ open-source-csms/
 - Dynamic tariffs calculated iteratively using EPEX spot pricing.
 - Automated reimbursement generation and export using SEPA XML (`pain.001.001.03`) formats.
 
-### 💳 Stripe Payments
-- Fully integrated Ad-hoc EV charging payments via Stripe PaymentIntents and Webhooks.
+### 💳 Mollie Payments
+- Fully integrated Ad-hoc EV charging payments via Mollie PaymentIntents and Webhooks.
 
 ### ⚡ Smart Charging & Load Management
 - Intelligent power distribution via `LoadManagementService` to prevent grid overloads.

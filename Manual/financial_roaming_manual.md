@@ -2,7 +2,7 @@
 
 Welcome to the Financial & Roaming Operations Manual for the OCPP Central Processing Management System (CPMS). This guide is designed for business administrators and financial officers to navigate the core financial systems, roaming integrations, and settlement workflows.
 
-## 1. Billing & Stripe Integration
+## 1. Billing & Mollie Integration
 
 The billing engine calculates the final cost of a charging session dynamically based on assigned tariffs and user profiles.
 
@@ -19,10 +19,10 @@ graph TD
     E & F & H --> I[Total Cost Computed]
     I --> J[Save Transaction to Database]
     J --> K{Billing Type}
-    K -- Ad-Hoc --> L[Create Stripe PaymentIntent]
+    K -- Ad-Hoc --> L[Create Mollie PaymentIntent]
     L --> M[User Input Payment via Frontend]
-    M --> N[Stripe processes charge]
-    N --> O[Stripe Webhook sent to backend]
+    M --> N[Mollie processes charge]
+    N --> O[Mollie Webhook sent to backend]
     O --> P[Update PaymentTransaction to 'succeeded']
     K -- Contract / Post-Paid --> Q[Monthly Invoice Generation]
 ```
@@ -36,10 +36,10 @@ The system computes:
 - **Idle Fee:** Cost based on minutes where the charger is plugged in but power draw is 0W.
 - **Energy Fee:** Can be either a flat rate per kWh or dynamically calculated based on live EPEX spot market prices. For dynamic tariffs, exact consumption deltas between individual `meterValue` timestamps are multiplied by the spot market price of that exact interval.
 
-### Stripe Integration (Ad-Hoc Payments)
+### Mollie Integration (Ad-Hoc Payments)
 Ad-hoc payments enable walk-in customers to pay directly via credit card without an account.
 - The system generates a `PaymentIntent` containing the exact `amountInCents` upon completion of the charge.
-- Users are presented with the Stripe `PaymentElement` in the frontend UI.
+- Users are presented with the Mollie `PaymentElement` in the frontend UI.
 - The backend listens for the `payment_intent.succeeded` and `payment_intent.payment_failed` webhooks on `/api/payments/webhook`. It ensures raw body signature validation before marking the transaction as settled.
 
 ## 2. Reimbursements & Split-Billing

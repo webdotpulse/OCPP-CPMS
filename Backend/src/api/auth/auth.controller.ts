@@ -55,6 +55,7 @@ export const register = async (req: Request, res: Response) => {
         "Your account has been successfully registered.",
         "<p>Your account has been successfully registered.</p>",
         "registration",
+        user.language,
         { userEmail: user.email, loginUrl }
       );
     } catch (emailError) {
@@ -254,6 +255,7 @@ export const login = async (req: Request, res: Response) => {
             `Your two-factor authentication code is: ${twoFactorCode}`,
             `<p>Your two-factor authentication code is: <strong>${twoFactorCode}</strong></p><p>This code will expire in 10 minutes.</p>`,
             "2fa_login",
+            user.language,
             { twoFactorCode }
           );
         } catch (emailError) {
@@ -539,6 +541,7 @@ export const send2FAEmailCode = async (req: AuthRequest, res: Response) => {
         `Your two-factor authentication setup code is: ${twoFactorCode}`,
         `<p>Your two-factor authentication setup code is: <strong>${twoFactorCode}</strong></p><p>This code will expire in 10 minutes.</p>`,
         "2fa_setup",
+        user.language,
         { twoFactorCode }
       );
     } catch (emailError) {
@@ -590,6 +593,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
         `You requested a password reset. Click this link to reset your password: ${resetUrl}`,
         `<p>You requested a password reset.</p><p><a href="${resetUrl}">Click here to reset your password</a></p><p>If you did not request this, please ignore this email.</p>`,
         "password_reset",
+        user.language,
         { resetUrl }
       );
     } catch (emailError) {

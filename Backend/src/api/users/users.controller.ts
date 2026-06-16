@@ -241,7 +241,7 @@ export const createUser = async (req: AuthRequest, res: Response) => {
         companyName: companyName || null,
         companyId: companyId ? parseInt(companyId, 10) : null
       },
-      select: { id: true, name: true, email: true, role: true, userType: true, companyName: true, companyId: true }
+      select: { id: true, name: true, email: true, role: true, userType: true, companyName: true, companyId: true, language: true }
     });
 
     try {
@@ -252,6 +252,7 @@ export const createUser = async (req: AuthRequest, res: Response) => {
         `Welcome ${name || "User"}! Your account has been created by an admin. You can log in at ${loginUrl} using your email and the password provided.`,
         `<p>Welcome ${name || "User"}!</p><p>Your account has been created by an admin.</p><p>You can log in at <a href="${loginUrl}">${loginUrl}</a> using your email and the password provided.</p>`,
         "admin_welcome",
+        user.language,
         {
           userEmail: user.email,
           name: name || "User",

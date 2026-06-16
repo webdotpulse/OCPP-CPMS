@@ -77,10 +77,10 @@ export const getMailTemplate = async (req: Request, res: Response) => {
 
 export const createMailTemplate = async (req: Request, res: Response) => {
   try {
-    const { name, type, subject, bodyHtml, bodyText } = req.body;
+    const { name, type, language = "en", subject, bodyHtml, bodyText } = req.body;
 
     const template = await prisma.mailTemplate.create({
-      data: { name, type, subject, bodyHtml, bodyText },
+      data: { name, type, language, subject, bodyHtml, bodyText },
     });
 
     res.status(201).json({ success: true, data: template });
@@ -93,11 +93,11 @@ export const createMailTemplate = async (req: Request, res: Response) => {
 export const updateMailTemplate = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, type, subject, bodyHtml, bodyText } = req.body;
+    const { name, type, language = "en", subject, bodyHtml, bodyText } = req.body;
 
     const template = await prisma.mailTemplate.update({
       where: { id: parseInt(id as string, 10) },
-      data: { name, type, subject, bodyHtml, bodyText },
+      data: { name, type, language, subject, bodyHtml, bodyText },
     });
 
     res.json({ success: true, data: template });
