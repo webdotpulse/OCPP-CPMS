@@ -124,11 +124,23 @@ export const createRfidUser = async (req: Request, res: Response) => {
   try {
     const data = req.body as CreateRfidUserDto;
 
+    // @ts-expect-error userRole is attached by authenticateToken middleware
+    const userRole = req.userRole;
+    // @ts-expect-error userId is attached by authenticateToken middleware
+    const userId = req.userId;
+
     // Validate required fields
     if (!data.owner_id) {
       return res.status(400).json({
         success: false,
         error: "owner_id is required",
+      });
+    }
+
+    if (userRole !== "superadmin" && data.owner_id !== userId) {
+      return res.status(403).json({
+        success: false,
+        error: "You can only create RFID tags for your own account.",
       });
     }
 
