@@ -37,10 +37,12 @@ export function authenticateToken(
     req.userRole = decoded.role;
 
     // Enforce role-based access control for state-changing methods
-    if (req.userRole !== "admin") {
+    if (req.userRole !== "admin" && req.userRole !== "superadmin") {
       const isWriteMethod = ["POST", "PUT", "PATCH", "DELETE"].includes(req.method);
-      // Allow users to update their own profile and password
-      const isAuthExempt = req.path.includes("/me") || req.path.includes("/password");
+      // Allow users to update their own profile and password, or access user-specific paths for BOLA logic
+      // Strip query parameters to prevent query parameter injection bypasses
+      const pathToCheck = req.originalUrl ? req.originalUrl.split('?')[0] : (req.baseUrl + req.path);
+      const isAuthExempt = pathToCheck.includes("/me") || pathToCheck.includes("/password") || pathToCheck.match(/\/api\/users\/\d+/) !== null;
 
       if (isWriteMethod && !isAuthExempt) {
         return res.status(403).json({ success: false, error: "Admin access required for this action" });
@@ -65,10 +67,27 @@ export function requireAdmin(
   res: Response,
   next: NextFunction
 ): void | Response {
-  if (req.userRole !== "admin") {
+  if (req.userRole !== "admin" && req.userRole !== "superadmin") {
     return res.status(403).json({
       success: false,
       error: "Admin access required",
+    });
+  }
+  next();
+}
+
+/**
+ * Middleware to check if user is superadmin
+ */
+export function requireSuperAdmin(
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void | Response {
+  if (req.userRole !== "superadmin") {
+    return res.status(403).json({
+      success: false,
+      error: "Superadmin access required",
     });
   }
   next();

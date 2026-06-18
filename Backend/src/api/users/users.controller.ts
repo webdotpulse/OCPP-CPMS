@@ -18,7 +18,9 @@ export const getAllUsers = async (req: AuthRequest, res: Response) => {
     const skip = (page - 1) * limit;
     const take = limit;
 
-    const where: any = {};
+    const where: any = {
+      deletedAt: null // Exclude soft-deleted users
+    };
     if (search) {
       where.OR = [
         { email: { contains: search as string, mode: "insensitive" } },
@@ -79,6 +81,13 @@ export const getUserById = async (req: AuthRequest, res: Response) => {
       });
     }
 
+    if (req.userId !== userId && req.userRole !== "superadmin") {
+      return res.status(403).json({
+        success: false,
+        error: "Forbidden",
+      });
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -119,7 +128,10 @@ export const getUserById = async (req: AuthRequest, res: Response) => {
 export const updateUser = async (req: AuthRequest, res: Response) => {
   try {
     const userId = parseId(req.params.id);
-    const { name, email, role, userType, companyName, companyId, address, phone, taxNumber } = req.body;
+    const updateData = { ...req.body };
+
+    // Completely strip password from the payload - must use dedicated endpoint
+    delete updateData.password;
 
     if (!userId) {
       return res.status(400).json({
@@ -128,25 +140,42 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    if (role && (role !== "admin" && role !== "user")) {
+    if (req.userId !== userId && req.userRole !== "superadmin") {
+      return res.status(403).json({
+        success: false,
+        error: "Forbidden",
+      });
+    }
+
+    // Admins modifying another user cannot change their email
+    if (req.userId !== userId && updateData.email) {
+      delete updateData.email;
+    }
+
+    // Standard users cannot elevate or change their role
+    if (req.userRole !== "superadmin" && updateData.role) {
+      delete updateData.role;
+    }
+
+    if (updateData.role && (updateData.role !== "admin" && updateData.role !== "user" && updateData.role !== "superadmin")) {
         return res.status(400).json({
           success: false,
-          error: "Valid role is required (admin or user)",
+          error: "Valid role is required",
         });
     }
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        name,
-        email,
-        role,
-        userType,
-        companyName,
-        companyId: companyId ? parseInt(companyId, 10) : null,
-        address,
-        phone,
-        taxNumber
+        name: updateData.name,
+        ...(updateData.email ? { email: updateData.email } : {}),
+        ...(updateData.role ? { role: updateData.role } : {}),
+        userType: updateData.userType,
+        companyName: updateData.companyName,
+        companyId: updateData.companyId ? parseInt(updateData.companyId, 10) : null,
+        address: updateData.address,
+        phone: updateData.phone,
+        taxNumber: updateData.taxNumber
       },
       select: {
         id: true,
@@ -277,13 +306,37 @@ export const deleteUser = async (req: AuthRequest, res: Response) => {
     const id = parseId(req.params.id);
     if (!id) return res.status(400).json({ success: false, error: "Invalid ID" });
 
+    if (req.userId !== id && req.userRole !== "superadmin") {
+      return res.status(403).json({
+        success: false,
+        error: "Forbidden",
+      });
+    }
+
     const user = await prisma.user.findUnique({ where: { id } });
-    if (user?.role === 'admin' && user?.id === 1) {
+    if (!user) {
+      return res.status(404).json({ success: false, error: "User not found" });
+    }
+
+    if (user.role === 'admin' && user.id === 1) {
       return res.status(400).json({ success: false, error: "Cannot delete root admin" });
     }
 
-    await prisma.user.delete({ where: { id } });
-    res.json({ success: true, message: "Deleted" });
+    const isHardDelete = req.query.hard === 'true';
+
+    if (isHardDelete) {
+      if (req.userRole !== "superadmin") {
+        return res.status(403).json({ success: false, error: "Superadmin access required for hard deletion" });
+      }
+      await prisma.user.delete({ where: { id } });
+      res.json({ success: true, message: "Hard deleted" });
+    } else {
+      await prisma.user.update({
+        where: { id },
+        data: { deletedAt: new Date() }
+      });
+      res.json({ success: true, message: "Soft deleted" });
+    }
   } catch (error) {
     logger.error(`Error deleting user: ${error}`);
     res.status(500).json({ success: false, error: "Failed to delete user" });
