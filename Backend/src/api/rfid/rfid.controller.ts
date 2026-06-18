@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { prisma } from "../../config/database.js";
 import { logger } from "../../utils/logger.js";
 import { parseId, parsePagination } from "../../utils/validation.js";
+import { sanitizeUser } from "../../utils/user.dto.js";
 import type { CreateRfidUserDto, UpdateRfidUserDto } from "../../types/index.js";
 
 /**
@@ -48,7 +49,7 @@ export const getAllRfidUsers = async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      data: rfidUsers,
+      data: rfidUsers.map(r => ({ ...r, owner: r.owner ? sanitizeUser(r.owner) : r.owner })),
       pagination: {
         page: Number(page),
         limit: take,
@@ -104,7 +105,9 @@ export const getRfidUserById = async (req: Request, res: Response) => {
       });
     }
 
-    res.json({ success: true, data: rfidUser });
+
+
+    res.json({ success: true, data: { ...rfidUser, owner: rfidUser.owner ? sanitizeUser(rfidUser.owner) : rfidUser.owner } });
   } catch (error) {
     logger.error(`Error getting RFID user: ${error}`);
     res.status(500).json({
@@ -158,8 +161,12 @@ export const createRfidUser = async (req: Request, res: Response) => {
       include: { owner: true },
     });
 
+
+
+
+
     logger.info(`RFID user created: ${rfidUser.name} (${rfidUser.rfid_tag})`);
-    res.status(201).json({ success: true, data: rfidUser });
+    res.status(201).json({ success: true, data: { ...rfidUser, owner: rfidUser.owner ? sanitizeUser(rfidUser.owner) : rfidUser.owner } });
   } catch (error) {
     logger.error(`Error creating RFID user: ${error}`);
     res.status(500).json({
@@ -191,8 +198,11 @@ export const updateRfidUser = async (req: Request, res: Response) => {
       include: { owner: true },
     });
 
+
+
+
     logger.info(`RFID user updated: ${rfidUser.name}`);
-    res.json({ success: true, data: rfidUser });
+    res.json({ success: true, data: { ...rfidUser, owner: rfidUser.owner ? sanitizeUser(rfidUser.owner) : rfidUser.owner } });
   } catch (error) {
     logger.error(`Error updating RFID user: ${error}`);
     res.status(500).json({
@@ -231,10 +241,12 @@ export const toggleRfidUserStatus = async (req: Request, res: Response) => {
       include: { owner: true },
     });
 
+
+
     logger.info(
       `RFID user ${rfidUser.name} ${active === "true" ? "activated" : "deactivated"}`
     );
-    res.json({ success: true, data: rfidUser });
+    res.json({ success: true, data: { ...rfidUser, owner: rfidUser.owner ? sanitizeUser(rfidUser.owner) : rfidUser.owner } });
   } catch (error) {
     logger.error(`Error toggling RFID user: ${error}`);
     res.status(500).json({
@@ -261,6 +273,8 @@ export const deleteRfidUser = async (req: Request, res: Response) => {
     await prisma.rfidUser.delete({
       where: { rfid_user_id: rfidUserId },
     });
+
+
 
     logger.info(`RFID user deleted: ID ${rfidUserId}`);
     res.json({ success: true, message: "RFID user deleted" });

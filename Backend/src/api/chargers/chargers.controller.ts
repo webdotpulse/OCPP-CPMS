@@ -5,6 +5,7 @@ import {
   isChargerConnected,
   getChargerProtocol,
 } from "../../ocpp/remoteControl.js";
+import { sanitizeUser } from "../../utils/user.dto.js";
 import { parseId, parsePagination } from "../../utils/validation.js";
 import type { CreateChargerDto, UpdateChargerDto } from "../../types/index.js";
 
@@ -173,7 +174,7 @@ export const getAllChargers = async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      data: chargers,
+      data: chargers.map(c => ({ ...c, owner: c.owner ? sanitizeUser(c.owner) : c.owner })),
       pagination: {
         page: Number(page),
         limit: take,
@@ -230,6 +231,10 @@ export const getChargerById = async (req: Request, res: Response) => {
         success: false,
         error: "Charger not found",
       });
+    }
+
+    if (charger.owner) {
+      charger.owner = sanitizeUser(charger.owner) as any;
     }
 
     res.json({ success: true, data: { ...charger, protocol: await getChargerProtocol(chargerId) } });
@@ -355,6 +360,10 @@ export const createCharger = async (req: Request, res: Response) => {
       include: { chargingStation: true, owner: true, tariffs: true },
     });
 
+    if (charger.owner) {
+      charger.owner = sanitizeUser(charger.owner) as any;
+    }
+
     logger.info(`Charger created: ${charger.name}`);
     res.status(201).json({ success: true, data: charger });
   } catch (error) {
@@ -391,6 +400,10 @@ export const updateCharger = async (req: Request, res: Response) => {
       },
       include: { chargingStation: true, owner: true, tariffs: true },
     });
+
+    if (charger.owner) {
+      charger.owner = sanitizeUser(charger.owner) as any;
+    }
 
     logger.info(`Charger updated: ${charger.name}`);
     res.json({ success: true, data: { ...charger, protocol: await getChargerProtocol(chargerId) } });

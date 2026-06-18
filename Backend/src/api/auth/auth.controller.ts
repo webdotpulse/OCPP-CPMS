@@ -7,13 +7,14 @@ import { sendEmail } from "../../utils/mailer.js";
 import crypto from "crypto";
 import speakeasy from "speakeasy";
 import qrcode from "qrcode";
+import { sanitizeUser } from "../../utils/user.dto.js";
 
 /**
  * POST /api/auth/register - Register new user
  */
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password, role = "user" } = req.body;
+    const { email, password, name } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
@@ -42,7 +43,8 @@ export const register = async (req: Request, res: Response) => {
       data: {
         email,
         password: hashedPassword,
-        role,
+        name,
+        role: "user",
       },
     });
 
@@ -70,6 +72,7 @@ export const register = async (req: Request, res: Response) => {
         id: user.id,
         email: user.email,
         role: user.role,
+        message: "Registration successful. Please verify your email before logging in."
       },
     });
   } catch (error) {
@@ -108,7 +111,7 @@ export const getMe = async (req: AuthRequest, res: Response) => {
       return res.status(404).json({ success: false, error: "User not found" });
     }
 
-    res.json({ success: true, data: user });
+    res.json({ success: true, data: sanitizeUser(user) });
   } catch (error) {
     logger.error(`Error getting profile: ${error}`);
     res.status(500).json({ success: false, error: "Failed to get profile" });
@@ -159,7 +162,7 @@ export const updateMe = async (req: AuthRequest, res: Response) => {
       }
     });
 
-    res.json({ success: true, data: updatedUser });
+    res.json({ success: true, data: sanitizeUser(updatedUser) });
   } catch (error) {
     logger.error(`Error updating profile: ${error}`);
     res.status(500).json({ success: false, error: "Failed to update profile" });
@@ -221,6 +224,13 @@ export const login = async (req: Request, res: Response) => {
       return res.status(401).json({
         success: false,
         error: "Invalid email or password",
+      });
+    }
+
+    if (!user.emailVerified) {
+      return res.status(403).json({
+        success: false,
+        error: "Email verification required",
       });
     }
 

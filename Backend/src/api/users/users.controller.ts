@@ -5,6 +5,7 @@ import { parsePagination, parseId } from "../../utils/validation.js";
 import { AuthRequest } from "../../middleware/auth.js";
 import { sendEmail } from "../../utils/mailer.js";
 import bcrypt from "bcrypt";
+import { sanitizeUsers, sanitizeUser } from "../../utils/user.dto.js";
 
 /**
  * GET /api/users - Get all users
@@ -47,7 +48,7 @@ export const getAllUsers = async (req: AuthRequest, res: Response) => {
 
     res.json({
       success: true,
-      data: users,
+      data: sanitizeUsers(users),
       pagination: {
         page: Number(page),
         limit: take,
@@ -102,7 +103,7 @@ export const getUserById = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    res.json({ success: true, data: user });
+    res.json({ success: true, data: sanitizeUser(user) });
   } catch (error) {
     logger.error(`Error getting user: ${error}`);
     res.status(500).json({
@@ -161,7 +162,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       }
     });
 
-    res.json({ success: true, data: updatedUser });
+    res.json({ success: true, data: sanitizeUser(updatedUser) });
   } catch (error) {
     logger.error(`Error updating user: ${error}`);
     res.status(500).json({
@@ -206,7 +207,7 @@ export const updateUserRole = async (req: AuthRequest, res: Response) => {
       }
     });
 
-    res.json({ success: true, data: updatedUser });
+    res.json({ success: true, data: sanitizeUser(updatedUser) });
   } catch (error) {
     logger.error(`Error updating user role: ${error}`);
     res.status(500).json({
