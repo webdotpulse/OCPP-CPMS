@@ -8,6 +8,8 @@ import {
 import { sanitizeUser } from "../../utils/user.dto.js";
 import { parseId, parsePagination } from "../../utils/validation.js";
 import type { CreateChargerDto, UpdateChargerDto } from "../../types/index.js";
+import { redisClient } from "../../config/redis.js";
+import { chargerRegistry } from "../../ocpp/chargerRegistry.js";
 
 /**
  * GET /api/chargers - Get all chargers
@@ -360,6 +362,15 @@ export const createCharger = async (req: Request, res: Response) => {
       include: { chargingStation: true, owner: true, tariffs: true },
     });
 
+    // Handle updating protocol in Redis if modified by superadmin
+    if (userRole === "superadmin" && protocol !== undefined) {
+      try {
+        await redisClient.hset(chargerRegistry.getRedisKey(chargerId), "protocol", protocol);
+      } catch (redisError) {
+        logger.error(`Error updating charger protocol in Redis: ${redisError}`);
+      }
+    }
+
     if (charger.owner) {
       charger.owner = sanitizeUser(charger.owner) as any;
     }
@@ -389,9 +400,42 @@ export const updateCharger = async (req: Request, res: Response) => {
       });
     }
 
+    // @ts-expect-error userRole is attached by authenticateToken middleware
+    const userRole = req.userRole;
+
+    const allowedFields = [
+      "chargeGroupId",
+      "quirkProfileId",
+      "model",
+      "name",
+      "manufacturer",
+      "serial_number",
+      "manufacturing_date",
+      "power_capacity",
+      "status",
+      "firmware_version",
+      "service_contacts",
+      "tariffId",
+      "isPredictiveBalancingEnabled",
+      "localSolarKwp"
+    ];
+
+    if (userRole === "superadmin") {
+      allowedFields.push("requireAuth", "thirdPartyBackendUrl", "protocol");
+    }
+
     const data = req.body as UpdateChargerDto;
 
-    const { tariffId, ...rest } = data;
+    // Strip unallowed fields
+    const safeData: any = {};
+    for (const key of Object.keys(data)) {
+      if (allowedFields.includes(key)) {
+        safeData[key] = (data as any)[key];
+      }
+    }
+
+    const { tariffId, protocol, ...rest } = safeData;
+
     const charger = await prisma.charger.update({
       where: { charger_id: chargerId },
       data: {

@@ -86,6 +86,9 @@ export interface UpdateChargerDto {
   firmware_version?: string;
   service_contacts?: string;
   tariffId?: number;
+  requireAuth?: boolean;
+  thirdPartyBackendUrl?: string | null;
+  protocol?: string;
 }
 
 export interface CreateStationDto {
