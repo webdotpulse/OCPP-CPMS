@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { prisma } from "../../config/database.js";
 import { logger } from "../../utils/logger.js";
+import { sanitizeUser } from "../../utils/user.dto.js";
 import { parseId, parsePagination } from "../../utils/validation.js";
 import type { CreateStationDto } from "../../types/index.js";
 
@@ -55,7 +56,7 @@ export const getAllStations = async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      data: stations,
+      data: stations.map(s => ({ ...s, owner: s.owner ? sanitizeUser(s.owner) : s.owner })),
       pagination: {
         page: Number(page),
         limit: take,
@@ -112,6 +113,11 @@ export const getStationById = async (req: Request, res: Response) => {
         success: false,
         error: "Station not found",
       });
+    }
+
+    // Sanitize owner field just in case
+    if (station.owner) {
+      station.owner = sanitizeUser(station.owner) as any;
     }
 
     res.json({ success: true, data: station });
@@ -196,6 +202,10 @@ export const createStation = async (req: Request, res: Response) => {
       include: { owner: true, chargers: true },
     });
 
+    if (station.owner) {
+      station.owner = sanitizeUser(station.owner) as any;
+    }
+
     logger.info(`Station created: ${station.station_name}`);
     res.status(201).json({ success: true, data: station });
   } catch (error) {
@@ -227,6 +237,9 @@ export const updateStation = async (req: Request, res: Response) => {
       include: { owner: true, chargers: true },
     });
 
+    if (station.owner) {
+      station.owner = sanitizeUser(station.owner) as any;
+    }
     logger.info(`Station updated: ${station.station_name}`);
     res.json({ success: true, data: station });
   } catch (error) {
