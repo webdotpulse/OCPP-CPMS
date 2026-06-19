@@ -25,7 +25,7 @@ export const getAllRfidUsers = async (req: Request, res: Response) => {
     if (active !== undefined) {
       where.active = active === "true";
     }
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.owner_id = userId;
     }
     if (search) {
@@ -86,7 +86,7 @@ export const getRfidUserById = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     const where: any = { rfid_user_id: rfidUserId };
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.owner_id = userId;
     }
 

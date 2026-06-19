@@ -161,7 +161,7 @@ export default function UsersPage() {
                   <TableCell>{u.createdAt ? format(new Date(u.createdAt), 'MMM d, yyyy') : '—'}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <Badge variant={u.role === 'admin' ? "default" : "secondary"}>
+                      <Badge variant={u.role === 'admin' || u.role === 'superadmin' ? "default" : "secondary"}>
                         {u.role}
                       </Badge>
                     </div>

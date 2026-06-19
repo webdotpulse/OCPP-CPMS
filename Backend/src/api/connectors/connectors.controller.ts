@@ -28,7 +28,7 @@ export const getAllConnectors = async (req: Request, res: Response) => {
     // @ts-expect-error userId is attached by authenticateToken middleware
     const userId = req.userId;
 
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       if (where.evse) {
         where.evse.charger = { owner_id: userId };
       } else {
@@ -86,7 +86,7 @@ export const getConnectorById = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     const where: any = { connector_id: connectorId };
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.charger = { owner_id: userId };
     }
 

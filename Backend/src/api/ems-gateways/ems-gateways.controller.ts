@@ -36,7 +36,7 @@ export const updateGateway = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       res.status(403).json({ success: false, error: "Only admins can edit EMS Gateways" });
       return;
     }
@@ -70,7 +70,7 @@ export const updateGatewaySettings = async (req: AuthRequest, res: Response): Pr
     const gateways = await EmsGatewayService.getGateways(userId, userRole || "");
     const ownsGateway = gateways.some(g => g.gateway_id === id);
 
-    if (!ownsGateway && userRole !== "admin") {
+    if (!ownsGateway && userRole !== "admin" && userRole !== "superadmin") {
       res.status(403).json({ success: false, error: "Unauthorized to modify this gateway's settings" });
       return;
     }

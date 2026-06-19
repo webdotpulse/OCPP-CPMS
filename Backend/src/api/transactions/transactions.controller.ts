@@ -36,7 +36,7 @@ export const getAllTransactions = async (req: Request, res: Response) => {
     // @ts-expect-error userId is attached by authenticateToken middleware
     const userId = req.userId;
 
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.charger = { owner_id: userId };
     }
 
@@ -101,7 +101,7 @@ export const getRfidSessionsByUser = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     const where: any = { rfidUserId };
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.charger = { owner_id: userId };
     }
 
@@ -135,7 +135,7 @@ export const getActiveTransactions = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     const where: any = { status: "charging" };
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.charger = { owner_id: userId };
     }
 
@@ -200,7 +200,7 @@ export const getChargerTransactions = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     const where: any = { charger_id };
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.charger = { owner_id: userId };
     }
 
@@ -246,7 +246,7 @@ export const getTransactionStats = async (req: Request, res: Response) => {
 
     const baseWhereTx: any = {};
     const baseWhereRfid: any = {};
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       baseWhereTx.charger = { owner_id: userId };
       baseWhereRfid.charger = { owner_id: userId };
     }
@@ -338,7 +338,7 @@ export const getTransactionById = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     const where: any = { id: transactionId };
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.charger = { owner_id: userId };
     }
 

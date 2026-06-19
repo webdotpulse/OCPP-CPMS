@@ -29,7 +29,7 @@ export const getAllTariffs = async (req: Request, res: Response) => {
     // @ts-expect-error userId is attached by authenticateToken middleware
     const userId = req.userId;
 
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.OR = [
         { chargers: { some: { owner_id: userId } } },
         { chargeGroupUsers: { some: { userId } } }

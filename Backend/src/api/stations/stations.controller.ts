@@ -26,7 +26,7 @@ export const getAllStations = async (req: Request, res: Response) => {
       where.status = status;
     }
 
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.owner_id = userId;
     }
 
@@ -93,7 +93,7 @@ export const getStationById = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     const where: any = { id: stationId };
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.owner_id = userId;
     }
 
@@ -150,7 +150,7 @@ export const getStationChargers = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     const where: any = { charging_station_id: stationId };
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.owner_id = userId;
     }
 
