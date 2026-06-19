@@ -149,7 +149,7 @@ export const getAllChargers = async (req: Request, res: Response) => {
     const skip = (page - 1) * limit;
     const take = limit;
 
-    const where: any = userRole === "admin" ? {} : { owner_id: userId };
+    const where: any = (userRole === "admin" || userRole === "superadmin") ? {} : { owner_id: userId };
 
     if (search) {
       where.OR = [
