@@ -24,11 +24,40 @@ export class LoadManagementService {
     if (!this.isEngineRunning) return;
 
     try {
-      const groups = await prisma.chargeGroup.findMany();
-      for (const group of groups) {
-        await this.balanceChargeGroupLoad(group.id).catch((err: any) =>
-          logger.error(`Smart Charging engine error for group ${group.id}: ${err}`)
-        );
+      // Pre-fetch all active transactions and group them by chargeGroupId
+      const allActiveTransactions = await prisma.transaction.findMany({
+        where: {
+          status: { in: ["initiated", "charging"] },
+          charger: { chargeGroupId: { not: null } }
+        },
+        include: { charger: true }
+      });
+
+      const txsByGroupId = new Map<number, typeof allActiveTransactions>();
+      const groupIds = new Set<number>();
+
+      for (const tx of allActiveTransactions) {
+        const groupId = tx.charger.chargeGroupId;
+        if (groupId) {
+          groupIds.add(groupId);
+          if (!txsByGroupId.has(groupId)) {
+            txsByGroupId.set(groupId, []);
+          }
+          txsByGroupId.get(groupId)!.push(tx);
+        }
+      }
+
+      if (groupIds.size > 0) {
+        const activeGroups = await prisma.chargeGroup.findMany({
+          where: { id: { in: Array.from(groupIds) } }
+        });
+
+        for (const group of activeGroups) {
+          const activeTransactions = txsByGroupId.get(group.id) || [];
+          await this.balanceChargeGroupLoadWithData(group, activeTransactions).catch((err: any) =>
+            logger.error(`Smart Charging engine error for group ${group.id}: ${err}`)
+          );
+        }
       }
     } catch (error) {
       logger.error(`Smart Charging engine global error: ${error}`);
@@ -212,6 +241,17 @@ export class LoadManagementService {
 
       if (activeTransactions.length === 0) return;
 
+      await this.balanceChargeGroupLoadWithData(group, activeTransactions);
+    } catch (error) {
+      logger.error(`Error in balanceChargeGroupLoad for group ${groupId}: ${error}`);
+    }
+  }
+
+  async balanceChargeGroupLoadWithData(group: any, activeTransactions: any[]): Promise<void> {
+    try {
+      const groupId = group.id;
+      if (activeTransactions.length === 0) return;
+
       // Calculate theoretical max power capacity of the chargers to prevent oscillation when clearing
       let theoreticalMaxLoadKw = activeTransactions.reduce(
         (sum, tx) => sum + (tx.charger.power_capacity || 0),
@@ -220,18 +260,8 @@ export class LoadManagementService {
 
       // --- 1. AMPERAGE BALANCING ---
       if (group.maxAmperage) {
-        // Find ACTUAL active current
-        const aggregateCurrent = await prisma.transaction.aggregate({
-          where: {
-            status: { in: ["initiated", "charging"] },
-            charger: { chargeGroupId: groupId }
-          },
-          _sum: {
-            current: true
-          }
-        });
-
-        let totalActiveCurrent = aggregateCurrent._sum.current || 0;
+        // Find ACTUAL active current from in-memory array
+        let totalActiveCurrent = activeTransactions.reduce((sum, tx) => sum + (tx.current || 0), 0);
 
         const safeLimitAmps = group.maxAmperage * 0.95;
 
@@ -325,18 +355,8 @@ export class LoadManagementService {
 
       const safeLimitKw = group.maxPower * 0.95;
 
-      // Find ACTUAL active load to trigger limits
-      const aggregateLoad = await prisma.transaction.aggregate({
-        where: {
-          status: { in: ["initiated", "charging"] },
-          charger: { chargeGroupId: groupId }
-        },
-        _sum: {
-          currentPower: true
-        }
-      });
-
-      let totalActiveLoadKw = (aggregateLoad._sum.currentPower || 0) / 1000;
+      // Find ACTUAL active load from in-memory array
+      let totalActiveLoadKw = activeTransactions.reduce((sum, tx) => sum + ((tx.currentPower || 0) / 1000), 0);
 
       // CLEAR limits based on THEORETICAL max load to prevent oscillation
       if (theoreticalMaxLoadKw <= safeLimitKw) {
@@ -415,7 +435,7 @@ export class LoadManagementService {
         });
       }
     } catch (error) {
-      logger.error(`Error in balanceChargeGroupLoad for group ${groupId}: ${error}`);
+      logger.error(`Error in balanceChargeGroupLoadWithData for group ${group.id}: ${error}`);
     }
   }
 
