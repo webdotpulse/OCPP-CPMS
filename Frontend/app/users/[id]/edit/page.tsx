@@ -9,14 +9,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { logger } from "@/lib/logger";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function EditUserPage() {
   const router = useRouter();
   const { id } = useParams();
+  const { user } = useAuth();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -32,6 +35,7 @@ export default function EditUserPage() {
     address: "",
     phone: "",
     taxNumber: "",
+    emailVerified: false,
   });
 
   useEffect(() => {
@@ -64,6 +68,7 @@ export default function EditUserPage() {
             address: u.address || "",
             phone: u.phone || "",
             taxNumber: u.taxNumber || "",
+            emailVerified: u.emailVerified || false,
           });
         }
       } catch (error) {
@@ -157,6 +162,24 @@ export default function EditUserPage() {
                     required
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {user?.role === 'superadmin' && (
+                  <div className="space-y-2 flex flex-col justify-center">
+                    <Label htmlFor="emailVerified" className="mb-2">Email Verified</Label>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="emailVerified"
+                        checked={formData.emailVerified}
+                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, emailVerified: checked }))}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {formData.emailVerified ? "Verified" : "Unverified"}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -41,6 +41,7 @@ export const getAllUsers = async (req: AuthRequest, res: Response) => {
           userType: true,
           companyName: true,
         companyId: true,
+        emailVerified: true,
           createdAt: true,
         },
         orderBy: { createdAt: "desc" },
@@ -101,6 +102,7 @@ export const getUserById = async (req: AuthRequest, res: Response) => {
         address: true,
         phone: true,
         taxNumber: true,
+        emailVerified: true,
         createdAt: true,
       },
     });
@@ -157,6 +159,11 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
       delete updateData.role;
     }
 
+    // Only superadmins can manually alter email verification status
+    if (req.userRole !== "superadmin" && "emailVerified" in updateData) {
+      delete updateData.emailVerified;
+    }
+
     if (updateData.role && (updateData.role !== "admin" && updateData.role !== "user" && updateData.role !== "superadmin")) {
         return res.status(400).json({
           success: false,
@@ -175,7 +182,8 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
         companyId: updateData.companyId ? parseInt(updateData.companyId, 10) : null,
         address: updateData.address,
         phone: updateData.phone,
-        taxNumber: updateData.taxNumber
+        taxNumber: updateData.taxNumber,
+        ...("emailVerified" in updateData ? { emailVerified: updateData.emailVerified } : {})
       },
       select: {
         id: true,
@@ -188,6 +196,7 @@ export const updateUser = async (req: AuthRequest, res: Response) => {
         address: true,
         phone: true,
         taxNumber: true,
+        emailVerified: true,
       }
     });
 
@@ -271,7 +280,7 @@ export const createUser = async (req: AuthRequest, res: Response) => {
         companyName: companyName || null,
         companyId: companyId ? parseInt(companyId, 10) : null
       },
-      select: { id: true, name: true, email: true, role: true, userType: true, companyName: true, companyId: true, language: true }
+      select: { id: true, name: true, email: true, role: true, userType: true, companyName: true, companyId: true, language: true, emailVerified: true }
     });
 
     try {
