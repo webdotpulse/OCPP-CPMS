@@ -29,6 +29,7 @@ async function main() {
         email,
         password: hashedPassword,
         role: 'superadmin',
+        emailVerified: true,
       },
     });
 
