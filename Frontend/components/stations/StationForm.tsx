@@ -90,7 +90,7 @@ export function StationForm({ initialData }: StationFormProps) {
   const [isGeocoding, setIsGeocoding] = useState(false);
 
   useEffect(() => {
-    if (user?.role === 'admin') {
+    if (user?.role === 'admin' || user?.role === 'superadmin') {
       api.get('/users').then(res => setUsersList(res.data)).catch(err => logger.error(err));
     }
   }, [user]);
@@ -266,7 +266,7 @@ export function StationForm({ initialData }: StationFormProps) {
             <p className="text-xs text-muted-foreground">Used for Smart Charging Load Management to dynamically throttle chargers if site load approaches this limit.</p>
           </div>
 
-          {user?.role === 'admin' && (
+          {(user?.role === 'admin' || user?.role === 'superadmin') && (
             <div className="space-y-2">
               <Label htmlFor="owner_id">Assign to Client</Label>
               <Select

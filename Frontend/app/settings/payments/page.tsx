@@ -23,7 +23,7 @@ export default function PaymentsSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (user?.role !== "admin") return;
+    if (user?.role !== "admin" && user?.role !== "superadmin") return;
 
     const fetchConfig = async () => {
       try {
@@ -58,7 +58,7 @@ export default function PaymentsSettingsPage() {
     }
   };
 
-  if (user?.role !== "admin") {
+  if (user?.role !== "admin" && user?.role !== "superadmin") {
     return (
       <AppShell>
         <div className="flex h-full items-center justify-center">

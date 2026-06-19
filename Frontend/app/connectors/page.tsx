@@ -57,7 +57,7 @@ export default function ConnectorsPage() {
           <h1 className="text-2xl font-bold tracking-tight">All Channels</h1>
           <p className="text-muted-foreground">Global view of all charge points and their hardware channels.</p>
         </div>
-        {user?.role === "admin" && (
+        {(user?.role === "admin" || user?.role === "superadmin") && (
           <Link href="/connectors/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" /> Add Channel
@@ -75,7 +75,7 @@ export default function ConnectorsPage() {
               <TableHead>Type</TableHead>
               <TableHead>Max Power</TableHead>
               <TableHead>Status</TableHead>
-              {user?.role === "admin" && <TableHead className="text-right">Actions</TableHead>}
+              {(user?.role === "admin" || user?.role === "superadmin") && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -104,7 +104,7 @@ export default function ConnectorsPage() {
                   </TableCell>
                   <TableCell>{conn.max_power ? `${conn.max_power} kW` : 'N/A'}</TableCell>
                   <TableCell>{getStatusBadge(conn.status)}</TableCell>
-                  {user?.role === "admin" && (
+                  {(user?.role === "admin" || user?.role === "superadmin") && (
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Link href={`/connectors/${conn.connector_id}/edit`}>

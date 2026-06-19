@@ -102,7 +102,7 @@ export default function StationsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Locations</h1>
           <p className="text-muted-foreground">Manage physical site locations for your EV chargers.</p>
         </div>
-        {user?.role === "admin" && (
+        {(user?.role === "admin" || user?.role === "superadmin") && (
           <Link href="/stations/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" /> Add Location
@@ -139,7 +139,7 @@ export default function StationsPage() {
               <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('status')}>
                 <div className="flex items-center gap-1">Status <ArrowUpDown className="h-3 w-3" /></div>
               </TableHead>
-              {user?.role === "admin" && <TableHead className="text-right">Actions</TableHead>}
+              {(user?.role === "admin" || user?.role === "superadmin") && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -155,7 +155,7 @@ export default function StationsPage() {
               sortedStations.map((station) => (
                 <TableRow key={station.id}>
                   <TableCell className="font-medium flex items-center gap-2">
-                    {user?.role === "admin" && station.isGroundPlanEnabled && (
+                    {(user?.role === "admin" || user?.role === "superadmin") && station.isGroundPlanEnabled && (
                       <Link href={`/stations/${station.id}/live`} title="Live View">
                         <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full bg-primary/10 text-primary hover:bg-primary/20">
                           <Monitor className="h-3 w-3" />
@@ -182,7 +182,7 @@ export default function StationsPage() {
                       {station.status}
                     </Badge>
                   </TableCell>
-                  {user?.role === "admin" && (
+                  {(user?.role === "admin" || user?.role === "superadmin") && (
                     <TableCell className="text-right">
                       <Link href={`/stations/${station.id}/edit`}>
                          <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>

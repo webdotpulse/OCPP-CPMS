@@ -20,7 +20,7 @@ export default function TariffsSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (user?.role !== "admin") return;
+    if (user?.role !== "admin" && user?.role !== "superadmin") return;
 
     const fetchKeys = async () => {
       try {
@@ -52,7 +52,7 @@ export default function TariffsSettingsPage() {
     }
   };
 
-  if (user?.role !== "admin") {
+  if (user?.role !== "admin" && user?.role !== "superadmin") {
     return (
       <AppShell>
         <div className="flex h-full items-center justify-center">

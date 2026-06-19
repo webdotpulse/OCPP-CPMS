@@ -37,7 +37,7 @@ export default function EmsGatewaysPage() {
           <h1 className="text-2xl font-bold tracking-tight">EMS Gateways</h1>
           <p className="text-muted-foreground">Manage your Energy Management System gateways.</p>
         </div>
-        {user?.role === 'admin' && (
+        {(user?.role === 'admin' || user?.role === 'superadmin') && (
           <Link href="/ems-gateways/create">
             <Button>
               <Plus className="mr-2 h-4 w-4" /> Register Gateway

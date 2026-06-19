@@ -142,14 +142,14 @@ export default function MobileChargerDetails() {
 
       <div className="p-4 space-y-4 pb-24">
         {/* OCPP Remote Controls */}
-        {charger.status !== 'offline' && user?.role === 'admin' && (
+        {charger.status !== 'offline' && (user?.role === 'admin' || user?.role === 'superadmin') && (
           <div className="mb-6">
             <RemoteControlPanel chargerId={charger.charger_id} hideTriggerMessage={true} />
           </div>
         )}
 
         {/* Manual Speed Override */}
-        {charger.status !== 'offline' && user?.role === 'admin' && (
+        {charger.status !== 'offline' && (user?.role === 'admin' || user?.role === 'superadmin') && (
           <MobileSpeedOverride chargerId={charger.charger_id} currentPower={activeTxns[0]?.currentPower || 0} />
         )}
 

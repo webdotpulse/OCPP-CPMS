@@ -252,7 +252,7 @@ export default function ChargerDetailPage() {
           </div>
 
           {/* Top Priority Section: Remote Controls */}
-          {user?.role === "admin" && (
+          {(user?.role === "admin" || user?.role === "superadmin") && (
             <div className="mb-6">
               {charger.status !== 'offline' ? (
                 <RemoteControlPanel chargerId={charger.charger_id} />
@@ -273,7 +273,7 @@ export default function ChargerDetailPage() {
           )}
 
           <div className="mb-6">
-            {charger.status !== 'offline' && allConnectors.length > 0 && user?.role === "admin" && (
+            {charger.status !== 'offline' && allConnectors.length > 0 && (user?.role === "admin" || user?.role === "superadmin") && (
               <ManualSpeedOverridePanel chargerId={charger.charger_id} connectors={allConnectors} activeTxns={activeTxns} />
             )}
           </div>
@@ -303,7 +303,7 @@ export default function ChargerDetailPage() {
                   <CardTitle>Manage Connectors</CardTitle>
                   <CardDescription>Add, edit, or remove hardware connectors for this charger</CardDescription>
                 </div>
-                {user?.role === "admin" && (
+                {(user?.role === "admin" || user?.role === "superadmin") && (
                   <Link href="/connectors/new">
                     <Button size="sm">
                       <Zap className="mr-2 h-4 w-4" /> Add Connector

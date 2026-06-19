@@ -79,7 +79,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean,
     routes.splice(1, 0, { key: 'nav.emsDashboard', path: '/energy', icon: Activity, adminOnly: false });
   }
 
-  if (liveViewStationId && user?.role !== 'admin') {
+  if (liveViewStationId && user?.role !== 'admin' && user?.role !== 'superadmin') {
     routes.splice(1, 0, { key: 'Live View', path: `/stations/${liveViewStationId}/live`, icon: Monitor, adminOnly: false });
   }
 
@@ -100,7 +100,7 @@ export function Sidebar({ isCollapsed, setIsCollapsed }: { isCollapsed: boolean,
       </div>
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {routes.map((route) => {
-          if (route.adminOnly && user?.role !== 'admin') return null;
+          if (route.adminOnly && user?.role !== 'admin' && user?.role !== 'superadmin') return null;
           const isActive = (pathname || "").startsWith(route.path);
           const Icon = route.icon;
           return (

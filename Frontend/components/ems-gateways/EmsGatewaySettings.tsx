@@ -83,7 +83,7 @@ export function EmsGatewaySettings({ gatewayId }: EmsGatewaySettingsProps) {
   const onSubmit = async (data: EmsSettingsFormValues) => {
     setIsLoading(true);
     try {
-      if (user?.role === 'admin' || user) {
+      if ((user?.role === 'admin' || user?.role === 'superadmin') || user) {
         await api.patch(`/ems-gateways/${gatewayId}/settings`, data);
         toast.success("Settings updated successfully and pushed to device.");
         router.refresh();
