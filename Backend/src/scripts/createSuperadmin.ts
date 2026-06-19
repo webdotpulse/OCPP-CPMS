@@ -5,7 +5,7 @@ async function main() {
   const args = process.argv.slice(2);
 
   if (args.length < 2) {
-    console.error('Usage: npm run create-admin -- <email> <password>');
+    console.error('Usage: npm run create-superadmin -- <email> <password>');
     process.exit(1);
   }
 
@@ -28,13 +28,13 @@ async function main() {
       data: {
         email,
         password: hashedPassword,
-        role: 'admin',
+        role: 'superadmin',
       },
     });
 
-    console.log(`Admin user ${user.email} created successfully!`);
+    console.log(`Superadmin user ${user.email} created successfully!`);
   } catch (error) {
-    console.error('Error creating admin user:', error);
+    console.error('Error creating superadmin user:', error);
   } finally {
     await prisma.$disconnect();
   }
