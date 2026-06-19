@@ -27,7 +27,7 @@ export default function MailTemplatesPage() {
 
   useEffect(() => {
     if (!authLoading) {
-      if (!user || user.role !== "admin") {
+      if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
         router.push("/dashboard");
       } else {
         fetchTemplates();
@@ -105,7 +105,7 @@ export default function MailTemplatesPage() {
     );
   }
 
-  if (!user || user.role !== "admin") {
+  if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
     return null; // Will redirect
   }
 

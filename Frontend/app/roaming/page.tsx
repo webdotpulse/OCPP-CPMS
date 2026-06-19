@@ -13,7 +13,7 @@ export default function RoamingPage() {
 
   if (isLoading) return <AppShell><div className="p-8">Loading roaming settings...</div></AppShell>;
 
-  if (!user || user.role !== "admin") {
+  if (!user || (user.role !== "admin" && user.role !== "superadmin")) {
     return (
       <AppShell>
         <div className="flex flex-col items-center justify-center h-[60vh]">

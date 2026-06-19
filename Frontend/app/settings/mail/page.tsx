@@ -46,7 +46,7 @@ export default function MailSettingsPage() {
   });
 
   useEffect(() => {
-    if (user && user.role !== "admin") {
+    if (user && user.role !== "admin" && user.role !== "superadmin") {
       router.push("/settings");
       return;
     }
