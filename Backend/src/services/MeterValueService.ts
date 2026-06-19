@@ -107,23 +107,25 @@ export class MeterValueService {
       }
 
       const payloads: MeterValuePayload[] = items.map((item) => JSON.parse(item));
-      for (const p of payloads) {
-        if (p.temperatureValue && p.temperatureValue > 80) {
-          try {
-            await prisma.diagnosticEvent.create({
-              data: {
-                chargerId: p.chargerId,
-                connectorId: p.connectorId,
-                type: "HighTemperature",
-                description: `Temperature exceeded threshold: ${p.temperatureValue}°C`
-              }
-            });
-          } catch(e) {
-            logger.error("Error logging high temperature diagnostic event: " + e);
-          }
+
+      const diagnosticEvents = payloads
+        .filter((p) => p.temperatureValue && p.temperatureValue > 80)
+        .map((p) => ({
+          chargerId: p.chargerId,
+          connectorId: p.connectorId,
+          type: "HighTemperature",
+          description: `Temperature exceeded threshold: ${p.temperatureValue}°C`
+        }));
+
+      if (diagnosticEvents.length > 0) {
+        try {
+          await prisma.diagnosticEvent.createMany({
+            data: diagnosticEvents
+          });
+        } catch (e) {
+          logger.error("Error logging high temperature diagnostic events: " + e);
         }
       }
-
 
       let retryCount = 0;
       let dbSuccess = false;
