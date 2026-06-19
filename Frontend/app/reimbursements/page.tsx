@@ -45,13 +45,13 @@ export default function ReimbursementsPage() {
       const fetchedContracts = await getContracts();
       setContracts(fetchedContracts);
 
-      if (user?.role === 'admin') {
+      if (user?.role === 'admin' || user?.role === 'superadmin') {
         const fetchedLedgers = await getLedgers();
         setLedgers(fetchedLedgers);
       }
 
       // Auto-fill form if employee has one contract
-      if (user?.role !== 'admin' && fetchedContracts.length > 0) {
+      if (user?.role !== 'admin' && user?.role !== 'superadmin' && fetchedContracts.length > 0) {
         const c = fetchedContracts[0];
         setRfidUserId(c.rfidUserId.toString());
         setStationId(c.stationId.toString());
@@ -75,7 +75,7 @@ export default function ReimbursementsPage() {
       setRfids(resRfids.data || []);
       setTariffs(resTariffs.data || []);
 
-      if (user?.role === 'admin') {
+      if (user?.role === 'admin' || user?.role === 'superadmin') {
          const resUsers = await api.get('/users');
          setUsers(resUsers.data || []);
       }
@@ -87,7 +87,7 @@ export default function ReimbursementsPage() {
   const handleSaveContract = async () => {
     try {
       await createOrUpdateContract({
-        userId: user?.role === 'admin' && employeeId ? Number(employeeId) : user?.id,
+        userId: (user?.role === 'admin' || user?.role === 'superadmin') && employeeId ? Number(employeeId) : user?.id,
         rfidUserId: Number(rfidUserId),
         stationId: Number(stationId),
         tariffId: Number(tariffId),
@@ -125,7 +125,7 @@ export default function ReimbursementsPage() {
               <CardDescription>Configure home charging reimbursement settings.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {user?.role === 'admin' && (
+              {(user?.role === 'admin' || user?.role === 'superadmin') && (
                 <div className="space-y-2">
                   <Label>{t('reimbursements.employee')}</Label>
                   <Select value={employeeId} onValueChange={setEmployeeId}>
@@ -209,7 +209,7 @@ export default function ReimbursementsPage() {
           </Card>
         </div>
 
-        {user?.role === 'admin' && (
+        {(user?.role === 'admin' || user?.role === 'superadmin') && (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>

@@ -234,7 +234,7 @@ export function ConnectorList({ connectors: initialConnectors, readOnly = false,
             <TableHead>Energy</TableHead>
             <TableHead>Time</TableHead>
             <TableHead>Status</TableHead>
-            {!readOnly && user?.role === "admin" && <TableHead className="text-right">Actions</TableHead>}
+            {!readOnly && (user?.role === "admin" || user?.role === "superadmin") && <TableHead className="text-right">Actions</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -294,7 +294,7 @@ export function ConnectorList({ connectors: initialConnectors, readOnly = false,
                     <Badge className={getStatusColor(conn.status)}>
                       {conn.status}
                     </Badge>
-                    {isCharging && activeTxn && (!activeTxn.currentPower || activeTxn.currentPower === 0) && user?.role === "admin" && (
+                    {isCharging && activeTxn && (!activeTxn.currentPower || activeTxn.currentPower === 0) && (user?.role === "admin" || user?.role === "superadmin") && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -310,7 +310,7 @@ export function ConnectorList({ connectors: initialConnectors, readOnly = false,
                     )}
                   </div>
                 </TableCell>
-                {!readOnly && user?.role === "admin" && (
+                {!readOnly && (user?.role === "admin" || user?.role === "superadmin") && (
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
                       <Link href={`/connectors/${conn.connector_id}/edit`} onClick={(e) => e.stopPropagation()}>
@@ -325,7 +325,7 @@ export function ConnectorList({ connectors: initialConnectors, readOnly = false,
               </TableRow>
               {expandedId === conn.connector_id && (
                 <TableRow>
-                  <TableCell colSpan={!readOnly && user?.role === "admin" ? 9 : 8} className="p-0 border-b-0 bg-muted/10">
+                  <TableCell colSpan={!readOnly && (user?.role === "admin" || user?.role === "superadmin") ? 9 : 8} className="p-0 border-b-0 bg-muted/10">
                     <div className="p-4 space-y-4">
                       {!hideLogs && <ChannelLogs
                         chargerId={conn.charger_id || 0}

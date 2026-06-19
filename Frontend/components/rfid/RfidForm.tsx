@@ -51,7 +51,7 @@ export function RfidForm({ initialData }: { initialData?: any }) {
   const type = watch('type');
 
   useEffect(() => {
-    if (user?.role === 'admin') {
+    if (user?.role === 'admin' || user?.role === 'superadmin') {
       api.get('/users').then(res => setUsersList(res.data)).catch(err => logger.error(err));
     }
   }, [user]);
@@ -158,7 +158,7 @@ export function RfidForm({ initialData }: { initialData?: any }) {
               </div>
             </div>
 
-            {user?.role === 'admin' && (
+            {(user?.role === 'admin' || user?.role === 'superadmin') && (
               <div className="space-y-2 mt-4">
                 <Label htmlFor="owner_id">Assign to Client</Label>
                 <Select

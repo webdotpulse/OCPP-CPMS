@@ -79,7 +79,7 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
           api.get('/quirk-profiles')
         ];
 
-        if (user?.role === 'admin') {
+        if (user?.role === 'admin' || user?.role === 'superadmin') {
           promises.push(api.get('/users'));
         }
 
@@ -261,7 +261,7 @@ export function ChargerForm({ initialData }: { initialData?: any }) {
               </Select>
             </div>
 
-            {user?.role === 'admin' && (
+            {(user?.role === 'admin' || user?.role === 'superadmin') && (
               <div className="space-y-2">
                 <Label htmlFor="owner_id">Assign to Client</Label>
                 <Select

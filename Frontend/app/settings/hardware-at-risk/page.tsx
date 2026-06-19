@@ -71,7 +71,7 @@ export default function HardwareAtRiskPage() {
     );
   }
 
-  if (user?.role !== "admin") {
+  if (user?.role !== "admin" && user?.role !== "superadmin") {
     return (
       <AppShell>
         <div className="p-6">

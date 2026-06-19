@@ -54,7 +54,7 @@ export function EmsGatewayForm({ gatewayId }: EmsGatewayFormProps) {
   }, [user, setValue]);
 
   useEffect(() => {
-    if (user?.role === 'admin') {
+    if ((user?.role === 'admin' || user?.role === 'superadmin')) {
       api.get('/users').then(res => setUsersList(res.data)).catch(console.error);
     }
     api.get('/stations').then(res => setStationsList(res.data)).catch(console.error);
@@ -91,7 +91,7 @@ export function EmsGatewayForm({ gatewayId }: EmsGatewayFormProps) {
     try {
       if (initialData) {
         // Edit flow
-        if (user?.role === 'admin') {
+        if ((user?.role === 'admin' || user?.role === 'superadmin')) {
           const payload = { client_id: data.client_id };
           await api.put(`/ems-gateways/${gatewayId}`, payload);
           toast.success("Gateway updated successfully");
@@ -152,12 +152,12 @@ export function EmsGatewayForm({ gatewayId }: EmsGatewayFormProps) {
     <>
       <Card className="w-full max-w-2xl shadow-sm">
         <CardHeader className="border-b pb-4">
-          <CardTitle>{initialData ? (user?.role === 'admin' ? 'Edit Gateway' : 'View Gateway') : 'Register New Gateway'}</CardTitle>
+          <CardTitle>{initialData ? ((user?.role === 'admin' || user?.role === 'superadmin') ? 'Edit Gateway' : 'View Gateway') : 'Register New Gateway'}</CardTitle>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           <CardContent className="space-y-5 pt-6">
 
-            {user?.role === 'admin' && (
+            {(user?.role === 'admin' || user?.role === 'superadmin') && (
               <div className="space-y-2">
                 <Label htmlFor="client_id">Assign to Client</Label>
                 <Select
@@ -227,7 +227,7 @@ export function EmsGatewayForm({ gatewayId }: EmsGatewayFormProps) {
           </CardContent>
           <CardFooter className="flex flex-col-reverse gap-3 border-t pt-4 sm:flex-row sm:justify-between">
             <Button variant="outline" type="button" onClick={() => router.push('/ems-gateways')}>Cancel</Button>
-            {(!initialData || user?.role === 'admin') && (
+            {(!initialData || (user?.role === 'admin' || user?.role === 'superadmin')) && (
               <Button type="submit" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {initialData ? 'Update Gateway' : 'Register Gateway'}

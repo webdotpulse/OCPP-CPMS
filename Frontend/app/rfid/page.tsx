@@ -95,7 +95,7 @@ export default function RfidPage() {
           <h1 className="text-2xl font-bold tracking-tight">RFID Management</h1>
           <p className="text-muted-foreground">Manage NFC/RFID authorization whitelist and users.</p>
         </div>
-        {user?.role === "admin" && (
+        {(user?.role === "admin" || user?.role === "superadmin") && (
           <Link href="/rfid/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" /> Register Tag
@@ -129,7 +129,7 @@ export default function RfidPage() {
               <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('active')}>
                 <div className="flex items-center gap-1">Status <ArrowUpDown className="h-3 w-3" /></div>
               </TableHead>
-              {user?.role === "admin" && <TableHead className="text-right">Actions</TableHead>}
+              {(user?.role === "admin" || user?.role === "superadmin") && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -163,7 +163,7 @@ export default function RfidPage() {
                        <span className="text-sm font-medium">{tag.active ? "Authorized" : "Blocked"}</span>
                     </div>
                   </TableCell>
-                  {user?.role === "admin" && (
+                  {(user?.role === "admin" || user?.role === "superadmin") && (
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Link href={`/rfid/${tag.rfid_user_id}/edit`}>

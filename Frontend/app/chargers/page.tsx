@@ -100,14 +100,14 @@ export default function ChargersPage() {
           <p className="text-muted-foreground">Manage OCPP charging points across all stations.</p>
         </div>
         <div className="flex items-center gap-2">
-          {user?.role === "admin" && (
+          {(user?.role === "admin" || user?.role === "superadmin") && (
             <Link href="/chargers/unrecognized">
               <Button variant="secondary">
                 View Unrecognized
               </Button>
             </Link>
           )}
-          {user?.role === "admin" && (
+          {(user?.role === "admin" || user?.role === "superadmin") && (
             <Link href="/chargers/new">
               <Button>
                 <Plus className="mr-2 h-4 w-4" /> Add Charger
@@ -148,7 +148,7 @@ export default function ChargersPage() {
               <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('last_heartbeat')}>
                 <div className="flex items-center gap-1">Last Heartbeat <ArrowUpDown className="h-3 w-3" /></div>
               </TableHead>
-              {user?.role === "admin" && <TableHead className="text-right">Actions</TableHead>}
+              {(user?.role === "admin" || user?.role === "superadmin") && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -178,7 +178,7 @@ export default function ChargersPage() {
                       ? `${formatDistanceToNow(new Date(charger.last_heartbeat))} ago` 
                       : 'Never'}
                   </TableCell>
-                  {user?.role === "admin" && (
+                  {(user?.role === "admin" || user?.role === "superadmin") && (
                     <TableCell className="text-right flex items-center justify-end gap-2">
                       <Link href={`/chargers/${charger.charger_id}/edit`}>
                          <Button variant="ghost" size="icon"><Edit className="h-4 w-4" /></Button>

@@ -87,7 +87,7 @@ export default function TariffsPage() {
           <h1 className="text-2xl font-bold tracking-tight">Tariff Management</h1>
           <p className="text-muted-foreground">Manage pricing structures for charge points.</p>
         </div>
-        {user?.role === "admin" && (
+        {(user?.role === "admin" || user?.role === "superadmin") && (
           <Link href="/tariffs/new">
             <Button>
               <Plus className="mr-2 h-4 w-4" /> Add Tariff Plan
@@ -129,7 +129,7 @@ export default function TariffsPage() {
               <TableHead className="text-right cursor-pointer hover:bg-muted/50" onClick={() => handleSort('electricity_rate')}>
                 <div className="flex items-center justify-end gap-1">Energy Rate / Markup <ArrowUpDown className="h-3 w-3" /></div>
               </TableHead>
-              {user?.role === "admin" && <TableHead className="text-right">Actions</TableHead>}
+              {(user?.role === "admin" || user?.role === "superadmin") && <TableHead className="text-right">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -167,7 +167,7 @@ export default function TariffsPage() {
                       : `€${Number(tariff.electricity_rate || 0).toFixed(3)} / kWh`
                     }
                   </TableCell>
-                  {user?.role === "admin" && (
+                  {(user?.role === "admin" || user?.role === "superadmin") && (
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Link href={`/tariffs/${tariff.tariff_id}/edit`}>

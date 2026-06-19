@@ -90,7 +90,7 @@ export default function ChargeGroupsPage() {
             Manage groups of chargers, users, and specific tariffs.
           </p>
         </div>
-        {user?.role === "admin" && (
+        {(user?.role === "admin" || user?.role === "superadmin") && (
           <Link href="/charge-groups/create">
             <Button>
               <Plus className="mr-2 h-4 w-4" /> Create Group
@@ -131,7 +131,7 @@ export default function ChargeGroupsPage() {
                 <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSort('createdAt')}>
                   <div className="flex items-center gap-1">Created <ArrowUpDown className="h-3 w-3" /></div>
                 </TableHead>
-                {user?.role === "admin" && <TableHead className="text-right">Actions</TableHead>}
+                {(user?.role === "admin" || user?.role === "superadmin") && <TableHead className="text-right">Actions</TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -150,7 +150,7 @@ export default function ChargeGroupsPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>{format(new Date(group.createdAt), 'MMM d, yyyy')}</TableCell>
-                  {user?.role === "admin" && (
+                  {(user?.role === "admin" || user?.role === "superadmin") && (
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         <Link href={`/charge-groups/${group.id}/edit`}>

@@ -163,7 +163,7 @@ export default function SettingsPage() {
   };
 
   useEffect(() => {
-    if (user?.role === 'admin') {
+    if (user?.role === 'admin' || user?.role === 'superadmin') {
       const fetchMailConfig = async () => {
         try {
           const res = await api.get('/settings/mail');
@@ -308,7 +308,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>System Role</Label>
-                  <Input value={user?.role === 'admin' ? 'Administrator' : 'Standard User'} readOnly className="bg-muted text-muted-foreground" />
+                  <Input value={user?.role === 'superadmin' ? 'Super Administrator' : user?.role === 'admin' ? 'Administrator' : 'Standard User'} readOnly className="bg-muted text-muted-foreground" />
                 </div>
                 <div className="space-y-2">
                   <Label>Member Since</Label>
@@ -450,7 +450,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Admin Settings */}
-        {user?.role === 'admin' && (
+        {(user?.role === 'admin' || user?.role === 'superadmin') && (
           <Card className="shadow-sm md:col-span-2">
             <CardHeader className="border-b pb-4">
               <CardTitle className="flex items-center gap-2">
