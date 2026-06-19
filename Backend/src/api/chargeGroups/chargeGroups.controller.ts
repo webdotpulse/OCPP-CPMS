@@ -26,7 +26,7 @@ export const getAllChargeGroups = async (req: Request, res: Response) => {
     // @ts-expect-error userId is attached by authenticateToken middleware
     const userId = req.userId;
 
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.users = { some: { userId } };
     }
 
@@ -69,7 +69,7 @@ export const getChargeGroupById = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     const where: any = { id };
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.users = { some: { userId } };
     }
 

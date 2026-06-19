@@ -77,7 +77,7 @@ export const getChargerLogs = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     const where: any = { chargerId };
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.charger = { owner_id: userId };
     }
 
@@ -117,7 +117,7 @@ export const getChargerConfigurations = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     const where: any = { chargerId };
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.charger = { owner_id: userId };
     }
 
@@ -213,7 +213,7 @@ export const getChargerById = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     const where: any = { charger_id: chargerId };
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.owner_id = userId;
     }
 
@@ -269,7 +269,7 @@ export const getChargerStatus = async (req: Request, res: Response) => {
     const userId = req.userId;
 
     const where: any = { charger_id: chargerId };
-    if (userRole !== "admin") {
+    if (userRole !== "admin" && userRole !== "superadmin") {
       where.owner_id = userId;
     }
 

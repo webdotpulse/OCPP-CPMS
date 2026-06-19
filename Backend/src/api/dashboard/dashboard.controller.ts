@@ -24,7 +24,7 @@ export const getOverview = async (req: Request, res: Response) => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    const isUser = userRole !== "admin";
+    const isUser = userRole !== "admin" && userRole !== "superadmin";
     const chargerWhere = isUser ? { owner_id: userId } : {};
     const stationWhere = isUser ? { owner_id: userId } : {};
 
@@ -112,7 +112,7 @@ export const getLiveSessions = async (req: Request, res: Response) => {
     // @ts-expect-error userId is attached by authenticateToken middleware
     const userId = req.userId;
 
-    const isUser = userRole !== "admin";
+    const isUser = userRole !== "admin" && userRole !== "superadmin";
 
     const [activeTransactions, activeRfidSessions] = await Promise.all([
       prisma.transaction.findMany({
@@ -211,7 +211,7 @@ export const getDistribution = async (req: Request, res: Response) => {
     // @ts-expect-error userId is attached by authenticateToken middleware
     const userId = req.userId;
 
-    const isUser = userRole !== "admin";
+    const isUser = userRole !== "admin" && userRole !== "superadmin";
 
     const connectors = await prisma.connector.findMany({
       where: isUser ? { evse: { charger: { owner_id: userId } } } : undefined,
@@ -257,7 +257,7 @@ export const getLoadMetrics = async (req: Request, res: Response) => {
     // @ts-expect-error userId is attached by authenticateToken middleware
     const userId = req.userId;
 
-    const isUser = userRole !== "admin";
+    const isUser = userRole !== "admin" && userRole !== "superadmin";
 
     // 1. Fetch sites with maxPower
     const stations = await prisma.chargingStation.findMany({
@@ -326,7 +326,7 @@ export const getChargersStatus = async (req: Request, res: Response) => {
     // @ts-expect-error userId is attached by authenticateToken middleware
     const userId = req.userId;
 
-    const isUser = userRole !== "admin";
+    const isUser = userRole !== "admin" && userRole !== "superadmin";
 
     const chargers = await prisma.charger.findMany({
       where: isUser ? { owner_id: userId } : undefined,
@@ -376,7 +376,7 @@ export const getEmsTelemetry = async (req: Request, res: Response) => {
     // @ts-expect-error userId is attached by authenticateToken middleware
     const userId = req.userId;
 
-    const isUser = userRole !== "admin";
+    const isUser = userRole !== "admin" && userRole !== "superadmin";
 
     // 1. Fetch relevant gateways for this user/admin
     const gateways = await prisma.emsGateway.findMany({
@@ -428,7 +428,7 @@ export const getFleetCapacity = async (req: Request, res: Response) => {
     // @ts-expect-error userId is attached by authenticateToken middleware
     const userId = req.userId;
 
-    const isUser = userRole !== "admin";
+    const isUser = userRole !== "admin" && userRole !== "superadmin";
 
     const activeTransactions = await prisma.transaction.findMany({
       where: isUser ? { status: { in: ["initiated", "charging"] }, charger: { owner_id: userId } } : { status: { in: ["initiated", "charging"] } },
@@ -488,7 +488,7 @@ export const getHistoricalEmsTelemetry = async (req: Request, res: Response) => 
     // @ts-expect-error userId is attached by authenticateToken middleware
     const userId = req.userId;
 
-    const isUser = userRole !== "admin";
+    const isUser = userRole !== "admin" && userRole !== "superadmin";
     const hours = parseInt(req.query.hours as string) || 24;
 
     // 1. Fetch relevant gateways for this user/admin
