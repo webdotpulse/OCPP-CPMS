@@ -61,6 +61,19 @@ export class V2GOrchestrationService {
         }
       });
 
+      // Extract active transaction IDs for batch fetching
+      const transactionIds = activeTransactions.map(tx => tx.transactionId);
+
+      // Fetch the latest meter value for all active transactions in a single query
+      const latestMeterValues = await prisma.meterValue.findMany({
+        where: { transactionId: { in: transactionIds } },
+        orderBy: { timestamp: "desc" },
+        distinct: ["transactionId"]
+      });
+
+      // Map for quick lookup
+      const meterValueMap = new Map(latestMeterValues.map(mv => [mv.transactionId, mv]));
+
       for (const tx of activeTransactions) {
         // Skip if already explicitly set to discharge at a sufficient rate
         if (tx.currentDirection === "Discharging") continue;
@@ -68,10 +81,7 @@ export class V2GOrchestrationService {
         const profile = tx.rfidUser?.vehicleEnergyProfile;
         const minSoc = profile ? profile.minSocThreshold : 40.0;
 
-        const latestMeterValue = await prisma.meterValue.findFirst({
-          where: { transactionId: tx.transactionId },
-          orderBy: { timestamp: "desc" }
-        });
+        const latestMeterValue = meterValueMap.get(tx.transactionId);
 
         const currentSoc = latestMeterValue?.soc ?? tx.finalMeterValue ?? 100;
 
