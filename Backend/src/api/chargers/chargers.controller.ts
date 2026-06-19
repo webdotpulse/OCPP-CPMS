@@ -363,9 +363,11 @@ export const createCharger = async (req: Request, res: Response) => {
     });
 
     // Handle updating protocol in Redis if modified by superadmin
+    const userRole = (req as any).userRole;
+    const protocol = (req.body as any).protocol;
     if (userRole === "superadmin" && protocol !== undefined) {
       try {
-        await redisClient.hset(chargerRegistry.getRedisKey(chargerId), "protocol", protocol);
+        await redisClient.hset(chargerRegistry.getRedisKey(charger.charger_id), "protocol", protocol);
       } catch (redisError) {
         logger.error(`Error updating charger protocol in Redis: ${redisError}`);
       }

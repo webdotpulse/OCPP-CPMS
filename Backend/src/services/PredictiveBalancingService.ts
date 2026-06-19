@@ -5,6 +5,17 @@ import { setChargingProfile } from "../ocpp/remoteControl.js";
 import { EmsGatewayService } from "./EmsGatewayService.js";
 import { EpexSpotService } from "./EpexSpotService.js";
 
+import { Prisma } from "@prisma/client";
+
+type PredictiveCharger = Prisma.ChargerGetPayload<{
+  include: {
+    chargingStation: true,
+    owner: {
+      include: { emsGateways: true }
+    }
+  }
+}>;
+
 export class PredictiveBalancingService {
   /**
    * Fetches the shortwave radiation forecast for a location via Open-Meteo
@@ -29,17 +40,26 @@ export class PredictiveBalancingService {
   /**
    * Calculates the optimal charging plan for a given charger
    */
-  public static async generateScheduleForCharger(chargerId: number) {
+  public static async generateScheduleForCharger(chargerOrId: number | PredictiveCharger) {
     try {
-      const charger = await prisma.charger.findUnique({
-        where: { charger_id: chargerId },
-        include: {
-          chargingStation: true,
-          owner: {
-            include: { emsGateways: true }
+      let charger: PredictiveCharger | null = null;
+      let chargerId: number;
+
+      if (typeof chargerOrId === 'number') {
+        chargerId = chargerOrId;
+        charger = await prisma.charger.findUnique({
+          where: { charger_id: chargerId },
+          include: {
+            chargingStation: true,
+            owner: {
+              include: { emsGateways: true }
+            }
           }
-        }
-      });
+        });
+      } else {
+        charger = chargerOrId;
+        chargerId = charger.charger_id;
+      }
 
       if (!charger || !charger.isPredictiveBalancingEnabled) return;
       if (!charger.chargingStation?.latitude || !charger.chargingStation?.longitude || !charger.localSolarKwp) {
@@ -177,18 +197,25 @@ export class PredictiveBalancingService {
       logger.info(`Successfully generated and dispatched predictive schedule for charger ${chargerId}`);
 
     } catch (error) {
-      logger.error(`Error generating predictive schedule for charger ${chargerId}: ${error}`);
+      const id = typeof chargerOrId === 'number' ? chargerOrId : chargerOrId?.charger_id;
+      logger.error(`Error generating predictive schedule for charger ${id}: ${error}`);
     }
   }
 
   public static async generateSchedulesForAll() {
     const chargers = await prisma.charger.findMany({
-      where: { isPredictiveBalancingEnabled: true, status: { not: 'offline' } }
+      where: { isPredictiveBalancingEnabled: true, status: { not: 'offline' } },
+      include: {
+        chargingStation: true,
+        owner: {
+          include: { emsGateways: true }
+        }
+      }
     });
 
     logger.info(`Found ${chargers.length} chargers with predictive balancing enabled. Generating schedules...`);
     for (const charger of chargers) {
-      await this.generateScheduleForCharger(charger.charger_id);
+      await this.generateScheduleForCharger(charger);
     }
   }
 }
