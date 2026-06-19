@@ -12,7 +12,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
-    "create-admin": "npx prisma db push && node --import tsx src/scripts/createAdmin.ts",
+    "create-superadmin": "npx prisma db push && node --import tsx src/scripts/createSuperadmin.ts",
     "test": "jest"
   },
   "keywords": [

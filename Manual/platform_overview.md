@@ -77,10 +77,10 @@ Redis is **strictly required** for the system to function. It serves three vital
 Ensure Redis is installed and running natively (`sudo systemctl start redis-server`).
 
 ### 3.4 Creating the Super-Admin
-Once the database is initialized, create the first super-admin user via the CLI script to gain access to the frontend UI:
+Once the database is initialized, create the first superadmin user via the CLI script to gain access to the frontend UI:
 ```bash
 cd Backend
-npm run create-admin -- "admin@example.com" "secure_password123"
+npm run create-superadmin -- "superadmin@example.com" "secure_password123"
 ```
 
 ---
